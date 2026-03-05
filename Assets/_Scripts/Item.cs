@@ -2,10 +2,10 @@
 
 public enum ItemType
 {
-    KeyItem,    // Důležité pro postup
-    Weapon,     // Zbraň
-    Consumable, // Léčivo, munice
-    Readable    // Dokument (nezabírá místo)
+    KeyItem, 
+    Weapon,    
+    Consumable, 
+    Readable   
 }
 
 [System.Serializable]
@@ -34,6 +34,10 @@ public class Item : InteractableBase
 
     private SpriteRenderer spriteRenderer;
 
+    public string GetReadableText()
+    {
+        return readableText;
+    }
     void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -69,7 +73,7 @@ public class Item : InteractableBase
         }
     }
 
-    private void ShowReadableText()
+    public void ShowReadableText()
     {
         Debug.Log($"=== {itemName} ===\n{readableText}\n================");
         //Later: UI panel for reading

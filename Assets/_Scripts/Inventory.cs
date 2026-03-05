@@ -10,7 +10,7 @@ public class InventoryGrid : MonoBehaviour
 
     private Item[,] grid;
     private List<Item> items = new List<Item>();
-
+    private Dictionary<Item, Vector2Int> itemPositions = new Dictionary<Item, Vector2Int>();
     public static InventoryGrid Instance { get; private set; }
 
     void Awake()
@@ -32,13 +32,6 @@ public class InventoryGrid : MonoBehaviour
         grid = new Item[gridWidth, gridHeight];
     }
 
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Tab))
-        {
-            ToggleInventory();
-        }
-    }
 
     public bool TryAddItem(Item item)
     {
@@ -79,6 +72,7 @@ public class InventoryGrid : MonoBehaviour
 
     private void PlaceItemAt(Item item, int startX, int startY)
     {
+        itemPositions[item] = new Vector2Int(startX, startY);
         ItemSize size = item.GetSize();
 
         for (int x = startX; x < startX + size.width; x++)
@@ -91,7 +85,20 @@ public class InventoryGrid : MonoBehaviour
 
         //Later: UI representation
     }
-
+    public Item GetItemAtPosition(int x, int y)
+    {
+        if (x >= 0 && x < gridWidth && y >= 0 && y < gridHeight)
+        {
+            return grid[x, y];
+        }
+        return null;
+    }
+    public Vector2Int GetItemPosition(Item item)
+    {
+        if (itemPositions.ContainsKey(item))
+            return itemPositions[item];
+        return new Vector2Int(-1, -1);
+    }
     public void RemoveItem(Item item)
     {
         if (!items.Contains(item)) return;
@@ -132,5 +139,36 @@ public class InventoryGrid : MonoBehaviour
         {
             inventoryPanel.SetActive(!inventoryPanel.activeSelf);
         }
+    }
+
+    public Item GetItemAt(int x, int y)
+    {
+        if (x >= 0 && x < gridWidth && y >= 0 && y < gridHeight)
+        {
+            return grid[x, y];
+        }
+        return null;
+    }
+
+    public Dictionary<Vector2Int, Item> GetAllOccupiedPositions()
+    {
+        Dictionary<Vector2Int, Item> positions = new Dictionary<Vector2Int, Item>();
+
+        for (int x = 0; x < gridWidth; x++)
+        {
+            for (int y = 0; y < gridHeight; y++)
+            {
+                if (grid[x, y] != null)
+                {
+                    positions[new Vector2Int(x, y)] = grid[x, y];
+                }
+            }
+        }
+
+        return positions;
+    }
+    public List<Item> GetAllItems()
+    {
+        return items;
     }
 }
