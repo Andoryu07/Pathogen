@@ -5,32 +5,43 @@ using TMPro;
 
 public class InventoryUIManager : MonoBehaviour
 {
-
+    public static InventoryUIManager Instance { get; private set; }
     [Header("Main Panel")]
     [SerializeField] private GameObject inventoryPanel;
 
     [Header("Tabs")]
     [SerializeField] private Button inventoryTabButton;
     [SerializeField] private Button documentsTabButton;
+    [SerializeField] private Button tutorialsTabButton;
+    [SerializeField] private Button collectiblesTabButton;
+    [SerializeField] private Button craftingTabButton;
     [SerializeField] private GameObject inventoryGridPanel;
     [SerializeField] private GameObject documentsPanel;
+    [SerializeField] private GameObject tutorialsPanel;
+    [SerializeField] private GameObject collectiblesPanel;
+    [SerializeField] private GameObject craftingPanel;
+
+    [Header("Crafting")]
+    [SerializeField] private Transform craftingListParent;
+    [SerializeField] private GameObject craftingRecipePrefab;
+    [SerializeField] private GameObject craftingSlotPrefab;
+    [SerializeField] private GameObject craftingSeparatorPrefab;
 
     [Header("Grid Settings")]
-    [SerializeField] private Transform gridParent;    
+    [SerializeField] private Transform gridParent;
     [SerializeField] private GameObject slotPrefab;
-    [SerializeField] private float tileSize = 80f;// pixels per tile  (increase for bigger grid)
-    [SerializeField] private float gridMargin = 12f;    // padding inside container
+    [SerializeField] private float gridMargin = 0f;
 
-    // Grid dimensions
     private const int GRID_WIDTH = 7;
     private const int GRID_HEIGHT = 6;
+    private float tileSize = 64f;
 
-    [Header("Hover Panel  (below grid)")]
+    [Header("Hover Panel")]
     [SerializeField] private GameObject hoverPanel;
     [SerializeField] private TextMeshProUGUI hoverItemNameText;
     [SerializeField] private TextMeshProUGUI hoverItemDescText;
 
-    [Header("Click Panel  (context menu near cursor)")]
+    [Header("Click Panel")]
     [SerializeField] private GameObject clickPanel;
     [SerializeField] private Button useEquipButton;
     [SerializeField] private TextMeshProUGUI useEquipButtonText;
@@ -39,12 +50,23 @@ public class InventoryUIManager : MonoBehaviour
     [SerializeField] private RectTransform clickPanelRect;
 
     [Header("Documents")]
-    [SerializeField] private Transform documentsListParent;//Scrollview content
+    [SerializeField] private Transform documentsListParent;
     [SerializeField] private GameObject documentButtonPrefab;
     [SerializeField] private GameObject documentReaderPanel;
     [SerializeField] private TextMeshProUGUI documentTitleText;
     [SerializeField] private TextMeshProUGUI documentBodyText;
     [SerializeField] private Button documentCloseButton;
+
+    [Header("Tutorials")]
+    [SerializeField] private Transform tutorialsListParent;
+    [SerializeField] private GameObject tutorialButtonPrefab;
+    [SerializeField] private TextMeshProUGUI tutorialTitleText;
+    [SerializeField] private TextMeshProUGUI tutorialBodyText;
+
+    [Header("Collectibles")]
+    [SerializeField] private TextMeshProUGUI collectiblesCountText;
+    [SerializeField] private Transform collectibleRewardsParent;
+    [SerializeField] private GameObject collectibleRewardPrefab;
 
     [Header("Drag Ghost")]
     [SerializeField] private GameObject dragGhostPanel;
@@ -55,89 +77,78 @@ public class InventoryUIManager : MonoBehaviour
 
     [Header("Canvas")]
     [SerializeField] private Canvas parentCanvas;
+
+    // ---------------------------------------------------------------
     private InventorySlotUI[,] slots;
     private InventoryGrid inventoryGrid;
-    private bool isInventoryView = true;
 
-    // Click-panel state
+    private enum ActiveTab { Inventory, Documents, Tutorials, Collectibles, Crafting }
+    private ActiveTab activeTab = ActiveTab.Inventory;
+
     private Item clickedItem;
-    private int clickedX, clickedY;
-    // Drag state
     private Item draggedItem;
     private bool draggedItemRotated;
     private bool isDragging = false;
     public bool IsDragging => isDragging;
-    // Ghost hover tracking
     private int ghostHoverX = -1;
     private int ghostHoverY = -1;
 
+    private string selectedTutorialTitle = "";
+    private string selectedTutorialBody = "";
+
+    // ---------------------------------------------------------------
     void Awake()
     {
+        if (Instance == null) Instance = this;
+        else { Destroy(gameObject); return; }
         inventoryGrid = InventoryGrid.Instance;
     }
+
     void Start()
     {
-        if (inventoryGrid == null)
-            inventoryGrid = InventoryGrid.Instance;
-        if (rotateButton != null)
-            rotateButton.onClick.AddListener(RotateDraggedItem);
+        if (inventoryGrid == null) inventoryGrid = InventoryGrid.Instance;
         SetupGrid();
         SetupTabs();
         SetupClickPanel();
         SetupDocumentReader();
-
+        if (rotateButton != null) rotateButton.onClick.AddListener(RotateDraggedItem);
         hoverPanel.SetActive(false);
         clickPanel.SetActive(false);
         dragGhostPanel.SetActive(false);
         documentReaderPanel.SetActive(false);
         inventoryPanel.SetActive(false);
+        if (rotateButtonObject != null) rotateButtonObject.SetActive(false);
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Tab))
-            ToggleInventory();
-
+        if (Input.GetKeyDown(KeyCode.Tab)) ToggleInventory();
         if (isDragging)
         {
             UpdateDragGhostPosition();
-
-            // R rotates the dragged item
-            if (Input.GetKeyDown(KeyCode.R))
-                RotateDraggedItem();
-
-            // Right-click or Escape cancels drag
-            if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape))
-                CancelDrag();
+            if (Input.GetKeyDown(KeyCode.R)) RotateDraggedItem();
+            if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape)) CancelDrag();
         }
         else
         {
-            // Escape also closes click panel / document reader
             if (Input.GetKeyDown(KeyCode.Escape))
             {
-                if (documentReaderPanel.activeSelf)
-                    CloseDocumentReader();
-                else if (clickPanel.activeSelf)
-                    clickPanel.SetActive(false);
+                if (documentReaderPanel.activeSelf) CloseDocumentReader();
+                else if (clickPanel.activeSelf) clickPanel.SetActive(false);
             }
         }
     }
 
+    // ---------------------------------------------------------------
+    //  Grid setup
+    // ---------------------------------------------------------------
     private void SetupGrid()
     {
-        // Get the container's actual rect size
-        RectTransform containerRect = gridParent.GetComponent<RectTransform>();
-
-        // Force the layout to update so rect size is accurate
         Canvas.ForceUpdateCanvases();
-
-        float availableWidth = containerRect.rect.width - gridMargin * 2;
-        float availableHeight = containerRect.rect.height - gridMargin * 2;
-
-        // Calculate tile size to fill the container, keeping tiles square
-        float tileW = Mathf.Floor(availableWidth / GRID_WIDTH);
-        float tileH = Mathf.Floor(availableHeight / GRID_HEIGHT);
-        tileSize = Mathf.Min(tileW, tileH);   // square tiles, fit the smaller axis
+        RectTransform cr = gridParent.GetComponent<RectTransform>();
+        float tileW = Mathf.Floor((cr.rect.width - gridMargin * 2) / GRID_WIDTH);
+        float tileH = Mathf.Floor((cr.rect.height - gridMargin * 2) / GRID_HEIGHT);
+        tileSize = Mathf.Min(tileW, tileH);
 
         GridLayoutGroup layout = gridParent.GetComponent<GridLayoutGroup>();
         if (layout != null)
@@ -152,10 +163,8 @@ public class InventoryUIManager : MonoBehaviour
             layout.childAlignment = TextAnchor.MiddleCenter;
         }
 
-        // Instantiate slots
         slots = new InventorySlotUI[GRID_WIDTH, GRID_HEIGHT];
         for (int y = 0; y < GRID_HEIGHT; y++)
-        {
             for (int x = 0; x < GRID_WIDTH; x++)
             {
                 GameObject go = Instantiate(slotPrefab, gridParent);
@@ -163,115 +172,120 @@ public class InventoryUIManager : MonoBehaviour
                 slot.Initialize(x, y, this);
                 slots[x, y] = slot;
             }
-        }
     }
+
+    // ---------------------------------------------------------------
+    //  Tabs
+    // ---------------------------------------------------------------
     private void SetupTabs()
     {
-        inventoryTabButton.onClick.AddListener(() => SwitchView(true));
-        documentsTabButton.onClick.AddListener(() => SwitchView(false));
+        inventoryTabButton.onClick.AddListener(() => SwitchTab(ActiveTab.Inventory));
+        documentsTabButton.onClick.AddListener(() => SwitchTab(ActiveTab.Documents));
+        if (tutorialsTabButton != null) tutorialsTabButton.onClick.AddListener(() => SwitchTab(ActiveTab.Tutorials));
+        if (collectiblesTabButton != null) collectiblesTabButton.onClick.AddListener(() => SwitchTab(ActiveTab.Collectibles));
+        if (craftingTabButton != null) craftingTabButton.onClick.AddListener(() => SwitchTab(ActiveTab.Crafting));
     }
 
-    private void SwitchView(bool showInventory)
+    private void SwitchTab(ActiveTab tab)
     {
-        isInventoryView = showInventory;
-        inventoryGridPanel.SetActive(showInventory);
-        documentsPanel.SetActive(!showInventory);
-
+        activeTab = tab;
+        inventoryGridPanel.SetActive(tab == ActiveTab.Inventory);
+        documentsPanel.SetActive(tab == ActiveTab.Documents);
+        if (tutorialsPanel != null) tutorialsPanel.SetActive(tab == ActiveTab.Tutorials);
+        if (collectiblesPanel != null) collectiblesPanel.SetActive(tab == ActiveTab.Collectibles);
+        if (craftingPanel != null) craftingPanel.SetActive(tab == ActiveTab.Crafting);
         clickPanel.SetActive(false);
         hoverPanel.SetActive(false);
-
-        if (!showInventory)
-            RefreshDocumentsList();
+        switch (tab)
+        {
+            case ActiveTab.Documents: RefreshDocumentsList(); break;
+            case ActiveTab.Tutorials: RefreshTutorialsList(); break;
+            case ActiveTab.Collectibles: RefreshCollectibles(); break;
+            case ActiveTab.Crafting: RefreshCraftingList(); break;
+        }
     }
+
     public void ToggleInventory()
     {
         inventoryPanel.SetActive(!inventoryPanel.activeSelf);
-
-        if (inventoryPanel.activeSelf)
-        {
-            RefreshInventoryGrid();
-            RefreshDocumentsList();
-            SwitchView(isInventoryView);
-        }
-        else
-        {
-            clickPanel.SetActive(false);
-            hoverPanel.SetActive(false);
-            CancelDrag();
-        }
+        if (inventoryPanel.activeSelf) { RefreshInventoryGrid(); SwitchTab(activeTab); }
+        else { clickPanel.SetActive(false); hoverPanel.SetActive(false); CancelDrag(); }
     }
 
-
+    // ---------------------------------------------------------------
+    //  Grid refresh — single icon on top-left tile, stretched over footprint
+    // ---------------------------------------------------------------
     public void RefreshInventoryGrid()
     {
-        // Clear all slots first
-        foreach (var slot in slots)
-            slot.ClearSlot();
+        if (inventoryGrid == null)
+        {
+            inventoryGrid = InventoryGrid.Instance;
+            if (inventoryGrid == null) { Debug.LogError("[InventoryUI] InventoryGrid missing!"); return; }
+        }
 
-        List<Item> items = inventoryGrid.GetAllItems();
-        foreach (var item in items)
+        foreach (var slot in slots) slot.ClearSlot();
+
+        foreach (var item in inventoryGrid.GetAllItems())
         {
             Vector2Int pos = inventoryGrid.GetItemPosition(item);
             bool rotated = inventoryGrid.IsItemRotated(item);
-
             if (pos.x < 0) continue;
-
             ItemSize size = inventoryGrid.GetEffectiveSize(item, rotated);
 
             for (int dx = 0; dx < size.width; dx++)
-            {
                 for (int dy = 0; dy < size.height; dy++)
                 {
-                    int sx = pos.x + dx;
-                    int sy = pos.y + dy;
-                    if (sx < GRID_WIDTH && sy < GRID_HEIGHT)
-                    {
-                        // All cells of a multi-tile item get the item reference
-                        // Only the top-left cell renders the icon (handled in SetItem).
-                        if (dx == 0 && dy == 0)
-                            slots[sx, sy].SetItem(item, rotated);
-                        else
-                            slots[sx, sy].SetItem(item, rotated);
-                    }
+                    int sx = pos.x + dx, sy = pos.y + dy;
+                    if (sx >= GRID_WIDTH || sy >= GRID_HEIGHT) continue;
+
+                    bool isTopLeft = (dx == 0 && dy == 0);
+                    bool eTop = (dy == 0);
+                    bool eBottom = (dy == size.height - 1);
+                    bool eLeft = (dx == 0);
+                    bool eRight = (dx == size.width - 1);
+
+                    slots[sx, sy].SetItem(item, isTopLeft, eTop, eBottom, eLeft, eRight);
+
+                    if (isTopLeft)
+                        slots[sx, sy].SetIconSize(size.width * tileSize, size.height * tileSize);
                 }
-            }
         }
     }
 
+    // ---------------------------------------------------------------
+    //  Hover
+    // ---------------------------------------------------------------
     public void OnSlotHoverEnter(Item item)
     {
         if (isDragging) return;
-
         hoverItemNameText.text = item.GetItemName();
         hoverItemDescText.text = item.GetDescription();
         hoverPanel.SetActive(true);
 
-        // Highlight all tiles this item occupies
         Vector2Int pos = inventoryGrid.GetItemPosition(item);
         bool rotated = inventoryGrid.IsItemRotated(item);
         ItemSize size = inventoryGrid.GetEffectiveSize(item, rotated);
-
         if (pos.x < 0) return;
 
         for (int dx = 0; dx < size.width; dx++)
-        {
             for (int dy = 0; dy < size.height; dy++)
             {
-                int sx = pos.x + dx;
-                int sy = pos.y + dy;
+                int sx = pos.x + dx, sy = pos.y + dy;
                 if (sx < GRID_WIDTH && sy < GRID_HEIGHT)
                     slots[sx, sy].SetHoverHighlight();
             }
-        }
     }
 
     public void OnSlotHoverExit()
     {
         if (isDragging) return;
         hoverPanel.SetActive(false);
-        ClearAllGhostHighlights(); // resets all slot colors back to normal
+        ClearAllGhostHighlights();
     }
 
+    // ---------------------------------------------------------------
+    //  Click panel
+    // ---------------------------------------------------------------
     private void SetupClickPanel()
     {
         useEquipButton.onClick.AddListener(OnUseEquipClicked);
@@ -281,72 +295,38 @@ public class InventoryUIManager : MonoBehaviour
 
     public void OnSlotClicked(Item item, int x, int y, Vector2 screenPos)
     {
-        // Toggles off if clicking the same item again
-        if (clickPanel.activeSelf && clickedItem == item)
-        {
-            clickPanel.SetActive(false);
-            return;
-        }
-
+        if (clickPanel.activeSelf && clickedItem == item) { clickPanel.SetActive(false); return; }
         clickedItem = item;
-        clickedX = x;
-        clickedY = y;
-
-        // Configures button labels and visibility
-        bool isKeyItem = item.GetItemType() == ItemType.KeyItem;
-        bool isWeapon = item.GetItemType() == ItemType.Weapon;
-        bool isStarterItem = item.IsStarterItem();
-        discardButton.interactable = (!isKeyItem && !isStarterItem);
-        useEquipButtonText.text = isWeapon ? "Equip" : "Use";
-
+        useEquipButtonText.text = item.GetItemType() == ItemType.Weapon ? "Equip" : "Use";
+        discardButton.interactable = !(item.GetItemType() == ItemType.KeyItem || item.IsStarterItem());
         clickPanel.SetActive(true);
         PositionClickPanel(screenPos);
-
-        // Hides hover panel while click panel is open
         hoverPanel.SetActive(false);
     }
 
     private void PositionClickPanel(Vector2 screenPos)
     {
         if (parentCanvas == null) return;
-
-        // Converts screen position to canvas local position directly
-        Vector2 localPos;
-        RectTransform canvasRect = parentCanvas.GetComponent<RectTransform>();
-
-        // Scales screen position to canvas space
-        float scaleFactor = parentCanvas.scaleFactor;
-        localPos = new Vector2(screenPos.x / scaleFactor, screenPos.y / scaleFactor);
-
-        // Offsets slightly so panel doesn't sit directly under cursor
-        localPos += new Vector2(2f, -2f);
-
-        // Clamps so panel stays fully on screen
-        Vector2 panelSize = clickPanelRect.sizeDelta;
-        float canvasW = canvasRect.rect.width;
-        float canvasH = canvasRect.rect.height;
-
-        localPos.x = Mathf.Clamp(localPos.x, 0f, canvasW - panelSize.x);
-        localPos.y = Mathf.Clamp(localPos.y, panelSize.y, canvasH);
-
-        clickPanelRect.anchoredPosition = localPos;
+        float scale = parentCanvas.scaleFactor;
+        Vector2 lp = new Vector2(screenPos.x / scale, screenPos.y / scale) + new Vector2(2f, -2f);
+        Vector2 ps = clickPanelRect.sizeDelta;
+        RectTransform crt = parentCanvas.GetComponent<RectTransform>();
+        lp.x = Mathf.Clamp(lp.x, 0f, crt.rect.width - ps.x);
+        lp.y = Mathf.Clamp(lp.y, ps.y, crt.rect.height);
+        clickPanelRect.anchoredPosition = lp;
     }
 
     private void OnUseEquipClicked()
     {
         if (clickedItem == null) return;
         Debug.Log($"[Inventory] Use/Equip: {clickedItem.GetItemName()}");
-        // TODO: hook up actual use/equip logic
-        clickPanel.SetActive(false);
-        clickedItem = null;
+        clickPanel.SetActive(false); clickedItem = null;
     }
 
     private void OnDiscardClicked()
     {
         if (clickedItem == null) return;
-        if (clickedItem.GetItemType() == ItemType.KeyItem) return;   // safety
-
-        Debug.Log($"[Inventory] Discarding: {clickedItem.GetItemName()}");
+        if (clickedItem.GetItemType() == ItemType.KeyItem || clickedItem.IsStarterItem()) return;
         inventoryGrid.RemoveItem(clickedItem);
         clickedItem = null;
         clickPanel.SetActive(false);
@@ -358,27 +338,25 @@ public class InventoryUIManager : MonoBehaviour
     {
         if (clickedItem == null) return;
         Item toMove = clickedItem;
-        clickPanel.SetActive(false);
-        clickedItem = null;
+        clickPanel.SetActive(false); clickedItem = null;
         StartDragging(toMove);
     }
+
+    // ---------------------------------------------------------------
+    //  Drag
+    // ---------------------------------------------------------------
     public void StartDragging(Item item)
     {
         isDragging = true;
         draggedItem = item;
         draggedItemRotated = inventoryGrid.IsItemRotated(item);
-
-        hoverPanel.SetActive(false);
-        clickPanel.SetActive(false);
-
-        if (item.GetIcon() != null)
-            dragGhostImage.sprite = item.GetIcon();
-
+        hoverPanel.SetActive(false); clickPanel.SetActive(false);
+        if (item.GetIcon() != null) dragGhostImage.sprite = item.GetIcon();
+        dragGhostImage.color = new Color(1f, 1f, 1f, 0.75f);
         dragGhostPanel.SetActive(true);
-        dragGhostRect.anchoredPosition = new Vector2(-9999f, -9999f);//To prevent the ghost from appearing on screen
+        dragGhostRect.anchoredPosition = new Vector2(-9999f, -9999f);
+        if (rotateButtonObject != null) rotateButtonObject.SetActive(true);
         UpdateDragGhostSize();
-        if (rotateButtonObject != null)
-            rotateButtonObject.SetActive(true);      
     }
 
     private void UpdateDragGhostSize()
@@ -391,50 +369,66 @@ public class InventoryUIManager : MonoBehaviour
     private void UpdateDragGhostPosition()
     {
         if (parentCanvas == null || !isDragging) return;
-        float scaleFactor = parentCanvas.scaleFactor;
-        Vector2 localPos = new Vector2(
-            Input.mousePosition.x / scaleFactor,
-            Input.mousePosition.y / scaleFactor
-        );
-
-        dragGhostRect.anchoredPosition = localPos;
+        float scale = parentCanvas.scaleFactor;
+        Vector2 lp = new Vector2(Input.mousePosition.x / scale, Input.mousePosition.y / scale);
+        ItemSize size = inventoryGrid.GetEffectiveSize(draggedItem, draggedItemRotated);
+        lp -= new Vector2(size.width * tileSize * 0.5f, -size.height * tileSize * 0.5f);
+        dragGhostRect.anchoredPosition = lp;
+        UpdateGhostHighlightFromMouse();
     }
 
-    private void RotateDraggedItem()
+    // Drives ghost highlighting purely from mouse position in grid space —
+    // avoids all pointer-event edge cases that caused out-of-bounds issues.
+    private void UpdateGhostHighlightFromMouse()
     {
-        draggedItemRotated = !draggedItemRotated;
-        UpdateDragGhostSize();
-        if (ghostHoverX >= 0)
-            OnDragHoverSlot(ghostHoverX, ghostHoverY);
+        RectTransform gridRT = gridParent.GetComponent<RectTransform>();
+        Camera uiCam = parentCanvas.renderMode == RenderMode.ScreenSpaceOverlay
+                           ? null : parentCanvas.worldCamera;
+
+        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                gridRT, Input.mousePosition, uiCam, out Vector2 local))
+        {
+            if (ghostHoverX >= 0) ClearAllGhostHighlights();
+            return;
+        }
+
+        float gridPixelW = GRID_WIDTH * tileSize;
+        float gridPixelH = GRID_HEIGHT * tileSize;
+        float fromLeft = local.x + gridPixelW * 0.5f - gridMargin;
+        float fromTop = gridPixelH * 0.5f - local.y - gridMargin;
+
+        int cellX = Mathf.FloorToInt(fromLeft / tileSize);
+        int cellY = Mathf.FloorToInt(fromTop / tileSize);
+
+        if (cellX < 0 || cellX >= GRID_WIDTH || cellY < 0 || cellY >= GRID_HEIGHT)
+        {
+            if (ghostHoverX >= 0) ClearAllGhostHighlights();
+            return;
+        }
+
+        OnDragHoverSlot(cellX, cellY);
     }
 
     public void OnDragHoverSlot(int x, int y)
     {
         if (draggedItem == null) return;
-
         ItemSize size = inventoryGrid.GetEffectiveSize(draggedItem, draggedItemRotated);
         x = Mathf.Clamp(x, 0, GRID_WIDTH - size.width);
         y = Mathf.Clamp(y, 0, GRID_HEIGHT - size.height);
-
-        ghostHoverX = x;
-        ghostHoverY = y;
+        if (ghostHoverX == x && ghostHoverY == y) return;
+        ghostHoverX = x; ghostHoverY = y;
         ClearAllGhostHighlights();
         bool canPlace = inventoryGrid.CanPlaceItemAtIgnoringSelf(draggedItem, x, y, draggedItemRotated);
         for (int dx = 0; dx < size.width; dx++)
-        {
             for (int dy = 0; dy < size.height; dy++)
-            {
                 slots[x + dx, y + dy].SetGhostState(canPlace);
-            }
-        }
     }
 
     public void ClearAllGhostHighlights()
     {
-        ghostHoverX = -1;
-        ghostHoverY = -1;
-        foreach (var slot in slots)
-            slot.ResetColor();
+        ghostHoverX = -1; ghostHoverY = -1;
+        if (slots == null) return;
+        foreach (var slot in slots) slot.ResetColor();
     }
 
     public void TryDropDraggedItem(int x, int y)
@@ -444,77 +438,229 @@ public class InventoryUIManager : MonoBehaviour
         x = Mathf.Clamp(x, 0, GRID_WIDTH - size.width);
         y = Mathf.Clamp(y, 0, GRID_HEIGHT - size.height);
         if (inventoryGrid.CanPlaceItemAtIgnoringSelf(draggedItem, x, y, draggedItemRotated))
-        {
             inventoryGrid.MoveItem(draggedItem, x, y, draggedItemRotated);
-            Debug.Log($"[Inventory] Moved {draggedItem.GetItemName()} to [{x},{y}] rotated={draggedItemRotated}");
-        }
         else
-        {
-            Debug.Log("[Inventory] Cannot place item there — space not free.");
-        }
-
+            Debug.Log("[Inventory] Cannot place item there.");
         EndDrag();
     }
 
-    public void CancelDrag()
-    {
-        EndDrag();
-    }
+    public void CancelDrag() => EndDrag();
 
     private void EndDrag()
     {
-        isDragging = false;
-        draggedItem = null;
-        ghostHoverX = -1;
-        ghostHoverY = -1;
+        isDragging = false; draggedItem = null;
+        ghostHoverX = -1; ghostHoverY = -1;
         dragGhostPanel.SetActive(false);
-        if (rotateButtonObject != null)
-            rotateButtonObject.SetActive(false);
+        if (rotateButtonObject != null) rotateButtonObject.SetActive(false);
         ClearAllGhostHighlights();
         RefreshInventoryGrid();
     }
 
+    private void RotateDraggedItem()
+    {
+        if (!isDragging) return;
+        draggedItemRotated = !draggedItemRotated;
+        UpdateDragGhostSize();
+        if (ghostHoverX >= 0) OnDragHoverSlot(ghostHoverX, ghostHoverY);
+    }
+
+    // ---------------------------------------------------------------
+    //  Documents
+    // ---------------------------------------------------------------
+    private void SetupDocumentReader()
+    {
+        if (documentCloseButton != null) documentCloseButton.onClick.AddListener(CloseDocumentReader);
+    }
+
     private void RefreshDocumentsList()
     {
-        // Destroys old buttons
-        foreach (Transform child in documentsListParent)
-            Destroy(child.gameObject);
-
-        List<Item> documents = ReadableManager.Instance.GetAllReadables();
-        foreach (var doc in documents)
+        foreach (Transform c in documentsListParent) Destroy(c.gameObject);
+        EnsureVerticalList(documentsListParent, 40f);
+        foreach (var doc in ReadableManager.Instance.GetAllReadables())
         {
             GameObject go = Instantiate(documentButtonPrefab, documentsListParent);
-
-            TextMeshProUGUI label = go.GetComponentInChildren<TextMeshProUGUI>();
-            if (label != null)
-                label.text = doc.GetItemName();
-
-            Button btn = go.GetComponent<Button>();
-            if (btn != null)
-            {
-                Item captured = doc;
-                btn.onClick.AddListener(() => OpenDocumentReader(captured));
-            }
+            ForceFullWidth(go, 40f);
+            var label = go.GetComponentInChildren<TextMeshProUGUI>();
+            if (label != null) label.text = doc.GetItemName();
+            var btn = go.GetComponent<Button>();
+            if (btn != null) { Item cap = doc; btn.onClick.AddListener(() => OpenDocumentReader(cap)); }
         }
     }
 
-    private void SetupDocumentReader()
-    {
-        if (documentCloseButton != null)
-            documentCloseButton.onClick.AddListener(CloseDocumentReader);
-    }
-
-    private void OpenDocumentReader(Item document)
+    private void OpenDocumentReader(Item doc)
     {
         documentReaderPanel.SetActive(true);
-        documentTitleText.text = document.GetItemName();
-        documentBodyText.text = string.IsNullOrEmpty(document.GetReadableText())
-            ? "[No text available yet]"
-            : document.GetReadableText();
+        documentTitleText.text = doc.GetItemName();
+        documentBodyText.text = string.IsNullOrEmpty(doc.GetReadableText())
+            ? "[No text available yet]" : doc.GetReadableText();
     }
 
-    private void CloseDocumentReader()
+    private void CloseDocumentReader() => documentReaderPanel.SetActive(false);
+
+    // ---------------------------------------------------------------
+    //  Tutorials
+    // ---------------------------------------------------------------
+    private void RefreshTutorialsList()
     {
-        documentReaderPanel.SetActive(false);
+        if (tutorialsListParent == null) return;
+        foreach (Transform c in tutorialsListParent) Destroy(c.gameObject);
+        EnsureVerticalList(tutorialsListParent, 44f);
+
+        var tutorials = TutorialManager.Instance.GetAllTutorials();
+        foreach (var tut in tutorials)
+        {
+            GameObject go = Instantiate(tutorialButtonPrefab, tutorialsListParent);
+            ForceFullWidth(go, 44f);
+            var label = go.GetComponentInChildren<TextMeshProUGUI>();
+            if (label != null) label.text = tut.title;
+            var btn = go.GetComponent<Button>();
+            if (btn != null) { TutorialEntry cap = tut; btn.onClick.AddListener(() => ShowTutorial(cap)); }
+        }
+
+        if (!string.IsNullOrEmpty(selectedTutorialTitle))
+        {
+            if (tutorialTitleText != null) tutorialTitleText.text = selectedTutorialTitle;
+            if (tutorialBodyText != null) tutorialBodyText.text = selectedTutorialBody;
+        }
+        else if (tutorials.Count > 0) ShowTutorial(tutorials[0]);
+    }
+
+    private void ShowTutorial(TutorialEntry entry)
+    {
+        selectedTutorialTitle = entry.title;
+        selectedTutorialBody = entry.body;
+        if (tutorialTitleText != null) tutorialTitleText.text = entry.title;
+        if (tutorialBodyText != null) tutorialBodyText.text = entry.body;
+    }
+
+    public void AddTutorial(string title, string body)
+    {
+        TutorialManager.Instance.AddTutorial(title, body);
+        if (activeTab == ActiveTab.Tutorials) RefreshTutorialsList();
+    }
+
+    // ---------------------------------------------------------------
+    //  Collectibles
+    // ---------------------------------------------------------------
+    private void RefreshCollectibles()
+    {
+        if (collectiblesCountText == null) return;
+        int collected = TalismanManager.Instance.CollectedCount;
+        int total = TalismanManager.Instance.TotalCount;
+        collectiblesCountText.text = $"Talismans:  {collected} / {total}";
+
+        if (collectibleRewardsParent == null || collectibleRewardPrefab == null) return;
+
+        List<Transform> old = new List<Transform>();
+        foreach (Transform c in collectibleRewardsParent) old.Add(c);
+        foreach (Transform c in old) DestroyImmediate(c.gameObject);
+
+        EnsureVerticalList(collectibleRewardsParent, 56f);
+
+        var rewards = new (int n, string lbl, string fx)[]
+        {
+            (1,  "1 Talisman",   "+10% Max Stamina"),
+            (5,  "5 Talismans",  "+20% Reload Speed"),
+            (10, "10 Talismans", "+30% Ranged Damage"),
+        };
+
+        foreach (var r in rewards)
+        {
+            bool unlocked = collected >= r.n;
+            GameObject go = Instantiate(collectibleRewardPrefab, collectibleRewardsParent);
+            ForceFullWidth(go, 56f);
+
+            var texts = go.GetComponentsInChildren<TextMeshProUGUI>();
+            if (texts.Length >= 2) { texts[0].text = r.lbl; texts[1].text = r.fx; }
+            else if (texts.Length == 1) texts[0].text = $"{r.lbl}  —  {r.fx}";
+
+            var img = go.GetComponent<Image>();
+            if (img != null) img.color = unlocked
+                ? new Color(0.15f, 0.55f, 0.15f, 0.65f)
+                : new Color(0.22f, 0.22f, 0.22f, 0.65f);
+
+            Color tc = unlocked ? Color.white : new Color(0.55f, 0.55f, 0.55f, 1f);
+            foreach (var t in texts) t.color = tc;
+        }
+    }
+
+    // ---------------------------------------------------------------
+    //  Crafting
+    // ---------------------------------------------------------------
+    public void RefreshCraftingList()
+    {
+        if (craftingListParent == null || craftingRecipePrefab == null || craftingSlotPrefab == null) return;
+        foreach (Transform c in craftingListParent) Destroy(c.gameObject);
+        EnsureVerticalList(craftingListParent, 90f);
+
+        List<CraftingRecipe> visible = CraftingManager.Instance.GetVisibleRecipes();
+        foreach (var recipe in visible)
+        {
+            GameObject go = Instantiate(craftingRecipePrefab, craftingListParent);
+            ForceFullWidth(go, 90f);
+            var recipeUI = go.GetComponent<CraftingRecipeUI>();
+            if (recipeUI != null)
+                recipeUI.Setup(recipe);
+        }
+    }
+
+    // ---------------------------------------------------------------
+    //  Layout helpers
+    // ---------------------------------------------------------------
+
+    // Ensures Content has a VerticalLayoutGroup + ContentSizeFitter,
+    // and forces the Content RectTransform to stretch horizontally so
+    // children can fill the full scroll area width.
+    private static void EnsureVerticalList(Transform content, float itemHeight)
+    {
+        // Force Content to stretch to full width of the ScrollView viewport
+        RectTransform crt = content.GetComponent<RectTransform>();
+        if (crt != null)
+        {
+            crt.anchorMin = new Vector2(0f, 1f);
+            crt.anchorMax = new Vector2(1f, 1f);
+            crt.pivot = new Vector2(0.5f, 1f);
+            crt.offsetMin = new Vector2(0f, crt.offsetMin.y);
+            crt.offsetMax = new Vector2(0f, crt.offsetMax.y);
+        }
+
+        // VerticalLayoutGroup — do NOT use childControlHeight here because
+        // it ignores LayoutElement.preferredHeight and collapses items.
+        // Instead we set height via LayoutElement on each child in ForceFullWidth.
+        var vlg = content.GetComponent<VerticalLayoutGroup>();
+        if (vlg == null) vlg = content.gameObject.AddComponent<VerticalLayoutGroup>();
+        vlg.childControlWidth = true;
+        vlg.childForceExpandWidth = true;
+        vlg.childControlHeight = false;   // must be false — height comes from LayoutElement
+        vlg.childForceExpandHeight = false;
+        vlg.spacing = 6f;
+        vlg.padding = new RectOffset(6, 6, 6, 6);
+
+        // ContentSizeFitter grows Content vertically to fit all children
+        var csf = content.GetComponent<ContentSizeFitter>();
+        if (csf == null) csf = content.gameObject.AddComponent<ContentSizeFitter>();
+        csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        csf.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+    }
+
+    // Forces a prefab instance to fill the list width with a fixed height.
+    // The LayoutElement.preferredHeight is what VerticalLayoutGroup reads
+    // when childControlHeight = false.
+    private static void ForceFullWidth(GameObject go, float height)
+    {
+        // LayoutElement tells the parent VerticalLayoutGroup the desired size
+        var le = go.GetComponent<LayoutElement>();
+        if (le == null) le = go.AddComponent<LayoutElement>();
+        le.preferredHeight = height;
+        le.minHeight = height;
+        le.flexibleWidth = 1f;
+
+        // Also set RectTransform as a fallback
+        RectTransform rt = go.GetComponent<RectTransform>();
+        if (rt == null) return;
+        rt.anchorMin = new Vector2(0f, 1f);
+        rt.anchorMax = new Vector2(1f, 1f);
+        rt.pivot = new Vector2(0.5f, 1f);
+        rt.sizeDelta = new Vector2(0f, height);
     }
 }
