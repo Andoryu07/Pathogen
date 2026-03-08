@@ -22,12 +22,9 @@ public class StoreboxUIManager : MonoBehaviour
 
     private Item selectedItem = null;
     private bool selectedIsInBox = false;   // true = box side, false = inventory side
-
-    // Colours
     private static readonly Color ColSelected = new Color(0.25f, 0.55f, 0.90f, 0.85f);
     private static readonly Color ColNormal = new Color(0.18f, 0.18f, 0.18f, 0.85f);
     private static readonly Color ColHover = new Color(0.28f, 0.28f, 0.28f, 0.85f);
-
     // Tracks spawned row buttons for colour refresh
     private List<(Item item, Image bg, bool inBox)> rows = new List<(Item, Image, bool)>();
 
@@ -77,26 +74,20 @@ public class StoreboxUIManager : MonoBehaviour
         // Clear old rows (only remove rows belonging to this side)
         rows.RemoveAll(r => r.inBox == inBox);
         foreach (Transform c in parent) Destroy(c.gameObject);
-
         EnsureVerticalList(parent);
-
         foreach (var item in items)
         {
             Item cap = item;
             bool mine = inBox;
-
             // Row button
             GameObject rowGO = new GameObject(item.GetItemName(), typeof(RectTransform));
             rowGO.transform.SetParent(parent, false);
-
             var le = rowGO.AddComponent<LayoutElement>();
             le.preferredHeight = 44f;
             le.minHeight = 44f;
             le.flexibleWidth = 1f;
-
             Image bg = rowGO.AddComponent<Image>();
             bg.color = (selectedItem == item) ? ColSelected : ColNormal;
-
             // Horizontal layout inside the row
             var hlg = rowGO.AddComponent<HorizontalLayoutGroup>();
             hlg.childControlWidth = false;
@@ -105,7 +96,6 @@ public class StoreboxUIManager : MonoBehaviour
             hlg.childForceExpandHeight = true;
             hlg.spacing = 6f;
             hlg.padding = new RectOffset(8, 8, 4, 4);
-
             // Icon
             if (item.GetIcon() != null)
             {
@@ -135,16 +125,13 @@ public class StoreboxUIManager : MonoBehaviour
             // Click handler via Button
             Button btn = rowGO.AddComponent<Button>();
             btn.targetGraphic = bg;
-
             ColorBlock cb = btn.colors;
             cb.normalColor = ColNormal;
             cb.highlightedColor = ColHover;
             cb.selectedColor = ColSelected;
             cb.pressedColor = ColSelected;
             btn.colors = cb;
-
             btn.onClick.AddListener(() => OnRowClicked(cap, mine, bg));
-
             rows.Add((item, bg, inBox));
         }
     }
@@ -154,7 +141,6 @@ public class StoreboxUIManager : MonoBehaviour
         // Deselect all rows
         foreach (var r in rows)
             r.bg.color = ColNormal;
-
         if (selectedItem == item)
         {
             // Second click = deselect
@@ -162,12 +148,10 @@ public class StoreboxUIManager : MonoBehaviour
             ClearAction();
             return;
         }
-
         selectedItem = item;
         selectedIsInBox = inBox;
         bg.color = ColSelected;
         SetFeedback("");
-
         if (inBox)
         {
             // Selected item is in the box — show Withdraw
@@ -184,7 +168,6 @@ public class StoreboxUIManager : MonoBehaviour
     private void OnActionClicked()
     {
         if (selectedItem == null) return;
-
         if (selectedIsInBox)
         {
             // Withdraw
@@ -246,7 +229,6 @@ public class StoreboxUIManager : MonoBehaviour
         vlg.childForceExpandHeight = false;
         vlg.spacing = 4f;
         vlg.padding = new RectOffset(4, 4, 4, 4);
-
         var csf = content.GetComponent<ContentSizeFitter>();
         if (csf == null) csf = content.gameObject.AddComponent<ContentSizeFitter>();
         csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
