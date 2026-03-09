@@ -5,7 +5,8 @@ public enum ItemType
     KeyItem,
     Weapon,
     Consumable,
-    Readable
+    Readable,
+    Material     
 }
 
 [System.Serializable]
@@ -29,8 +30,9 @@ public class Item : InteractableBase
     [SerializeField] private ItemType itemType = ItemType.KeyItem;
     [SerializeField] private Sprite itemIcon;
     [SerializeField] private ItemSize size = new ItemSize(1, 1);
+
+    [Header("Flags")]
     [SerializeField] private bool isStarterItem = false;
-    public bool IsStarterItem() => isStarterItem;
 
     [Header("Readable")]
     [SerializeField][TextArea(3, 10)] private string readableText;
@@ -77,6 +79,7 @@ public class Item : InteractableBase
         Debug.Log($"=== {itemName} ===\n{readableText}\n================");
     }
 
+    public bool IsStarterItem() => isStarterItem;
     public string GetItemName() => itemName;
     public ItemType GetItemType() => itemType;
     public Sprite GetIcon() => itemIcon;

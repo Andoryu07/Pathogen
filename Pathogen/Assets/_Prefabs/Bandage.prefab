@@ -50,7 +50,7 @@ MonoBehaviour:
   itemType: 2
   itemIcon: {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
   size:
-    width: 6
+    width: 2
     height: 1
   isStarterItem: 0
   readableText: 

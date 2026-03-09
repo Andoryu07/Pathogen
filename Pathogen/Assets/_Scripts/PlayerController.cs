@@ -8,7 +8,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float crouchSpeed = 2.5f;
     [SerializeField] private float acceleration = 10f;
 
-    [Header("Health Settings")] 
+    [Header("Health Settings")]
     [SerializeField] private float maxHealth = 100f;
     [SerializeField] private float currentHealth;
 
@@ -161,6 +161,22 @@ public class PlayerController : MonoBehaviour
     {
         currentHealth += amount;
         currentHealth = Mathf.Min(currentHealth, maxHealth);
+    }
+
+    ///Permanently increases max stamina by a fraction (e.g. 0.10 = +10%)
+    public void AddStaminaBonus(float fraction)
+    {
+        float bonus = maxStamina * fraction;
+        maxStamina += bonus;
+        currentStamina = Mathf.Min(currentStamina + bonus, maxStamina);
+    }
+    private Item equippedWeapon = null;
+    public Item EquippedWeapon => equippedWeapon;
+
+    public void EquipWeapon(Item weapon)
+    {
+        equippedWeapon = weapon;
+        Debug.Log($"[Player] Equipped: {weapon?.GetItemName() ?? "nothing"}");
     }
 
     private void Die()

@@ -8,7 +8,6 @@ public class InventoryUIManager : MonoBehaviour
     public static InventoryUIManager Instance { get; private set; }
     [Header("Main Panel")]
     [SerializeField] private GameObject inventoryPanel;
-
     [Header("Tabs")]
     [SerializeField] private Button inventoryTabButton;
     [SerializeField] private Button documentsTabButton;
@@ -20,27 +19,22 @@ public class InventoryUIManager : MonoBehaviour
     [SerializeField] private GameObject tutorialsPanel;
     [SerializeField] private GameObject collectiblesPanel;
     [SerializeField] private GameObject craftingPanel;
-
     [Header("Crafting")]
     [SerializeField] private Transform craftingListParent;
     [SerializeField] private GameObject craftingRecipePrefab;
     [SerializeField] private GameObject craftingSlotPrefab;
     [SerializeField] private GameObject craftingSeparatorPrefab;
-
     [Header("Grid Settings")]
     [SerializeField] private Transform gridParent;
     [SerializeField] private GameObject slotPrefab;
     [SerializeField] private float gridMargin = 0f;
-
     private const int GRID_WIDTH = 7;
     private const int GRID_HEIGHT = 6;
     private float tileSize = 64f;
-
     [Header("Hover Panel")]
     [SerializeField] private GameObject hoverPanel;
     [SerializeField] private TextMeshProUGUI hoverItemNameText;
     [SerializeField] private TextMeshProUGUI hoverItemDescText;
-
     [Header("Click Panel")]
     [SerializeField] private GameObject clickPanel;
     [SerializeField] private Button useEquipButton;
@@ -48,7 +42,6 @@ public class InventoryUIManager : MonoBehaviour
     [SerializeField] private Button discardButton;
     [SerializeField] private Button replaceButton;
     [SerializeField] private RectTransform clickPanelRect;
-
     [Header("Documents")]
     [SerializeField] private Transform documentsListParent;
     [SerializeField] private GameObject documentButtonPrefab;
@@ -56,35 +49,28 @@ public class InventoryUIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI documentTitleText;
     [SerializeField] private TextMeshProUGUI documentBodyText;
     [SerializeField] private Button documentCloseButton;
-
     [Header("Tutorials")]
     [SerializeField] private Transform tutorialsListParent;
     [SerializeField] private GameObject tutorialButtonPrefab;
     [SerializeField] private TextMeshProUGUI tutorialTitleText;
     [SerializeField] private TextMeshProUGUI tutorialBodyText;
-
     [Header("Collectibles")]
     [SerializeField] private TextMeshProUGUI collectiblesCountText;
     [SerializeField] private Transform collectibleRewardsParent;
     [SerializeField] private GameObject collectibleRewardPrefab;
-
     [Header("Drag Ghost")]
     [SerializeField] private GameObject dragGhostPanel;
     [SerializeField] private Image dragGhostImage;
     [SerializeField] private RectTransform dragGhostRect;
     [SerializeField] private Button rotateButton;
     [SerializeField] private GameObject rotateButtonObject;
-
     [Header("Canvas")]
     [SerializeField] private Canvas parentCanvas;
 
-    // ---------------------------------------------------------------
     private InventorySlotUI[,] slots;
     private InventoryGrid inventoryGrid;
-
     private enum ActiveTab { Inventory, Documents, Tutorials, Collectibles, Crafting }
     private ActiveTab activeTab = ActiveTab.Inventory;
-
     private Item clickedItem;
     private Item draggedItem;
     private bool draggedItemRotated;
@@ -92,11 +78,9 @@ public class InventoryUIManager : MonoBehaviour
     public bool IsDragging => isDragging;
     private int ghostHoverX = -1;
     private int ghostHoverY = -1;
-
     private string selectedTutorialTitle = "";
     private string selectedTutorialBody = "";
 
-    // ---------------------------------------------------------------
     void Awake()
     {
         if (Instance == null) Instance = this;
@@ -139,9 +123,6 @@ public class InventoryUIManager : MonoBehaviour
         }
     }
 
-    // ---------------------------------------------------------------
-    //  Grid setup
-    // ---------------------------------------------------------------
     private void SetupGrid()
     {
         Canvas.ForceUpdateCanvases();
@@ -174,9 +155,6 @@ public class InventoryUIManager : MonoBehaviour
             }
     }
 
-    // ---------------------------------------------------------------
-    //  Tabs
-    // ---------------------------------------------------------------
     private void SetupTabs()
     {
         inventoryTabButton.onClick.AddListener(() => SwitchTab(ActiveTab.Inventory));
@@ -212,9 +190,6 @@ public class InventoryUIManager : MonoBehaviour
         else { clickPanel.SetActive(false); hoverPanel.SetActive(false); CancelDrag(); }
     }
 
-    // ---------------------------------------------------------------
-    //  Grid refresh — single icon on top-left tile, stretched over footprint
-    // ---------------------------------------------------------------
     public void RefreshInventoryGrid()
     {
         if (inventoryGrid == null)
@@ -252,9 +227,6 @@ public class InventoryUIManager : MonoBehaviour
         }
     }
 
-    // ---------------------------------------------------------------
-    //  Hover
-    // ---------------------------------------------------------------
     public void OnSlotHoverEnter(Item item)
     {
         if (isDragging) return;
@@ -283,9 +255,6 @@ public class InventoryUIManager : MonoBehaviour
         ClearAllGhostHighlights();
     }
 
-    // ---------------------------------------------------------------
-    //  Click panel
-    // ---------------------------------------------------------------
     private void SetupClickPanel()
     {
         useEquipButton.onClick.AddListener(OnUseEquipClicked);
@@ -297,8 +266,18 @@ public class InventoryUIManager : MonoBehaviour
     {
         if (clickPanel.activeSelf && clickedItem == item) { clickPanel.SetActive(false); return; }
         clickedItem = item;
-        useEquipButtonText.text = item.GetItemType() == ItemType.Weapon ? "Equip" : "Use";
-        discardButton.interactable = !(item.GetItemType() == ItemType.KeyItem || item.IsStarterItem());
+        ItemType type = item.GetItemType();
+
+        // Use/Equip: only Weapons and Consumables have actions — everything else is greyed out
+        bool canUseEquip = (type == ItemType.Weapon || type == ItemType.Consumable);
+        useEquipButton.interactable = canUseEquip;
+        if (type == ItemType.Weapon) useEquipButtonText.text = "Equip";
+        else if (type == ItemType.Material) useEquipButtonText.text = "Craft Only";
+        else if (type == ItemType.KeyItem) useEquipButtonText.text = "Key Item";
+        else useEquipButtonText.text = "Use";
+
+        // Discard: blocked for key items and the starter weapon (Crowbar)
+        discardButton.interactable = !(type == ItemType.KeyItem || item.IsStarterItem());
         clickPanel.SetActive(true);
         PositionClickPanel(screenPos);
         hoverPanel.SetActive(false);
@@ -319,14 +298,51 @@ public class InventoryUIManager : MonoBehaviour
     private void OnUseEquipClicked()
     {
         if (clickedItem == null) return;
-        Debug.Log($"[Inventory] Use/Equip: {clickedItem.GetItemName()}");
-        clickPanel.SetActive(false); clickedItem = null;
+        Item item = clickedItem;
+        clickPanel.SetActive(false);
+        clickedItem = null;
+        hoverPanel.SetActive(false);
+
+        if (item.GetItemType() == ItemType.Weapon)
+        {
+            // Equip — store on PlayerController and refresh HUD
+            PlayerController player = FindObjectOfType<PlayerController>();
+            if (player != null) player.EquipWeapon(item);
+            if (WeaponHUD.Instance != null) WeaponHUD.Instance.Refresh(item);
+        }
+        else if (item.GetItemType() == ItemType.Consumable)
+        {
+            if (UseItemHandler.Instance == null)
+            {
+                Debug.LogWarning("[Inventory] UseItemHandler not found in scene!");
+                return;
+            }
+            bool consumed = UseItemHandler.Instance.TryUseItem(item);
+            if (consumed)
+            {
+                inventoryGrid.RemoveItem(item);
+                RefreshInventoryGrid();
+            }
+        }
+        else
+        {
+            Debug.Log($"[Inventory] {item.GetItemName()} cannot be used directly.");
+        }
     }
 
     private void OnDiscardClicked()
     {
         if (clickedItem == null) return;
         if (clickedItem.GetItemType() == ItemType.KeyItem || clickedItem.IsStarterItem()) return;
+
+        // If discarding the equipped weapon, clear the weapon slot
+        PlayerController player = FindObjectOfType<PlayerController>();
+        if (player != null && player.EquippedWeapon == clickedItem)
+        {
+            player.EquipWeapon(null);
+            if (WeaponHUD.Instance != null) WeaponHUD.Instance.Refresh(null);
+        }
+
         inventoryGrid.RemoveItem(clickedItem);
         clickedItem = null;
         clickPanel.SetActive(false);
@@ -342,9 +358,6 @@ public class InventoryUIManager : MonoBehaviour
         StartDragging(toMove);
     }
 
-    // ---------------------------------------------------------------
-    //  Drag
-    // ---------------------------------------------------------------
     public void StartDragging(Item item)
     {
         isDragging = true;
@@ -377,8 +390,7 @@ public class InventoryUIManager : MonoBehaviour
         UpdateGhostHighlightFromMouse();
     }
 
-    // Drives ghost highlighting purely from mouse position in grid space —
-    // avoids all pointer-event edge cases that caused out-of-bounds issues.
+    // Drives ghost highlighting purely from mouse position in grid space — avoids all pointer-event edge cases that caused out-of-bounds issues.
     private void UpdateGhostHighlightFromMouse()
     {
         RectTransform gridRT = gridParent.GetComponent<RectTransform>();
@@ -464,9 +476,6 @@ public class InventoryUIManager : MonoBehaviour
         if (ghostHoverX >= 0) OnDragHoverSlot(ghostHoverX, ghostHoverY);
     }
 
-    // ---------------------------------------------------------------
-    //  Documents
-    // ---------------------------------------------------------------
     private void SetupDocumentReader()
     {
         if (documentCloseButton != null) documentCloseButton.onClick.AddListener(CloseDocumentReader);
@@ -497,9 +506,6 @@ public class InventoryUIManager : MonoBehaviour
 
     private void CloseDocumentReader() => documentReaderPanel.SetActive(false);
 
-    // ---------------------------------------------------------------
-    //  Tutorials
-    // ---------------------------------------------------------------
     private void RefreshTutorialsList()
     {
         if (tutorialsListParent == null) return;
@@ -539,9 +545,6 @@ public class InventoryUIManager : MonoBehaviour
         if (activeTab == ActiveTab.Tutorials) RefreshTutorialsList();
     }
 
-    // ---------------------------------------------------------------
-    //  Collectibles
-    // ---------------------------------------------------------------
     private void RefreshCollectibles()
     {
         if (collectiblesCountText == null) return;
@@ -584,33 +587,34 @@ public class InventoryUIManager : MonoBehaviour
         }
     }
 
-    // ---------------------------------------------------------------
-    //  Crafting
-    // ---------------------------------------------------------------
     public void RefreshCraftingList()
     {
-        if (craftingListParent == null || craftingRecipePrefab == null || craftingSlotPrefab == null) return;
+        if (craftingListParent == null || craftingRecipePrefab == null) return;
+
+        if (CraftingManager.Instance == null)
+        {
+            Debug.LogWarning("[InventoryUI] CraftingManager not found in scene!");
+            return;
+        }
         foreach (Transform c in craftingListParent) Destroy(c.gameObject);
-        EnsureVerticalList(craftingListParent, 90f);
+        EnsureVerticalList(craftingListParent, CraftingRecipeUI.ROW_HEIGHT);
 
         List<CraftingRecipe> visible = CraftingManager.Instance.GetVisibleRecipes();
         foreach (var recipe in visible)
         {
             GameObject go = Instantiate(craftingRecipePrefab, craftingListParent);
-            ForceFullWidth(go, 90f);
+            ForceFullWidth(go, CraftingRecipeUI.ROW_HEIGHT);
+
+            if (go.GetComponent<Image>() == null)
+                go.AddComponent<Image>();
+
             var recipeUI = go.GetComponent<CraftingRecipeUI>();
             if (recipeUI != null)
                 recipeUI.Setup(recipe);
         }
     }
 
-    // ---------------------------------------------------------------
-    //  Layout helpers
-    // ---------------------------------------------------------------
-
-    // Ensures Content has a VerticalLayoutGroup + ContentSizeFitter,
-    // and forces the Content RectTransform to stretch horizontally so
-    // children can fill the full scroll area width.
+    // Ensures Content has a VerticalLayoutGroup + ContentSizeFitter and forces the Content RectTransform to stretch horizontally so children can fill the full scroll area width
     private static void EnsureVerticalList(Transform content, float itemHeight)
     {
         // Force Content to stretch to full width of the ScrollView viewport
@@ -623,10 +627,6 @@ public class InventoryUIManager : MonoBehaviour
             crt.offsetMin = new Vector2(0f, crt.offsetMin.y);
             crt.offsetMax = new Vector2(0f, crt.offsetMax.y);
         }
-
-        // VerticalLayoutGroup — do NOT use childControlHeight here because
-        // it ignores LayoutElement.preferredHeight and collapses items.
-        // Instead we set height via LayoutElement on each child in ForceFullWidth.
         var vlg = content.GetComponent<VerticalLayoutGroup>();
         if (vlg == null) vlg = content.gameObject.AddComponent<VerticalLayoutGroup>();
         vlg.childControlWidth = true;
@@ -635,7 +635,6 @@ public class InventoryUIManager : MonoBehaviour
         vlg.childForceExpandHeight = false;
         vlg.spacing = 6f;
         vlg.padding = new RectOffset(6, 6, 6, 6);
-
         // ContentSizeFitter grows Content vertically to fit all children
         var csf = content.GetComponent<ContentSizeFitter>();
         if (csf == null) csf = content.gameObject.AddComponent<ContentSizeFitter>();
@@ -643,9 +642,7 @@ public class InventoryUIManager : MonoBehaviour
         csf.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
     }
 
-    // Forces a prefab instance to fill the list width with a fixed height.
-    // The LayoutElement.preferredHeight is what VerticalLayoutGroup reads
-    // when childControlHeight = false.
+    // Forces a prefab instance to fill the list width with a fixed height, the LayoutElement.preferredHeight is what VerticalLayoutGroup reads when childControlHeight = false
     private static void ForceFullWidth(GameObject go, float height)
     {
         // LayoutElement tells the parent VerticalLayoutGroup the desired size
@@ -654,8 +651,7 @@ public class InventoryUIManager : MonoBehaviour
         le.preferredHeight = height;
         le.minHeight = height;
         le.flexibleWidth = 1f;
-
-        // Also set RectTransform as a fallback
+        //RectTransform as a fallback
         RectTransform rt = go.GetComponent<RectTransform>();
         if (rt == null) return;
         rt.anchorMin = new Vector2(0f, 1f);
