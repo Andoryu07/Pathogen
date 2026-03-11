@@ -273,6 +273,7 @@ public class InventoryUIManager : MonoBehaviour
         useEquipButton.interactable = canUseEquip;
         if (type == ItemType.Weapon) useEquipButtonText.text = "Equip";
         else if (type == ItemType.Material) useEquipButtonText.text = "Craft Only";
+        else if (type == ItemType.Ammo) useEquipButtonText.text = "Ammo";
         else if (type == ItemType.KeyItem) useEquipButtonText.text = "Key Item";
         else useEquipButtonText.text = "Use";
 

@@ -6,7 +6,8 @@ public enum ItemType
     Weapon,
     Consumable,
     Readable,
-    Material     
+    Material,   
+    Ammo      
 }
 
 [System.Serializable]
@@ -14,33 +15,29 @@ public struct ItemSize
 {
     public int width;
     public int height;
-
-    public ItemSize(int w, int h)
-    {
-        width = w;
-        height = h;
-    }
+    public ItemSize(int w, int h) { width = w; height = h; }
 }
 
 public class Item : InteractableBase
 {
     [Header("Item Properties")]
     [SerializeField] private string itemName = "Item";
-    [SerializeField][TextArea(2, 4)] private string itemDescription = "No description.";
+    [SerializeField]
+    [TextArea(2, 4)]
+    private string itemDescription = "No description.";
     [SerializeField] private ItemType itemType = ItemType.KeyItem;
     [SerializeField] private Sprite itemIcon;
     [SerializeField] private ItemSize size = new ItemSize(1, 1);
-
+    [Header("Stacking")]
+    [Tooltip("Max items per stack. Set to 1 to disable stacking.")]
+    [SerializeField] private int maxStackSize = 1;
     [Header("Flags")]
     [SerializeField] private bool isStarterItem = false;
-
     [Header("Readable")]
-    [SerializeField][TextArea(3, 10)] private string readableText;
-
+    [SerializeField]
+    [TextArea(3, 10)]
+    private string readableText;
     private SpriteRenderer spriteRenderer;
-
-    public string GetReadableText() => readableText;
-    public string GetDescription() => itemDescription;
 
     void Awake()
     {
@@ -64,24 +61,21 @@ public class Item : InteractableBase
         {
             bool pickedUp = InventoryGrid.Instance.TryAddItem(this);
             if (pickedUp)
-            {
                 gameObject.SetActive(false);
-            }
             else
-            {
                 Debug.Log("No space in inventory! Reorganize items or discard them to make space.");
-            }
         }
     }
 
     public void ShowReadableText()
-    {
-        Debug.Log($"=== {itemName} ===\n{readableText}\n================");
-    }
+        => Debug.Log($"=== {itemName} ===\n{readableText}\n================");
 
-    public bool IsStarterItem() => isStarterItem;
     public string GetItemName() => itemName;
+    public string GetDescription() => itemDescription;
+    public string GetReadableText() => readableText;
     public ItemType GetItemType() => itemType;
     public Sprite GetIcon() => itemIcon;
     public ItemSize GetSize() => size;
+    public int GetMaxStackSize() => maxStackSize;
+    public bool IsStarterItem() => isStarterItem;
 }

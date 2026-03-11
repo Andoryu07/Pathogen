@@ -2,9 +2,9 @@ using UnityEngine;
 
 public enum LockType
 {
-    KeyItem, 
-    Code,    
-    Puzzle,  
+    KeyItem,
+    Code,
+    Puzzle,
     AlwaysOpen
 }
 
@@ -30,23 +30,7 @@ public class Lock : InteractableBase
     {
         UpdatePromptMessage();
     }
-    // TESTING
-    void Update()
-    {
-        if (lockType == LockType.Code && isLocked)
-        {
-            //Press C for correct code
-            if (Input.GetKeyDown(KeyCode.C))
-            {
-                TryCodeUnlock("1971");
-            }
-            //Press X for incorrect code
-            if (Input.GetKeyDown(KeyCode.X))
-            {
-                TryCodeUnlock("1234");
-            }
-        }
-    }
+
     private void UpdatePromptMessage()
     {
         switch (lockType)
@@ -80,8 +64,10 @@ public class Lock : InteractableBase
                 TryKeyItemUnlock();
                 break;
             case LockType.Code:
-                //Later: UI
-                Debug.Log($"Enter code (correct code: {correctCode}):");
+                if (CodePadUI.Instance != null)
+                    CodePadUI.Instance.OpenPad(this);
+                else
+                    Debug.LogWarning("[Lock] CodePadUI not found in scene!");
                 break;
             case LockType.Puzzle:
                 Debug.Log("Not implemented yet");
@@ -108,7 +94,7 @@ public class Lock : InteractableBase
 
             if (consumeItem && hasItem)
             {
-               
+
                 Item item = InventoryGrid.Instance.GetItem(requiredItemName);
                 InventoryGrid.Instance.RemoveItem(item);
             }
@@ -122,9 +108,10 @@ public class Lock : InteractableBase
         }
     }
 
-    public void TryCodeUnlock(string enteredCode)
+    ///Returns true if the code is correct and unlocks the lock
+    public bool TryCodeUnlock(string enteredCode)
     {
-        if (lockType != LockType.Code) return;
+        if (lockType != LockType.Code) return false;
 
         bool codeMatches = caseSensitive ?
             enteredCode == correctCode :
@@ -132,13 +119,15 @@ public class Lock : InteractableBase
 
         if (codeMatches)
         {
-            Debug.Log("Correct code!");
+            Debug.Log("[Lock] Correct code!");
             isLocked = false;
             Unlock();
+            return true;
         }
         else
         {
-            Debug.Log("Incorrect code!");
+            Debug.Log("[Lock] Incorrect code.");
+            return false;
         }
     }
 
