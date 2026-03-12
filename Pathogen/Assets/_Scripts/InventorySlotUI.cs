@@ -1,16 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using TMPro;
 
-/// <summary>
-/// PREFAB SETUP:
-///   Slot (this script + Image = Background, RaycastTarget ON)
-///     ├── Icon        (Image, anchor TopLeft, pivot 0,1, RaycastTarget OFF)
-///     ├── BorderTop    (Image, anchor top-stretch h=2,   RaycastTarget OFF)
-///     ├── BorderBottom (Image, anchor bottom-stretch h=2, RaycastTarget OFF)
-///     ├── BorderLeft   (Image, anchor left-stretch w=2,   RaycastTarget OFF)
-///     └── BorderRight  (Image, anchor right-stretch w=2,  RaycastTarget OFF)
-/// </summary>
 public class InventorySlotUI : MonoBehaviour,
     IPointerClickHandler,
     IPointerEnterHandler,
@@ -25,7 +17,7 @@ public class InventorySlotUI : MonoBehaviour,
     [SerializeField] private Image borderBottom;
     [SerializeField] private Image borderLeft;
     [SerializeField] private Image borderRight;
-
+    [SerializeField] private TextMeshProUGUI stackLabel;
     [Header("Colors")]
     [SerializeField] private Color normalColor = new Color(0.18f, 0.18f, 0.18f, 1f);
     [SerializeField] private Color hoverColor = new Color(0.35f, 0.35f, 0.35f, 1f);
@@ -37,13 +29,12 @@ public class InventorySlotUI : MonoBehaviour,
     private int slotX, slotY;
     private bool isEmpty = true;
     private bool isTopLeft = false;
+    private bool isBottomRight = false;
     private InventoryUIManager uiManager;
-
     private bool pointerHeld = false;
     private float holdTimer = 0f;
     private const float HoldThreshold = 0.8f;
 
-    // ---------------------------------------------------------------
     public void Initialize(int x, int y, InventoryUIManager manager)
     {
         slotX = x;
@@ -52,15 +43,14 @@ public class InventorySlotUI : MonoBehaviour,
         ClearSlot();
     }
 
-    // ---------------------------------------------------------------
-    //  Set / Clear
-    // ---------------------------------------------------------------
-    public void SetItem(Item item, bool topLeft,
-                        bool eTop, bool eBottom, bool eLeft, bool eRight)
+    public void SetItem(Item item, bool topLeft, bool bottomRight,
+                        bool eTop, bool eBottom, bool eLeft, bool eRight,
+                        int stackCount = 1)
     {
         currentItem = item;
         isEmpty = false;
         isTopLeft = topLeft;
+        isBottomRight = bottomRight;
 
         SetBg(normalColor);
         ShowBorder(borderTop, eTop);
@@ -78,6 +68,9 @@ public class InventorySlotUI : MonoBehaviour,
         {
             ClearIcon();
         }
+
+        // Stack count label — bottom-right tile only, hidden for single items
+        SetStackCount(stackCount);
     }
 
     public void ClearSlot()
@@ -85,7 +78,9 @@ public class InventorySlotUI : MonoBehaviour,
         currentItem = null;
         isEmpty = true;
         isTopLeft = false;
+        isBottomRight = false;
         ClearIcon();
+        ClearStackLabel();
         SetBg(normalColor);
         HideAllBorders();
     }
@@ -106,9 +101,26 @@ public class InventorySlotUI : MonoBehaviour,
             rt.sizeDelta = new Vector2(pixelWidth, pixelHeight);
     }
 
-    // ---------------------------------------------------------------
-    //  Borders
-    // ---------------------------------------------------------------
+    public void SetStackCount(int count)
+    {
+        if (stackLabel == null) return;
+        // Only show on the bottom-right tile, and only when stack > 1
+        if (isBottomRight && count > 1)
+        {
+            stackLabel.text = count.ToString();
+            stackLabel.enabled = true;
+        }
+        else
+        {
+            ClearStackLabel();
+        }
+    }
+
+    private void ClearStackLabel()
+    {
+        if (stackLabel != null) stackLabel.enabled = false;
+    }
+
     private void ShowBorder(Image img, bool show)
     {
         if (img == null) return;
@@ -124,9 +136,6 @@ public class InventorySlotUI : MonoBehaviour,
         if (borderRight != null) borderRight.enabled = false;
     }
 
-    // ---------------------------------------------------------------
-    //  Colors
-    // ---------------------------------------------------------------
     public void SetGhostState(bool valid) => SetBg(valid ? ghostValidColor : ghostInvalidColor);
     public void SetHoverHighlight() => SetBg(hoverColor);
     public void ResetColor() => SetBg(normalColor);
@@ -137,9 +146,6 @@ public class InventorySlotUI : MonoBehaviour,
             backgroundImage.color = c;
     }
 
-    // ---------------------------------------------------------------
-    //  Pointer events
-    // ---------------------------------------------------------------
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (uiManager.IsDragging) { uiManager.OnDragHoverSlot(slotX, slotY); return; }

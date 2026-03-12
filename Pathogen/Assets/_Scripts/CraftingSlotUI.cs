@@ -2,8 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-/// One ingredient (or result) cell inside a recipe row.
-/// Shows: coloured border box + icon + name + amount label.
+/// One ingredient (or result) cell inside a recipe row
 public class CraftingSlotUI : MonoBehaviour
 {
     [Header("References")]
@@ -13,11 +12,11 @@ public class CraftingSlotUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI amountText;
 
     [Header("Colors")]
-    [SerializeField] private Color hasSufficientColor = new Color(0.15f, 0.65f, 0.15f, 1f);  // green
-    [SerializeField] private Color missingColor = new Color(0.70f, 0.15f, 0.15f, 1f);  // red
-    [SerializeField] private Color neutralColor = new Color(0.30f, 0.55f, 0.80f, 1f);  // blue (result)
+    [SerializeField] private Color hasSufficientColor = new Color(0.15f, 0.65f, 0.15f, 1f); // green
+    [SerializeField] private Color missingColor = new Color(0.70f, 0.15f, 0.15f, 1f);       // red
+    [SerializeField] private Color neutralColor = new Color(0.30f, 0.55f, 0.80f, 1f);       // blue
 
-    ///Set up an ingredient slot.
+    ///Set up an ingredient slot
     public void SetIngredient(Sprite icon, string itemName, int required, bool hasSufficient)
     {
         if (iconImage != null) { iconImage.sprite = icon; iconImage.enabled = (icon != null); }
@@ -27,8 +26,7 @@ public class CraftingSlotUI : MonoBehaviour
         if (nameText != null) nameText.color = hasSufficient ? hasSufficientColor : missingColor;
         if (amountText != null) amountText.color = hasSufficient ? hasSufficientColor : missingColor;
     }
-
-    ///Set up a result slot (always neutral blue).
+    ///Sets up a result slot
     public void SetResult(Sprite icon, string itemName, int amount)
     {
         if (iconImage != null) { iconImage.sprite = icon; iconImage.enabled = (icon != null); }
@@ -38,8 +36,6 @@ public class CraftingSlotUI : MonoBehaviour
         if (nameText != null) nameText.color = Color.white;
         if (amountText != null) amountText.color = Color.white;
     }
-
-    ///Refresh just the colours (called while crafting list is open).
     public void RefreshStatus(bool hasSufficient, bool isResult = false)
     {
         if (isResult) return;

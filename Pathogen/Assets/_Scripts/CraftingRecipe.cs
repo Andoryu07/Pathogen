@@ -7,8 +7,8 @@ public class CraftingRecipe : ScriptableObject
     [System.Serializable]
     public class Ingredient
     {
-        public string itemName;     // must match Item.GetItemName() exactly
-        public Sprite icon;         // drag the matching icon here
+        public string itemName;// must match Item.GetItemName() exactly
+        public Sprite icon;
         public int amount = 1;
     }
 
@@ -16,9 +16,9 @@ public class CraftingRecipe : ScriptableObject
     public List<Ingredient> ingredients = new List<Ingredient>();
 
     [Header("Result")]
-    public string resultItemName;   // name of the item to add to inventory
+    public string resultItemName;// name of the item to add to inventory
     public Sprite resultIcon;
-    public int resultAmount = 1;    // how many are produced (for stack display)
+    public int resultAmount = 1;// how many are produced (for stack display)
 
     [Header("Result Item Prefab")]
     [Tooltip("The Item prefab to instantiate and add to inventory when crafted.")]

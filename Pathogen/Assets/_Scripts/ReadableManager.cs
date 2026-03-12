@@ -8,7 +8,6 @@ public class ReadableManager : MonoBehaviour
     [SerializeField] private Transform readableListParent;
 
     private List<Item> readables = new List<Item>();
-
     public static ReadableManager Instance { get; private set; }
 
     void Awake()

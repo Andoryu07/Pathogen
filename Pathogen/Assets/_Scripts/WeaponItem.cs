@@ -1,0 +1,66 @@
+using UnityEngine;
+/// Holds the weapon's WeaponData reference and tracks the current magazine count at runtime.
+public class WeaponItem : MonoBehaviour
+{
+    [Header("Weapon Stats")]
+    [SerializeField] public WeaponData data;
+    // Runtime — not serialised; resets each play session
+    private int currentMag = -1;   // -1 = uninitialised
+    /// Returns the current rounds in the magazine
+    /// Auto-fills to max on first access (simulates weapon spawning loaded)
+    public int CurrentMag
+    {
+        get
+        {
+            if (currentMag < 0) currentMag = MagSize;
+            return currentMag;
+        }
+    }
+
+    public int MagSize => data != null ? data.magSize : 0;
+    public string AmmoItemName => data != null ? data.ammoItemName : "";
+    public bool IsMelee => MagSize == 0;
+
+    ///Consume one round from the magazine. Returns false if empty
+    public bool ConsumeRound()
+    {
+        if (IsMelee) return false;
+        if (CurrentMag <= 0) return false;
+        currentMag--;
+        return true;
+    }
+
+    /// Top-up reload: pulls only the rounds needed to fill the mag from inventory
+    /// Returns the number of rounds actually loaded (0 if already full or no ammo)
+    public int Reload()
+    {
+        if (IsMelee) return 0;
+
+        int needed = MagSize - CurrentMag;
+        if (needed <= 0) return 0;
+
+        int loaded = 0;
+        for (int i = 0; i < needed; i++)
+        {
+            Item ammoItem = InventoryGrid.Instance.GetItem(AmmoItemName);
+            if (ammoItem == null) break;           
+            InventoryGrid.Instance.RemoveItem(ammoItem);
+            loaded++;
+        }
+
+        currentMag += loaded;
+        return loaded;
+    }
+    /// Total ammo available in inventory for this weapon (excludes current mag)
+    public int AmmoInInventory()
+    {
+        if (IsMelee) return 0;
+        int total = 0;
+        foreach (Item item in InventoryGrid.Instance.GetAllItems())
+        {
+            if (item.GetItemName() == AmmoItemName)
+                total += InventoryGrid.Instance.GetStackCount(item);
+        }
+        return total;
+    }
+}

@@ -6,17 +6,14 @@ public class PlayerUI : MonoBehaviour
     [Header("UI References")]
     [SerializeField] private Image healthBarImage;
     [SerializeField] private Image staminaBarImage;
-
     [Header("Stamina Warning")]
     [SerializeField] private Color normalStaminaColor = Color.cyan;
     [SerializeField] private Color exhaustedStaminaColor = Color.red;
     [SerializeField] private bool changeStaminaColorOnExhausted = true;
-
     [Header("Health Warning")]
     [SerializeField] private Color normalHealthColor = Color.green;
     [SerializeField] private Color lowHealthColor = Color.red;
     [SerializeField] private float lowHealthThreshold = 30f;
-
     [Header("Player References")]
     [SerializeField] private PlayerController playerController;
 

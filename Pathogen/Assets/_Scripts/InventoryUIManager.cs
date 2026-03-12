@@ -6,6 +6,7 @@ using TMPro;
 public class InventoryUIManager : MonoBehaviour
 {
     public static InventoryUIManager Instance { get; private set; }
+    public bool IsOpen => inventoryPanel != null && inventoryPanel.activeSelf;
     [Header("Main Panel")]
     [SerializeField] private GameObject inventoryPanel;
     [Header("Tabs")]
@@ -130,7 +131,6 @@ public class InventoryUIManager : MonoBehaviour
         float tileW = Mathf.Floor((cr.rect.width - gridMargin * 2) / GRID_WIDTH);
         float tileH = Mathf.Floor((cr.rect.height - gridMargin * 2) / GRID_HEIGHT);
         tileSize = Mathf.Min(tileW, tileH);
-
         GridLayoutGroup layout = gridParent.GetComponent<GridLayoutGroup>();
         if (layout != null)
         {
@@ -143,7 +143,6 @@ public class InventoryUIManager : MonoBehaviour
                 (int)gridMargin, (int)gridMargin);
             layout.childAlignment = TextAnchor.MiddleCenter;
         }
-
         slots = new InventorySlotUI[GRID_WIDTH, GRID_HEIGHT];
         for (int y = 0; y < GRID_HEIGHT; y++)
             for (int x = 0; x < GRID_WIDTH; x++)
@@ -186,8 +185,17 @@ public class InventoryUIManager : MonoBehaviour
     public void ToggleInventory()
     {
         inventoryPanel.SetActive(!inventoryPanel.activeSelf);
-        if (inventoryPanel.activeSelf) { RefreshInventoryGrid(); SwitchTab(activeTab); }
-        else { clickPanel.SetActive(false); hoverPanel.SetActive(false); CancelDrag(); }
+        if (inventoryPanel.activeSelf)
+        {
+            RefreshInventoryGrid(); SwitchTab(activeTab);
+            WeaponHUD.Instance?.Hide();
+        }
+        else
+        {
+            clickPanel.SetActive(false); hoverPanel.SetActive(false); CancelDrag();
+            WeaponHUD.Instance?.Show();
+            WeaponHUD.Instance?.RefreshAmmoText();
+        }
     }
 
     public void RefreshInventoryGrid()
@@ -197,30 +205,27 @@ public class InventoryUIManager : MonoBehaviour
             inventoryGrid = InventoryGrid.Instance;
             if (inventoryGrid == null) { Debug.LogError("[InventoryUI] InventoryGrid missing!"); return; }
         }
-
         foreach (var slot in slots) slot.ClearSlot();
-
         foreach (var item in inventoryGrid.GetAllItems())
         {
             Vector2Int pos = inventoryGrid.GetItemPosition(item);
             bool rotated = inventoryGrid.IsItemRotated(item);
             if (pos.x < 0) continue;
             ItemSize size = inventoryGrid.GetEffectiveSize(item, rotated);
-
+            int stackCount = inventoryGrid.GetStackCount(item);
             for (int dx = 0; dx < size.width; dx++)
                 for (int dy = 0; dy < size.height; dy++)
                 {
                     int sx = pos.x + dx, sy = pos.y + dy;
                     if (sx >= GRID_WIDTH || sy >= GRID_HEIGHT) continue;
-
                     bool isTopLeft = (dx == 0 && dy == 0);
+                    bool isBottomRight = (dx == size.width - 1 && dy == size.height - 1);
                     bool eTop = (dy == 0);
                     bool eBottom = (dy == size.height - 1);
                     bool eLeft = (dx == 0);
                     bool eRight = (dx == size.width - 1);
-
-                    slots[sx, sy].SetItem(item, isTopLeft, eTop, eBottom, eLeft, eRight);
-
+                    slots[sx, sy].SetItem(item, isTopLeft, isBottomRight,
+                                          eTop, eBottom, eLeft, eRight, stackCount);
                     if (isTopLeft)
                         slots[sx, sy].SetIconSize(size.width * tileSize, size.height * tileSize);
                 }
@@ -233,12 +238,10 @@ public class InventoryUIManager : MonoBehaviour
         hoverItemNameText.text = item.GetItemName();
         hoverItemDescText.text = item.GetDescription();
         hoverPanel.SetActive(true);
-
         Vector2Int pos = inventoryGrid.GetItemPosition(item);
         bool rotated = inventoryGrid.IsItemRotated(item);
         ItemSize size = inventoryGrid.GetEffectiveSize(item, rotated);
         if (pos.x < 0) return;
-
         for (int dx = 0; dx < size.width; dx++)
             for (int dy = 0; dy < size.height; dy++)
             {
@@ -267,16 +270,13 @@ public class InventoryUIManager : MonoBehaviour
         if (clickPanel.activeSelf && clickedItem == item) { clickPanel.SetActive(false); return; }
         clickedItem = item;
         ItemType type = item.GetItemType();
-
         // Use/Equip: only Weapons and Consumables have actions — everything else is greyed out
         bool canUseEquip = (type == ItemType.Weapon || type == ItemType.Consumable);
         useEquipButton.interactable = canUseEquip;
         if (type == ItemType.Weapon) useEquipButtonText.text = "Equip";
         else if (type == ItemType.Material) useEquipButtonText.text = "Craft Only";
-        else if (type == ItemType.Ammo) useEquipButtonText.text = "Ammo";
         else if (type == ItemType.KeyItem) useEquipButtonText.text = "Key Item";
         else useEquipButtonText.text = "Use";
-
         // Discard: blocked for key items and the starter weapon (Crowbar)
         discardButton.interactable = !(type == ItemType.KeyItem || item.IsStarterItem());
         clickPanel.SetActive(true);
@@ -303,7 +303,6 @@ public class InventoryUIManager : MonoBehaviour
         clickPanel.SetActive(false);
         clickedItem = null;
         hoverPanel.SetActive(false);
-
         if (item.GetItemType() == ItemType.Weapon)
         {
             // Equip — store on PlayerController and refresh HUD
@@ -335,7 +334,6 @@ public class InventoryUIManager : MonoBehaviour
     {
         if (clickedItem == null) return;
         if (clickedItem.GetItemType() == ItemType.KeyItem || clickedItem.IsStarterItem()) return;
-
         // If discarding the equipped weapon, clear the weapon slot
         PlayerController player = FindObjectOfType<PlayerController>();
         if (player != null && player.EquippedWeapon == clickedItem)
@@ -343,8 +341,7 @@ public class InventoryUIManager : MonoBehaviour
             player.EquipWeapon(null);
             if (WeaponHUD.Instance != null) WeaponHUD.Instance.Refresh(null);
         }
-
-        inventoryGrid.RemoveItem(clickedItem);
+        inventoryGrid.RemoveItemStack(clickedItem);
         clickedItem = null;
         clickPanel.SetActive(false);
         hoverPanel.SetActive(false);
@@ -390,29 +387,23 @@ public class InventoryUIManager : MonoBehaviour
         dragGhostRect.anchoredPosition = lp;
         UpdateGhostHighlightFromMouse();
     }
-
-    // Drives ghost highlighting purely from mouse position in grid space — avoids all pointer-event edge cases that caused out-of-bounds issues.
+    // Drives ghost highlighting purely from mouse position in grid space — avoids all pointer-event edge cases that caused out-of-bounds issues
     private void UpdateGhostHighlightFromMouse()
     {
         RectTransform gridRT = gridParent.GetComponent<RectTransform>();
-        Camera uiCam = parentCanvas.renderMode == RenderMode.ScreenSpaceOverlay
-                           ? null : parentCanvas.worldCamera;
-
+        Camera uiCam = parentCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : parentCanvas.worldCamera;
         if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 gridRT, Input.mousePosition, uiCam, out Vector2 local))
         {
             if (ghostHoverX >= 0) ClearAllGhostHighlights();
             return;
         }
-
         float gridPixelW = GRID_WIDTH * tileSize;
         float gridPixelH = GRID_HEIGHT * tileSize;
         float fromLeft = local.x + gridPixelW * 0.5f - gridMargin;
         float fromTop = gridPixelH * 0.5f - local.y - gridMargin;
-
         int cellX = Mathf.FloorToInt(fromLeft / tileSize);
         int cellY = Mathf.FloorToInt(fromTop / tileSize);
-
         if (cellX < 0 || cellX >= GRID_WIDTH || cellY < 0 || cellY >= GRID_HEIGHT)
         {
             if (ghostHoverX >= 0) ClearAllGhostHighlights();
@@ -552,15 +543,11 @@ public class InventoryUIManager : MonoBehaviour
         int collected = TalismanManager.Instance.CollectedCount;
         int total = TalismanManager.Instance.TotalCount;
         collectiblesCountText.text = $"Talismans:  {collected} / {total}";
-
         if (collectibleRewardsParent == null || collectibleRewardPrefab == null) return;
-
         List<Transform> old = new List<Transform>();
         foreach (Transform c in collectibleRewardsParent) old.Add(c);
         foreach (Transform c in old) DestroyImmediate(c.gameObject);
-
         EnsureVerticalList(collectibleRewardsParent, 56f);
-
         var rewards = new (int n, string lbl, string fx)[]
         {
             (1,  "1 Talisman",   "+10% Max Stamina"),
@@ -573,15 +560,11 @@ public class InventoryUIManager : MonoBehaviour
             bool unlocked = collected >= r.n;
             GameObject go = Instantiate(collectibleRewardPrefab, collectibleRewardsParent);
             ForceFullWidth(go, 56f);
-
             var texts = go.GetComponentsInChildren<TextMeshProUGUI>();
             if (texts.Length >= 2) { texts[0].text = r.lbl; texts[1].text = r.fx; }
             else if (texts.Length == 1) texts[0].text = $"{r.lbl}  —  {r.fx}";
-
             var img = go.GetComponent<Image>();
-            if (img != null) img.color = unlocked
-                ? new Color(0.15f, 0.55f, 0.15f, 0.65f)
-                : new Color(0.22f, 0.22f, 0.22f, 0.65f);
+            if (img != null) img.color = unlocked ? new Color(0.15f, 0.55f, 0.15f, 0.65f) : new Color(0.22f, 0.22f, 0.22f, 0.65f);
 
             Color tc = unlocked ? Color.white : new Color(0.55f, 0.55f, 0.55f, 1f);
             foreach (var t in texts) t.color = tc;
@@ -591,7 +574,6 @@ public class InventoryUIManager : MonoBehaviour
     public void RefreshCraftingList()
     {
         if (craftingListParent == null || craftingRecipePrefab == null) return;
-
         if (CraftingManager.Instance == null)
         {
             Debug.LogWarning("[InventoryUI] CraftingManager not found in scene!");
@@ -599,16 +581,13 @@ public class InventoryUIManager : MonoBehaviour
         }
         foreach (Transform c in craftingListParent) Destroy(c.gameObject);
         EnsureVerticalList(craftingListParent, CraftingRecipeUI.ROW_HEIGHT);
-
         List<CraftingRecipe> visible = CraftingManager.Instance.GetVisibleRecipes();
         foreach (var recipe in visible)
         {
             GameObject go = Instantiate(craftingRecipePrefab, craftingListParent);
             ForceFullWidth(go, CraftingRecipeUI.ROW_HEIGHT);
-
             if (go.GetComponent<Image>() == null)
                 go.AddComponent<Image>();
-
             var recipeUI = go.GetComponent<CraftingRecipeUI>();
             if (recipeUI != null)
                 recipeUI.Setup(recipe);

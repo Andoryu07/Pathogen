@@ -2,8 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 
 
-/// Singleton that owns all recipes, tracks which are unlocked,
-/// and executes crafting (consuming ingredients, producing result).
+/// Singleton that owns all recipes, tracks which are unlocked and executes crafting (consuming ingredients, producing result)
 public class CraftingManager : MonoBehaviour
 {
     public static CraftingManager Instance { get; private set; }
@@ -11,8 +10,7 @@ public class CraftingManager : MonoBehaviour
     [Header("All Recipes in the Game")]
     [SerializeField] private List<CraftingRecipe> allRecipes = new List<CraftingRecipe>();
 
-    // Recipes the player has unlocked (either by finding all ingredients
-    // once, or by picking up a recipe document).
+    // Recipes the player has unlocked (either by finding all ingredients once, or by picking up a recipe document)
     private HashSet<CraftingRecipe> unlockedRecipes = new HashSet<CraftingRecipe>();
 
     void Awake()
@@ -28,7 +26,7 @@ public class CraftingManager : MonoBehaviour
         }
     }
 
-    /// Unlocks a recipe by name (called from e.g. picking up a recipe scroll).
+    /// Unlocks a recipe by name (called from e.g. picking up a recipe)
     public void UnlockRecipe(string recipeName)
     {
         var recipe = allRecipes.Find(r => r.name == recipeName);
@@ -45,12 +43,7 @@ public class CraftingManager : MonoBehaviour
             unlockedRecipes.Add(recipe);
     }
 
-
-    /// Returns true if the player should be able to see this recipe in the UI.
-    /// Visibility rules:
-    ///   - Not locked by default  → always visible
-    ///   - Locked by default      → visible only once unlocked OR once the
-    ///                              player has had every ingredient at least once
+    /// Returns true if the player should be able to see this recipe in the UI
     public bool IsRecipeVisible(CraftingRecipe recipe)
     {
         if (!recipe.lockedByDefault) return true;
@@ -65,7 +58,7 @@ public class CraftingManager : MonoBehaviour
         return false;
     }
 
-    ///Returns every recipe the player can currently see.
+    ///Returns every recipe the player can currently see
     public List<CraftingRecipe> GetVisibleRecipes()
     {
         var visible = new List<CraftingRecipe>();
@@ -75,7 +68,7 @@ public class CraftingManager : MonoBehaviour
         return visible;
     }
 
-    /// How many of itemName the player currently has in inventory.
+    /// How many of itemName the player currently has in inventory
     public int CountInInventory(string itemName)
     {
         int count = 0;
@@ -85,7 +78,7 @@ public class CraftingManager : MonoBehaviour
         return count;
     }
 
-    ///True if every ingredient requirement is currently met.
+    ///True if every ingredient requirement is currently met
     public bool HasAllIngredients(CraftingRecipe recipe)
     {
         foreach (var ing in recipe.ingredients)
@@ -109,7 +102,6 @@ public class CraftingManager : MonoBehaviour
             Debug.Log($"[Crafting] Cannot craft {recipe.resultItemName} — missing ingredients.");
             return false;
         }
-
         // Consume ingredients
         foreach (var ing in recipe.ingredients)
         {
@@ -140,7 +132,6 @@ public class CraftingManager : MonoBehaviour
         bool addedToInventory = InventoryGrid.Instance.TryAddItem(result);
         if (!addedToInventory)
         {
-            // Drop at player position if inventory is full
             PlayerController player = FindObjectOfType<PlayerController>();
             if (player != null)
             {

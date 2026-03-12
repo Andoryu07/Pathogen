@@ -7,10 +7,9 @@ using TMPro;
 public class CodePadUI : MonoBehaviour
 {
     public static CodePadUI Instance { get; private set; }
-
+    public bool IsOpen => codePadPanel != null && codePadPanel.activeSelf;
     [Header("Panel")]
     [SerializeField] private GameObject codePadPanel;
-
     [Header("Appearance")]
     [SerializeField] private int maxCodeLength = 6;
     [SerializeField] private Color bgColor = new Color(0.10f, 0.10f, 0.12f, 0.97f);
@@ -27,8 +26,6 @@ public class CodePadUI : MonoBehaviour
     private string enteredCode = "";
     private TextMeshProUGUI displayText;
     private bool uiBuilt = false;
-
-
     void Awake()
     {
         if (Instance == null) Instance = this;
@@ -37,7 +34,6 @@ public class CodePadUI : MonoBehaviour
 
     void Start()
     {
-        // Set panel background colour
         Image bg = codePadPanel.GetComponent<Image>();
         if (bg != null) bg.color = bgColor;
 
@@ -48,7 +44,6 @@ public class CodePadUI : MonoBehaviour
     void Update()
     {
         if (!codePadPanel.activeSelf) return;
-
         // Keyboard input support
         foreach (char c in Input.inputString)
         {
@@ -73,7 +68,6 @@ public class CodePadUI : MonoBehaviour
         currentLock = null;
         enteredCode = "";
     }
-
     private void AppendDigit(string digit)
     {
         if (enteredCode.Length >= maxCodeLength) return;
@@ -103,6 +97,7 @@ public class CodePadUI : MonoBehaviour
         else
         {
             RefreshDisplay(textWrong);
+            // Clear input after a short pause so player can retry
             Invoke(nameof(ClearAfterWrong), 0.8f);
         }
     }
@@ -116,10 +111,11 @@ public class CodePadUI : MonoBehaviour
     private void RefreshDisplay(Color colour)
     {
         if (displayText == null) return;
-        displayText.text = enteredCode.Length > 0 ? new string('●', enteredCode.Length) : "_ _ _ _";
+
+        // Show entered digits as * bullets while typing, then reveal on submit
+        displayText.text = enteredCode.Length > 0 ? new string('●', enteredCode.Length) : "_ _ _";
         displayText.color = colour;
     }
-
     private void BuildUI()
     {
         if (uiBuilt) return;
@@ -158,6 +154,8 @@ public class CodePadUI : MonoBehaviour
         displayText.fontSize = 26f;
         displayText.alignment = TextAlignmentOptions.Center;
         displayText.color = textNormal;
+        // ── Keypad grid (3 columns) ──
+        // Rows: 1-2-3 / 4-5-6 / 7-8-9 / ← 0 ↵
         string[][] rows = new string[][]
         {
             new[] { "1", "2", "3" },
@@ -181,11 +179,8 @@ public class CodePadUI : MonoBehaviour
             {
                 var keyGO = CreateChild($"Key_{label}", rowGO);
                 var keyImg = keyGO.AddComponent<Image>();
-
-                Color kc = label == "↵" ? enterColor :
-                           label == "←" ? backColor : keyBgColor;
+                Color kc = label == "↵" ? enterColor : label == "←" ? backColor : keyBgColor;
                 keyImg.color = kc;
-
                 var lblGO = CreateChild("Label", keyGO);
                 var lblRT = lblGO.GetComponent<RectTransform>();
                 lblRT.anchorMin = Vector2.zero; lblRT.anchorMax = Vector2.one;
@@ -200,16 +195,13 @@ public class CodePadUI : MonoBehaviour
                 btn.targetGraphic = keyImg;
                 var cb = btn.colors;
                 cb.normalColor = kc;
-                cb.highlightedColor = label == "↵" ? Lighten(enterColor) :
-                                      label == "←" ? Lighten(backColor) : keyHoverColor;
+                cb.highlightedColor = label == "↵" ? Lighten(enterColor) : label == "←" ? Lighten(backColor) : keyHoverColor;
                 cb.pressedColor = Darken(kc);
                 btn.colors = cb;
-
                 string captured = label;
                 btn.onClick.AddListener(() => OnKeyPressed(captured));
             }
         }
-
         var hintGO = CreateChild("Hint", codePadPanel);
         var hintTMP = hintGO.AddComponent<TextMeshProUGUI>();
         hintTMP.text = "ESC to cancel";

@@ -11,9 +11,8 @@ public class InventoryGrid : MonoBehaviour
     private List<Item> items = new List<Item>();
     private Dictionary<Item, Vector2Int> itemPositions = new Dictionary<Item, Vector2Int>();
     private Dictionary<Item, bool> itemRotations = new Dictionary<Item, bool>();
-
+    private Dictionary<Item, int> stackCounts = new Dictionary<Item, int>();
     public static InventoryGrid Instance { get; private set; }
-
     public int GridWidth => gridWidth;
     public int GridHeight => gridHeight;
 
@@ -38,7 +37,25 @@ public class InventoryGrid : MonoBehaviour
 
     public bool TryAddItem(Item item)
     {
-        // Tries normal orientation first, then rotated
+        int maxStack = item.GetMaxStackSize();
+
+        //Try to fill an existing partial stack of the same item name
+        if (maxStack > 1)
+        {
+            foreach (Item existing in items)
+            {
+                if (existing.GetItemName() == item.GetItemName() &&
+                    stackCounts.TryGetValue(existing, out int count) &&
+                    count < maxStack)
+                {
+                    stackCounts[existing] = count + 1;
+                    Debug.Log($"[Inventory] Stacked {item.GetItemName()} onto existing stack ({count + 1}/{maxStack})");
+                    return true;
+                }
+            }
+        }
+
+        //No existing stack with room — place as a new stack
         for (int rotPass = 0; rotPass < 2; rotPass++)
         {
             bool rotated = (rotPass == 1);
@@ -50,14 +67,30 @@ public class InventoryGrid : MonoBehaviour
                     {
                         PlaceItemAt(item, x, y, rotated);
                         items.Add(item);
-                        Debug.Log($"Added {item.GetItemName()} at [{x},{y}] rotated={rotated}");
+                        stackCounts[item] = 1;
+                        Debug.Log($"[Inventory] Added {item.GetItemName()} at [{x},{y}] rotated={rotated} (1/{maxStack})");
                         return true;
                     }
                 }
             }
         }
-        Debug.Log($"No space found for {item.GetItemName()} (size {item.GetSize().width}x{item.GetSize().height})");
+
+        Debug.Log($"[Inventory] No space for {item.GetItemName()} ({item.GetSize().width}x{item.GetSize().height})");
         return false;
+    }
+    /// Adds multiple instances of the same item at once
+    /// Fills existing stacks first, then opens new stacks for overflow
+    /// Returns how many could NOT be added (0 = all fit)
+    public int TryAddItemAmount(Item itemPrefab, int amount)
+    {
+        int remaining = amount;
+        while (remaining > 0)
+        {
+            bool placed = TryAddItem(itemPrefab);
+            if (!placed) break;
+            remaining--;
+        }
+        return remaining;
     }
 
     public bool CanPlaceItemAt(Item item, int startX, int startY, bool rotated)
@@ -118,8 +151,11 @@ public class InventoryGrid : MonoBehaviour
 
     public void MoveItem(Item item, int newX, int newY, bool rotated)
     {
+        // Preserve stack count across the move — RemoveItemFromGrid would wipe it
+        stackCounts.TryGetValue(item, out int savedCount);
         RemoveItemFromGrid(item);
         PlaceItemAt(item, newX, newY, rotated);
+        if (savedCount > 0) stackCounts[item] = savedCount;
     }
 
     public bool IsItemRotated(Item item)
@@ -155,9 +191,29 @@ public class InventoryGrid : MonoBehaviour
         }
         itemPositions.Remove(item);
         itemRotations.Remove(item);
+        stackCounts.Remove(item);
     }
 
+    /// Removes one instance from the item's stack
+    /// Only removes the stack slot itself when count reaches 0
     public void RemoveItem(Item item)
+    {
+        if (!items.Contains(item)) return;
+
+        if (stackCounts.TryGetValue(item, out int count) && count > 1)
+        {
+            stackCounts[item] = count - 1;
+            Debug.Log($"[Inventory] Consumed one {item.GetItemName()} — {count - 1} remaining in stack.");
+            return;
+        }
+
+        // Stack empty — remove the slot entirely
+        RemoveItemFromGrid(item);
+        items.Remove(item);
+    }
+
+    ///Removes the entire stack regardless of count (e.g. discard)
+    public void RemoveItemStack(Item item)
     {
         if (!items.Contains(item)) return;
         RemoveItemFromGrid(item);
@@ -198,6 +254,12 @@ public class InventoryGrid : MonoBehaviour
             }
         }
         return positions;
+    }
+
+    public int GetStackCount(Item item)
+    {
+        if (stackCounts.TryGetValue(item, out int count)) return count;
+        return 1;
     }
 
     public List<Item> GetAllItems() => items;

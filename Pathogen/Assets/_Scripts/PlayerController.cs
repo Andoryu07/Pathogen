@@ -7,11 +7,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float sprintSpeed = 8f;
     [SerializeField] private float crouchSpeed = 2.5f;
     [SerializeField] private float acceleration = 10f;
-
     [Header("Health Settings")]
     [SerializeField] private float maxHealth = 100f;
     [SerializeField] private float currentHealth;
-
     [Header("Stamina Settings")]
     [SerializeField] private float maxStamina = 100f;
     [SerializeField] private float currentStamina;
@@ -19,11 +17,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float staminaRegenRate = 15f;
     [SerializeField] private float staminaRegenDelay = 1f;
     [SerializeField] private float exhaustedThreshold = 50f;
-
     [Header("Exhaustion")]
     [SerializeField] private bool isExhausted = false;
     [SerializeField] private float exhaustedTimer = 0f;
-
     [Header("Input")]
     [SerializeField] private Vector2 moveInput;
     [SerializeField] private bool isSprinting;

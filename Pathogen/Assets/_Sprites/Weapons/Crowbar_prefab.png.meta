@@ -116,12 +116,12 @@ TextureImporter:
       name: Crowbar_prefab_0
       rect:
         serializedVersion: 2
-        x: 28
-        y: 136
-        width: 569
-        height: 227
+        x: 0
+        y: 57
+        width: 300
+        height: 126
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 45fbacdef210ea547a759f753ff619e3
     internalID: 0
     vertices: []
     indices: 

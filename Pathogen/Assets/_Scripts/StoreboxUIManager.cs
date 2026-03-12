@@ -2,32 +2,31 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
-/// Manages the storebox panel UI.
+
+/// Manages the storebox panel UI
 public class StoreboxUIManager : MonoBehaviour
 {
     public static StoreboxUIManager Instance { get; private set; }
-
+    public bool IsOpen => storeboxPanel != null && storeboxPanel.activeSelf;
     [Header("Panel")]
     [SerializeField] private GameObject storeboxPanel;
-
     [Header("List Parents (ScrollView Content objects)")]
     [SerializeField] private Transform boxListParent;
     [SerializeField] private Transform inventoryListParent;
-
     [Header("Action Bar")]
     [SerializeField] private Button actionButton;
     [SerializeField] private TextMeshProUGUI actionButtonText;
+    [SerializeField] private Button allButton;
+    [SerializeField] private TextMeshProUGUI allButtonText;
     [SerializeField] private TextMeshProUGUI feedbackText;
     [SerializeField] private Button closeButton;
 
     private Item selectedItem = null;
     private bool selectedIsInBox = false;   // true = box side, false = inventory side
-
     // Colours
     private static readonly Color ColSelected = new Color(0.25f, 0.55f, 0.90f, 0.85f);
     private static readonly Color ColNormal = new Color(0.18f, 0.18f, 0.18f, 0.85f);
     private static readonly Color ColHover = new Color(0.28f, 0.28f, 0.28f, 0.85f);
-
     // Tracks spawned row buttons for colour refresh
     private List<(Item item, Image bg, bool inBox)> rows = new List<(Item, Image, bool)>();
 
@@ -42,6 +41,7 @@ public class StoreboxUIManager : MonoBehaviour
         storeboxPanel.SetActive(false);
         if (closeButton != null) closeButton.onClick.AddListener(CloseStorebox);
         if (actionButton != null) actionButton.onClick.AddListener(OnActionClicked);
+        if (allButton != null) allButton.onClick.AddListener(OnAllClicked);
         ClearAction();
     }
 
@@ -57,12 +57,15 @@ public class StoreboxUIManager : MonoBehaviour
         selectedItem = null;
         ClearAction();
         Refresh();
+        WeaponHUD.Instance?.Hide();
     }
 
     public void CloseStorebox()
     {
         storeboxPanel.SetActive(false);
         selectedItem = null;
+        WeaponHUD.Instance?.Show();
+        WeaponHUD.Instance?.RefreshAmmoText();
     }
 
     private void Refresh()
@@ -77,27 +80,19 @@ public class StoreboxUIManager : MonoBehaviour
         // Clear old rows (only remove rows belonging to this side)
         rows.RemoveAll(r => r.inBox == inBox);
         foreach (Transform c in parent) Destroy(c.gameObject);
-
         EnsureVerticalList(parent);
-
         foreach (var item in items)
         {
             Item cap = item;
             bool mine = inBox;
-
-            // Row button
             GameObject rowGO = new GameObject(item.GetItemName(), typeof(RectTransform));
             rowGO.transform.SetParent(parent, false);
-
             var le = rowGO.AddComponent<LayoutElement>();
             le.preferredHeight = 44f;
             le.minHeight = 44f;
             le.flexibleWidth = 1f;
-
             Image bg = rowGO.AddComponent<Image>();
             bg.color = (selectedItem == item) ? ColSelected : ColNormal;
-
-            // Horizontal layout inside the row
             var hlg = rowGO.AddComponent<HorizontalLayoutGroup>();
             hlg.childControlWidth = false;
             hlg.childForceExpandWidth = false;
@@ -105,8 +100,6 @@ public class StoreboxUIManager : MonoBehaviour
             hlg.childForceExpandHeight = true;
             hlg.spacing = 6f;
             hlg.padding = new RectOffset(8, 8, 4, 4);
-
-            // Icon
             if (item.GetIcon() != null)
             {
                 GameObject iconGO = new GameObject("Icon", typeof(RectTransform));
@@ -118,12 +111,17 @@ public class StoreboxUIManager : MonoBehaviour
                 iconLE.preferredWidth = 32f;
                 iconLE.preferredHeight = 32f;
             }
-
-            // Name label
+            // Name label — append stack count when > 1
+            int stackCount = inBox
+                ? StoreboxManager.Instance.GetStackCount(item)
+                : InventoryGrid.Instance.GetStackCount(item);
+            string labelText = stackCount > 1
+                ? $"{item.GetItemName()}  <color=#aaaaaa>x{stackCount}</color>"
+                : item.GetItemName();
             GameObject labelGO = new GameObject("Label", typeof(RectTransform));
             labelGO.transform.SetParent(rowGO.transform, false);
             var labelTMP = labelGO.AddComponent<TextMeshProUGUI>();
-            labelTMP.text = item.GetItemName();
+            labelTMP.text = labelText;
             labelTMP.fontSize = 15f;
             labelTMP.alignment = TextAlignmentOptions.MidlineLeft;
             labelTMP.color = Color.white;
@@ -131,8 +129,6 @@ public class StoreboxUIManager : MonoBehaviour
             var labelLE = labelGO.AddComponent<LayoutElement>();
             labelLE.flexibleWidth = 1f;
             labelLE.preferredHeight = 36f;
-
-            // Click handler via Button
             Button btn = rowGO.AddComponent<Button>();
             btn.targetGraphic = bg;
 
@@ -170,15 +166,17 @@ public class StoreboxUIManager : MonoBehaviour
 
         if (inBox)
         {
-            // Selected item is in the box — show Withdraw
             if (actionButton != null) actionButton.gameObject.SetActive(true);
             if (actionButtonText != null) actionButtonText.text = "Withdraw";
+            if (allButton != null) allButton.gameObject.SetActive(true);
+            if (allButtonText != null) allButtonText.text = "Withdraw All";
         }
         else
         {
-            // Selected item is in inventory — show Store
             if (actionButton != null) actionButton.gameObject.SetActive(true);
             if (actionButtonText != null) actionButtonText.text = "Store";
+            if (allButton != null) allButton.gameObject.SetActive(true);
+            if (allButtonText != null) allButtonText.text = "Store All";
         }
     }
     private void OnActionClicked()
@@ -200,12 +198,49 @@ public class StoreboxUIManager : MonoBehaviour
             StoreboxManager.Instance.StoreItem(selectedItem);
             SetFeedback($"Stored: {selectedItem.GetItemName()}");
         }
+        selectedItem = null;
+        ClearAction();
+        Refresh();
+        //refreshes the main inventory grid if it's open
+        if (InventoryUIManager.Instance != null)
+            InventoryUIManager.Instance.RefreshInventoryGrid();
+    }
+
+    private void OnAllClicked()
+    {
+        if (selectedItem == null) return;
+        Item item = selectedItem;
+
+        if (selectedIsInBox)
+        {
+            int count = StoreboxManager.Instance.GetStackCount(item);
+            int withdrawn = 0;
+            for (int i = 0; i < count; i++)
+            {
+                bool ok = StoreboxManager.Instance.WithdrawItem(item);
+                if (!ok) break;
+                withdrawn++;
+            }
+            SetFeedback(withdrawn == count
+                ? $"Withdrew all {count}x {item.GetItemName()}"
+                : $"Withdrew {withdrawn}/{count} — inventory full.");
+        }
+        else
+        {
+            int count = InventoryGrid.Instance.GetStackCount(item);
+            int stored = 0;
+            for (int i = 0; i < count; i++)
+            {
+                StoreboxManager.Instance.StoreItem(item);
+                stored++;
+            }
+            SetFeedback($"Stored all {stored}x {item.GetItemName()}");
+        }
 
         selectedItem = null;
         ClearAction();
         Refresh();
 
-        // Also refresh the main inventory grid if it's open
         if (InventoryUIManager.Instance != null)
             InventoryUIManager.Instance.RefreshInventoryGrid();
     }
@@ -213,6 +248,7 @@ public class StoreboxUIManager : MonoBehaviour
     private void ClearAction()
     {
         if (actionButton != null) actionButton.gameObject.SetActive(false);
+        if (allButton != null) allButton.gameObject.SetActive(false);
     }
 
     private void SetFeedback(string msg)

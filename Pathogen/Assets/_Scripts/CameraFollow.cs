@@ -4,7 +4,6 @@ public class CameraFollow : MonoBehaviour
 {
     [SerializeField] private Transform targetToFollow; // What should the camera follow
     [SerializeField] private float smoothTime = 0.3f;  // How smoothly does the camera follow selected object
-
     private Vector3 velocity = Vector3.zero;
     private Camera cam;
 

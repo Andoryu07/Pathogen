@@ -4,20 +4,15 @@ using System.Collections.Generic;
 public class TalismanManager : MonoBehaviour
 {
     public static TalismanManager Instance { get; private set; }
-
     [Header("Settings")]
     [SerializeField] private int totalTalismans = 10;
-
     private int collectedCount = 0;
-
-    // Reward thresholds — mirrors GDD values
     private static readonly (int threshold, string description)[] Rewards =
     {
         (1,  "+10% Stamina"),
         (5,  "+20% Reload Speed"),
         (10, "+30% Ranged Damage"),
     };
-
     public int CollectedCount => collectedCount;
     public int TotalCount => totalTalismans;
 
@@ -34,15 +29,11 @@ public class TalismanManager : MonoBehaviour
         }
     }
 
-    /// <summary>Call this when the player smashes a talisman in the world.</summary>
     public void CollectTalisman()
     {
         collectedCount++;
         collectedCount = Mathf.Min(collectedCount, totalTalismans);
-
         Debug.Log($"[Talisman] Collected {collectedCount}/{totalTalismans}");
-
-        // Check if a reward threshold was just crossed
         foreach (var reward in Rewards)
         {
             if (collectedCount == reward.threshold)
@@ -54,10 +45,8 @@ public class TalismanManager : MonoBehaviour
     }
 
     public bool IsRewardUnlocked(int threshold) => collectedCount >= threshold;
-
     private void ApplyReward(int threshold)
     {
-        // Hook up to player stats when those systems are ready
         switch (threshold)
         {
             case 1:

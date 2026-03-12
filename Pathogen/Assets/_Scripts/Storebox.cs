@@ -1,7 +1,4 @@
 using UnityEngine;
-/// Place this on a box GameObject in the world alongside a Collider2D
-/// (set to trigger, on the Interactable layer).
-/// When the player presses E nearby, it opens the StoreboxUI panel.
 public class Storebox : InteractableBase
 {
     void Awake()

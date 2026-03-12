@@ -13,15 +13,12 @@ public class Lock : InteractableBase
     [Header("Lock Settings")]
     [SerializeField] private LockType lockType = LockType.KeyItem;
     [SerializeField] private bool isLocked = true;
-
     [Header("Key Item Settings")]
     [SerializeField] private string requiredItemName;
     [SerializeField] private bool consumeItem = true;
-
     [Header("Code Settings")]
     [SerializeField] private string correctCode = "1971";
     [SerializeField] private bool caseSensitive = false;
-
     [Header("Target")]
     [SerializeField] private GameObject targetObject;
     [SerializeField] private bool deactivateTargetOnUnlock = true;
@@ -107,7 +104,6 @@ public class Lock : InteractableBase
             Debug.Log($"You need: {requiredItemName}");
         }
     }
-
     ///Returns true if the code is correct and unlocks the lock
     public bool TryCodeUnlock(string enteredCode)
     {
