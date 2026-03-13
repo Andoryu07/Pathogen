@@ -15,3 +15,6 @@ MonoBehaviour:
   weaponName: Hunting Rifle
   magSize: 5
   ammoItemName: Rifle Cartridges
+  range: 30
+  damage: 80
+  fireRate: 1.5

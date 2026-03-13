@@ -1,5 +1,5 @@
 using UnityEngine;
-/// Handles all Use and Equip logic for consumable items.
+/// Handles all Use and Equip logic for consumable items
 public class UseItemHandler : MonoBehaviour
 {
     public static UseItemHandler Instance { get; private set; }
@@ -7,8 +7,10 @@ public class UseItemHandler : MonoBehaviour
     [SerializeField] private PlayerController playerController;
     [Header("Pain Killer Settings")]
     [SerializeField] private float painKillerDuration = 300f; // 5 minutes in seconds
+
     private bool painKillersActive = false;
     private float painKillerTimer = 0f;
+
     void Awake()
     {
         if (Instance == null) Instance = this;
@@ -17,6 +19,7 @@ public class UseItemHandler : MonoBehaviour
         if (playerController == null)
             playerController = GetComponent<PlayerController>();
     }
+
     void Update()
     {
         if (painKillersActive)
@@ -32,14 +35,13 @@ public class UseItemHandler : MonoBehaviour
     }
 
     /// Attempts to use a consumable item
-    /// Returns true if the item had a valid effect and should be removed from inventory. Returns false to keep it.
     public bool TryUseItem(Item item)
     {
         if (item == null) return false;
         float maxHP = playerController.MaxHealth;
         switch (item.GetItemName())
         {
-            case "Bandage":
+            case "Bandage":               
                 playerController.Heal(maxHP * 0.20f);
                 ShowHealFeedback("Bandage  +20% HP");
                 return true;
@@ -62,11 +64,11 @@ public class UseItemHandler : MonoBehaviour
             case "Pain Killers":
                 painKillersActive = true;
                 painKillerTimer = painKillerDuration;
-                // Hook: InfectionManager.Instance?.SuppressSymptoms(painKillerDuration);
+                InfectionManager.Instance?.SuppressSymptoms(painKillerDuration);
                 ShowFeedback("Pain Killers — symptoms suppressed 5 min");
                 return true;
             case "Antidote":
-                // Hook: InfectionManager.Instance?.ClearInfection();
+                InfectionManager.Instance?.ClearInfection();
                 ShowFeedback("Antidote — infection cured");
                 return true;
             case "Caffeine":
@@ -88,6 +90,7 @@ public class UseItemHandler : MonoBehaviour
                 return false;
         }
     }
+
     public bool ArePainKillersActive() => painKillersActive;
     public float PainKillerTimeRemaining() => painKillerTimer;
     private void ShowFeedback(string msg) => ShowFeedbackColour(msg, FeedbackType.Info);

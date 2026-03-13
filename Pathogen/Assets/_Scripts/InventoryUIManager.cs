@@ -7,6 +7,14 @@ public class InventoryUIManager : MonoBehaviour
 {
     public static InventoryUIManager Instance { get; private set; }
     public bool IsOpen => inventoryPanel != null && inventoryPanel.activeSelf;
+
+    ///Updates the Patheos balance display in the inventory panel
+    public void RefreshWalletDisplay()
+    {
+        if (walletText == null) return;
+        int bal = WalletManager.Instance != null ? WalletManager.Instance.Balance : 0;
+        walletText.text = $"Patheos: {bal}";
+    }
     [Header("Main Panel")]
     [SerializeField] private GameObject inventoryPanel;
     [Header("Tabs")]
@@ -67,6 +75,8 @@ public class InventoryUIManager : MonoBehaviour
     [SerializeField] private GameObject rotateButtonObject;
     [Header("Canvas")]
     [SerializeField] private Canvas parentCanvas;
+    [Header("Wallet")]
+    [SerializeField] private TMPro.TextMeshProUGUI walletText;
 
     private InventorySlotUI[,] slots;
     private InventoryGrid inventoryGrid;
@@ -188,6 +198,7 @@ public class InventoryUIManager : MonoBehaviour
         if (inventoryPanel.activeSelf)
         {
             RefreshInventoryGrid(); SwitchTab(activeTab);
+            RefreshWalletDisplay();
             WeaponHUD.Instance?.Hide();
         }
         else
@@ -212,7 +223,9 @@ public class InventoryUIManager : MonoBehaviour
             bool rotated = inventoryGrid.IsItemRotated(item);
             if (pos.x < 0) continue;
             ItemSize size = inventoryGrid.GetEffectiveSize(item, rotated);
+
             int stackCount = inventoryGrid.GetStackCount(item);
+
             for (int dx = 0; dx < size.width; dx++)
                 for (int dy = 0; dy < size.height; dy++)
                 {
@@ -224,10 +237,8 @@ public class InventoryUIManager : MonoBehaviour
                     bool eBottom = (dy == size.height - 1);
                     bool eLeft = (dx == 0);
                     bool eRight = (dx == size.width - 1);
-                    slots[sx, sy].SetItem(item, isTopLeft, isBottomRight,
-                                          eTop, eBottom, eLeft, eRight, stackCount);
-                    if (isTopLeft)
-                        slots[sx, sy].SetIconSize(size.width * tileSize, size.height * tileSize);
+                    slots[sx, sy].SetItem(item, isTopLeft, isBottomRight,eTop, eBottom, eLeft, eRight, stackCount);
+                    if (isTopLeft) slots[sx, sy].SetIconSize(size.width * tileSize, size.height * tileSize);
                 }
         }
     }
@@ -341,6 +352,7 @@ public class InventoryUIManager : MonoBehaviour
             player.EquipWeapon(null);
             if (WeaponHUD.Instance != null) WeaponHUD.Instance.Refresh(null);
         }
+
         inventoryGrid.RemoveItemStack(clickedItem);
         clickedItem = null;
         clickPanel.SetActive(false);
@@ -387,11 +399,13 @@ public class InventoryUIManager : MonoBehaviour
         dragGhostRect.anchoredPosition = lp;
         UpdateGhostHighlightFromMouse();
     }
+
     // Drives ghost highlighting purely from mouse position in grid space — avoids all pointer-event edge cases that caused out-of-bounds issues
     private void UpdateGhostHighlightFromMouse()
     {
         RectTransform gridRT = gridParent.GetComponent<RectTransform>();
         Camera uiCam = parentCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : parentCanvas.worldCamera;
+
         if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 gridRT, Input.mousePosition, uiCam, out Vector2 local))
         {
@@ -563,8 +577,11 @@ public class InventoryUIManager : MonoBehaviour
             var texts = go.GetComponentsInChildren<TextMeshProUGUI>();
             if (texts.Length >= 2) { texts[0].text = r.lbl; texts[1].text = r.fx; }
             else if (texts.Length == 1) texts[0].text = $"{r.lbl}  —  {r.fx}";
+
             var img = go.GetComponent<Image>();
-            if (img != null) img.color = unlocked ? new Color(0.15f, 0.55f, 0.15f, 0.65f) : new Color(0.22f, 0.22f, 0.22f, 0.65f);
+            if (img != null) img.color = unlocked
+                ? new Color(0.15f, 0.55f, 0.15f, 0.65f)
+                : new Color(0.22f, 0.22f, 0.22f, 0.65f);
 
             Color tc = unlocked ? Color.white : new Color(0.55f, 0.55f, 0.55f, 1f);
             foreach (var t in texts) t.color = tc;
@@ -586,8 +603,10 @@ public class InventoryUIManager : MonoBehaviour
         {
             GameObject go = Instantiate(craftingRecipePrefab, craftingListParent);
             ForceFullWidth(go, CraftingRecipeUI.ROW_HEIGHT);
+
             if (go.GetComponent<Image>() == null)
                 go.AddComponent<Image>();
+
             var recipeUI = go.GetComponent<CraftingRecipeUI>();
             if (recipeUI != null)
                 recipeUI.Setup(recipe);

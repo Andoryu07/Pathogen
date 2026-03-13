@@ -2,6 +2,8 @@
 
 public class PlayerController : MonoBehaviour
 {
+    // Single-player convenience reference — set in Awake
+    public static PlayerController LocalInstance { get; private set; }
     [Header("Movement Settings")]
     [SerializeField] private float walkSpeed = 5f;
     [SerializeField] private float sprintSpeed = 8f;
@@ -36,6 +38,7 @@ public class PlayerController : MonoBehaviour
 
     void Awake()
     {
+        LocalInstance = this;
         rb = GetComponent<Rigidbody2D>();
         if (rb == null)
         {
@@ -63,9 +66,7 @@ public class PlayerController : MonoBehaviour
         {
             moveInput = moveInput.normalized;
         }
-
         bool wantsToSprint = Input.GetKey(KeyCode.LeftShift);
-
         if (wantsToSprint && !isExhausted && currentStamina > 0 && !isCrouching)
         {
             isSprinting = true;
@@ -98,7 +99,6 @@ public class PlayerController : MonoBehaviour
             {
                 currentStamina += staminaRegenRate * Time.deltaTime;
                 currentStamina = Mathf.Min(currentStamina, maxStamina);
-
                 if (isExhausted)
                 {
                     float exhaustedThresholdValue = maxStamina * (exhaustedThreshold / 100f);
@@ -123,6 +123,9 @@ public class PlayerController : MonoBehaviour
         {
             targetSpeed = crouchSpeed;
         }
+        // Aiming caps movement to crouch speed (cannot sprint while aiming)
+        if (AimSystem.Instance != null && AimSystem.Instance.IsAiming)
+            targetSpeed = Mathf.Min(targetSpeed, crouchSpeed);
         Vector2 targetVelocity = moveInput * targetSpeed;
         rb.linearVelocity = Vector2.SmoothDamp(rb.linearVelocity, targetVelocity, ref currentVelocity, acceleration * Time.fixedDeltaTime);
     }
@@ -157,6 +160,8 @@ public class PlayerController : MonoBehaviour
     {
         currentHealth += amount;
         currentHealth = Mathf.Min(currentHealth, maxHealth);
+        if (Mathf.Approximately(currentHealth, maxHealth))
+            InfectionManager.Instance?.OnPlayerFullyHealed();
     }
 
     ///Permanently increases max stamina by a fraction (e.g. 0.10 = +10%)
@@ -165,6 +170,25 @@ public class PlayerController : MonoBehaviour
         float bonus = maxStamina * fraction;
         maxStamina += bonus;
         currentStamina = Mathf.Min(currentStamina + bonus, maxStamina);
+    }
+
+    /// Reduces maxHealth and maxStamina by a fraction (called by InfectionManager)
+    public void ApplyInfectionPenalty(float hpFraction, float stamFraction)
+    {
+        maxHealth -= maxHealth * hpFraction;
+        maxStamina -= maxStamina * stamFraction;
+        currentHealth = Mathf.Min(currentHealth, maxHealth);
+        currentStamina = Mathf.Min(currentStamina, maxStamina);
+    }
+  
+    /// Restores the stat reduction previously applied by ApplyInfectionPenalty
+    public void RemoveInfectionPenalty(float hpFraction, float stamFraction)
+    {
+        // Reverse: if maxHealth was multiplied by (1 - f), divide by (1 - f) to restore
+        float hpDivisor = 1f - hpFraction;
+        float stamDivisor = 1f - stamFraction;
+        if (hpDivisor > 0f) maxHealth /= hpDivisor;
+        if (stamDivisor > 0f) maxStamina /= stamDivisor;
     }
     private Item equippedWeapon = null;
     public Item EquippedWeapon => equippedWeapon;

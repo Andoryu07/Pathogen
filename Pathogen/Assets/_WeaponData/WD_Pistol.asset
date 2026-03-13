@@ -15,3 +15,6 @@ MonoBehaviour:
   weaponName: Pistol
   magSize: 12
   ammoItemName: Pistol Rounds
+  range: 10
+  damage: 25
+  fireRate: 0.25

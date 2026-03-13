@@ -15,3 +15,6 @@ MonoBehaviour:
   weaponName: Shotgun
   magSize: 6
   ammoItemName: Shotgun Shells
+  range: 8
+  damage: 60
+  fireRate: 0.8

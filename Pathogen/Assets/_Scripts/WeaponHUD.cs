@@ -1,19 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-
-/// <summary>
-/// HUD widget showing the equipped weapon, current mag, and reserve ammo.
-/// Also handles left-click to fire and R to reload (no animations yet).
-///
-/// HIERARCHY (under GameUI Canvas):
-///   WeaponHUDPanel  (this script)
-///     ├── WeaponIcon      (Image)
-///     ├── WeaponName      (TextMeshProUGUI)
-///     └── AmmoText        (TextMeshProUGUI)  ← NEW  e.g. "12 / 30"
-///
-/// Wire all four references in the Inspector.
-/// </summary>
+/// HUD widget showing the equipped weapon, current mag, and reserve ammo
 public class WeaponHUD : MonoBehaviour
 {
     public static WeaponHUD Instance { get; private set; }
@@ -29,7 +17,6 @@ public class WeaponHUD : MonoBehaviour
     private static readonly Color ColNormal = new Color(0.90f, 0.90f, 0.90f, 1f);
     private static readonly Color ColLow = new Color(0.95f, 0.55f, 0.15f, 1f);  // orange
     private static readonly Color ColEmpty = new Color(0.90f, 0.20f, 0.20f, 1f);  // red
-
     private WeaponItem equippedWeaponItem = null;
     private bool inventoryOpen = false;  // don't fire while inventory is open
     void Awake()
@@ -37,18 +24,16 @@ public class WeaponHUD : MonoBehaviour
         if (Instance == null) Instance = this;
         else { Destroy(gameObject); return; }
     }
+
     void Start() => Refresh(null);
+
     void Update()
     {
+        // Input is handled by AimSystem — WeaponHUD only manages display and logic
         if (equippedWeaponItem == null || equippedWeaponItem.IsMelee) return;
-        // Block input while inventory / storebox / codepad is open
         if (IsAnyUIOpen()) return;
-        // Left-click — fire one round
-        if (Input.GetMouseButtonDown(0))
-            TryFire();
-        // R — reload
-        if (Input.GetKeyDown(KeyCode.R))
-            TryReload();
+        if (AimSystem.Instance != null && AimSystem.Instance.IsAiming) return;
+        if (Input.GetKeyDown(KeyCode.R)) TryReload();
     }
 
     public void Hide() => hudPanel.SetActive(false);
@@ -64,11 +49,12 @@ public class WeaponHUD : MonoBehaviour
         hudPanel.SetActive(true);
     }
 
-    /// Called whenever the equipped weapon changes
+    ///Call whenever the equipped weapon changes
     public void Refresh(Item weapon)
     {
         // Find WeaponItem component on the weapon prefab
         equippedWeaponItem = weapon != null ? weapon.GetComponent<WeaponItem>() : null;
+
         if (weapon == null)
         {
             if (hideWhenEmpty) { hudPanel.SetActive(false); return; }
@@ -89,7 +75,6 @@ public class WeaponHUD : MonoBehaviour
 
         RefreshAmmoText();
     }
-
     ///Call after any inventory ammo change to keep reserve count current
     public void RefreshAmmoText()
     {
@@ -103,7 +88,6 @@ public class WeaponHUD : MonoBehaviour
         int reserve = equippedWeaponItem.AmmoInInventory();
         ammoText.enabled = true;
         ammoText.text = $"{mag}  /  {reserve}";
-        // Colour the text based on mag fullness
         float ratio = equippedWeaponItem.MagSize > 0
             ? (float)mag / equippedWeaponItem.MagSize : 1f;
 
@@ -111,6 +95,8 @@ public class WeaponHUD : MonoBehaviour
                          ratio < 0.3f ? ColLow : ColNormal;
     }
 
+    /// Called by AimSystem on left-click while aiming
+    public bool TryFirePublic() { TryFire(); return equippedWeaponItem != null; }
     private void TryFire()
     {
         if (equippedWeaponItem.CurrentMag <= 0)
@@ -120,16 +106,17 @@ public class WeaponHUD : MonoBehaviour
         }
         equippedWeaponItem.ConsumeRound();
         RefreshAmmoText();
-
-        // Shooting / hit detection hook — will plug projectile system in here later
-        Debug.Log($"[WeaponHUD] Fired {equippedWeaponItem.data.weaponName} — " +
-                  $"{equippedWeaponItem.CurrentMag}/{equippedWeaponItem.MagSize} remaining.");
+        // Shooting / hit detection hook — plug projectile system in here later
+        Debug.Log($"[WeaponHUD] Fired {equippedWeaponItem.data.weaponName} — " + $"{equippedWeaponItem.CurrentMag}/{equippedWeaponItem.MagSize} remaining.");
+        // Warn when low
         if (equippedWeaponItem.CurrentMag == 0)
             HUDFeedback.Instance?.ShowWarning("Magazine empty — press R to reload.");
         else if ((float)equippedWeaponItem.CurrentMag / equippedWeaponItem.MagSize < 0.3f)
             HUDFeedback.Instance?.ShowWarning($"Low ammo — {equippedWeaponItem.CurrentMag} rounds left.");
     }
 
+    ///Called by AimSystem on R press while aiming
+    public void TryReloadPublic() => TryReload();
     private void TryReload()
     {
         if (equippedWeaponItem.CurrentMag >= equippedWeaponItem.MagSize)
@@ -144,7 +131,7 @@ public class WeaponHUD : MonoBehaviour
         }
         int loaded = equippedWeaponItem.Reload();
         RefreshAmmoText();
-        //refresh the inventory UI so ammo stack counts update visually
+        // Also refresh the inventory UI so ammo stack counts update visually
         InventoryUIManager.Instance?.RefreshInventoryGrid();
         if (loaded > 0)
             HUDFeedback.Instance?.ShowInfo(

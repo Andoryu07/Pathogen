@@ -15,3 +15,6 @@ MonoBehaviour:
   weaponName: Crowbar
   magSize: 0
   ammoItemName: 
+  range: 2
+  damage: 10
+  fireRate: 0.6

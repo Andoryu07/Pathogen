@@ -6,8 +6,8 @@ public enum ItemType
     Weapon,
     Consumable,
     Readable,
-    Material,   
-    Ammo      
+    Material,
+    Ammo
 }
 
 [System.Serializable]
@@ -43,6 +43,14 @@ public class Item : InteractableBase
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         promptMessage = $"E - Pick up {itemName}";
+
+        // Show the inventory icon as the world sprite if no sprite is set manually
+        if (spriteRenderer != null && spriteRenderer.sprite == null && itemIcon != null)
+        {
+            spriteRenderer.sprite = itemIcon;
+            // Scale down to a small ground pickup size
+            transform.localScale = new Vector3(0.4f, 0.4f, 1f);
+        }
     }
 
     public override void Interact()
@@ -61,15 +69,19 @@ public class Item : InteractableBase
         {
             bool pickedUp = InventoryGrid.Instance.TryAddItem(this);
             if (pickedUp)
+            {
+                // Refresh weapon HUD in case picked-up item is ammo for equipped weapon
+                WeaponHUD.Instance?.RefreshAmmoText();
                 gameObject.SetActive(false);
+            }
             else
+            {
                 Debug.Log("No space in inventory! Reorganize items or discard them to make space.");
+                HUDFeedback.Instance?.ShowWarning("No space in inventory!");
+            }
         }
     }
-
-    public void ShowReadableText()
-        => Debug.Log($"=== {itemName} ===\n{readableText}\n================");
-
+    public void ShowReadableText() => Debug.Log($"=== {itemName} ===\n{readableText}\n================");
     public string GetItemName() => itemName;
     public string GetDescription() => itemDescription;
     public string GetReadableText() => readableText;
