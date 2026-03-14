@@ -35,6 +35,9 @@ public class PlayerController : MonoBehaviour
     public bool IsExhausted { get { return isExhausted; } }
     public float CurrentHealth { get { return currentHealth; } }
     public float MaxHealth { get { return maxHealth; } }
+    public bool IsSprinting => isSprinting;
+    public bool IsCrouching => isCrouching;
+    public bool IsMoving => moveInput.magnitude > 0.1f;
 
     void Awake()
     {
@@ -66,7 +69,9 @@ public class PlayerController : MonoBehaviour
         {
             moveInput = moveInput.normalized;
         }
+
         bool wantsToSprint = Input.GetKey(KeyCode.LeftShift);
+
         if (wantsToSprint && !isExhausted && currentStamina > 0 && !isCrouching)
         {
             isSprinting = true;
@@ -99,6 +104,7 @@ public class PlayerController : MonoBehaviour
             {
                 currentStamina += staminaRegenRate * Time.deltaTime;
                 currentStamina = Mathf.Min(currentStamina, maxStamina);
+
                 if (isExhausted)
                 {
                     float exhaustedThresholdValue = maxStamina * (exhaustedThreshold / 100f);
@@ -172,6 +178,7 @@ public class PlayerController : MonoBehaviour
         currentStamina = Mathf.Min(currentStamina + bonus, maxStamina);
     }
 
+ 
     /// Reduces maxHealth and maxStamina by a fraction (called by InfectionManager)
     public void ApplyInfectionPenalty(float hpFraction, float stamFraction)
     {
@@ -180,7 +187,7 @@ public class PlayerController : MonoBehaviour
         currentHealth = Mathf.Min(currentHealth, maxHealth);
         currentStamina = Mathf.Min(currentStamina, maxStamina);
     }
-  
+
     /// Restores the stat reduction previously applied by ApplyInfectionPenalty
     public void RemoveInfectionPenalty(float hpFraction, float stamFraction)
     {
