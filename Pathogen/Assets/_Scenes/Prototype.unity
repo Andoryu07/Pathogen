@@ -7493,6 +7493,9 @@ MonoBehaviour:
     height: 2
   maxStackSize: 1
   isStarterItem: 1
+  worldStackCount: 1
+  showWorldSprite: 1
+  worldSpriteScale: 0.4
   readableText: 'A crowbar.
 
     Might come handy in combat.'
@@ -9592,6 +9595,9 @@ MonoBehaviour:
     height: 1
   maxStackSize: 1
   isStarterItem: 0
+  worldStackCount: 1
+  showWorldSprite: 1
+  worldSpriteScale: 0.4
   readableText: "A note with the code 1971. \nAppears to be the code to the gate."
 --- !u!61 &1250156985
 BoxCollider2D:
@@ -11469,13 +11475,29 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1623160937118433666, guid: 044a7a239b5b67f41b5f769951bbcbb0, type: 3}
+      propertyPath: m_Radius
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1623160937118433666, guid: 044a7a239b5b67f41b5f769951bbcbb0, type: 3}
+      propertyPath: m_Offset.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3015986778122949668, guid: 044a7a239b5b67f41b5f769951bbcbb0, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3015986778122949668, guid: 044a7a239b5b67f41b5f769951bbcbb0, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 3015986778122949668, guid: 044a7a239b5b67f41b5f769951bbcbb0, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -6.14
+      value: -5
       objectReference: {fileID: 0}
     - target: {fileID: 3015986778122949668, guid: 044a7a239b5b67f41b5f769951bbcbb0, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.66623
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3015986778122949668, guid: 044a7a239b5b67f41b5f769951bbcbb0, type: 3}
       propertyPath: m_LocalPosition.z
@@ -11517,10 +11539,18 @@ PrefabInstance:
       propertyPath: m_CollisionDetection
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 3081642766128376460, guid: 044a7a239b5b67f41b5f769951bbcbb0, type: 3}
+      propertyPath: m_ExcludeLayers.m_Bits
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3081642766128376460, guid: 044a7a239b5b67f41b5f769951bbcbb0, type: 3}
+      propertyPath: m_IncludeLayers.m_Bits
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3854322140559064633, guid: 044a7a239b5b67f41b5f769951bbcbb0, type: 3}
       propertyPath: patheosPrefab
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 8041273416702311226, guid: cdde057aa791bfa45820df490f243356, type: 3}
     - target: {fileID: 3854322140559064633, guid: 044a7a239b5b67f41b5f769951bbcbb0, type: 3}
       propertyPath: ammoDropChance
       value: 1
@@ -14268,18 +14298,12 @@ MonoBehaviour:
   testItems:
   - itemPrefab: {fileID: 8234824942987186895, guid: 66e568d3569f47145ba278b52854b781, type: 3}
     amount: 1
-  - itemPrefab: {fileID: 8234824942987186895, guid: 71d933e897acade47afe0c83374d6a19, type: 3}
-    amount: 1
-  - itemPrefab: {fileID: 8234824942987186895, guid: 0e06dfbdf2f8d994a9cb0deb4d012165, type: 3}
-    amount: 1
   - itemPrefab: {fileID: 8234824942987186895, guid: a1d2da78bc4077848860e3d9863b9110, type: 3}
-    amount: 60
-  - itemPrefab: {fileID: 8234824942987186895, guid: 33dccb2985df80348ae4cc54d98ee87e, type: 3}
-    amount: 20
-  - itemPrefab: {fileID: 8234824942987186895, guid: 894c59ec256964d4185d8079b5c0addd, type: 3}
-    amount: 20
-  - itemPrefab: {fileID: 8234824942987186895, guid: 6a3e14ab29061d04c990f324f86c089e, type: 3}
-    amount: 2
+    amount: 30
+  - itemPrefab: {fileID: 8234824942987186895, guid: 097cfded379f40546a0a7f7d1d858414, type: 3}
+    amount: 1
+  - itemPrefab: {fileID: 8234824942987186895, guid: a8d56ac39e8c1304a86995624e373fcd, type: 3}
+    amount: 1
   spawnKey: 286
   clearKey: 287
   showOnScreen: 1
@@ -15364,7 +15388,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 0, g: 0.1596942, b: 1, a: 1}
   m_FlipX: 0
@@ -15459,7 +15483,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::UseItemHandler
   playerController: {fileID: 2070365242}
-  painKillerDuration: 300
+  painKillerDuration: 10
 --- !u!114 &2070365250
 MonoBehaviour:
   m_ObjectHideFlags: 0

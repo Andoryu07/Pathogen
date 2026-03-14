@@ -33,6 +33,12 @@ public class Item : InteractableBase
     [SerializeField] private int maxStackSize = 1;
     [Header("Flags")]
     [SerializeField] private bool isStarterItem = false;
+    [Header("World Drop")]
+    [Tooltip("When dropped in the world, how many are in this pickup. Set at runtime by loot spawner.")]
+    [SerializeField] private int worldStackCount = 1;
+    [Tooltip("Show the item icon as a small sprite on the ground when dropped.")]
+    [SerializeField] private bool showWorldSprite = true;
+    [SerializeField] private float worldSpriteScale = 0.4f;
     [Header("Readable")]
     [SerializeField]
     [TextArea(3, 10)]
@@ -42,17 +48,39 @@ public class Item : InteractableBase
     void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
-        promptMessage = $"E - Pick up {itemName}";
-
-        // Show the inventory icon as the world sprite if no sprite is set manually
-        if (spriteRenderer != null && spriteRenderer.sprite == null && itemIcon != null)
-        {
-            spriteRenderer.sprite = itemIcon;
-            // Scale down to a small ground pickup size
-            transform.localScale = new Vector3(0.4f, 0.4f, 1f);
-        }
+        UpdatePromptMessage();
     }
 
+    void OnEnable()
+    {
+        // Applies sprite immediately when activated (e.g. loot drop SetActive(true))
+        ApplyWorldSprite(scaleApplied: false);
+    }
+
+    void Start()
+    {
+        // Applies scale, overrides any prefab-saved scale correctly
+        ApplyWorldSprite(scaleApplied: true);
+    }
+
+    private void ApplyWorldSprite(bool scaleApplied)
+    {
+        if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null) return;
+
+        if (showWorldSprite && itemIcon != null)
+        {
+            spriteRenderer.sprite = itemIcon;
+            spriteRenderer.enabled = true;
+            spriteRenderer.sortingOrder = 0; // render below player (player should be order 1+)
+            if (scaleApplied)
+                transform.localScale = new Vector3(worldSpriteScale, worldSpriteScale, 1f);
+        }
+        else if (!showWorldSprite)
+        {
+            spriteRenderer.enabled = false;
+        }
+    }
     public override void Interact()
     {
         if (itemType == ItemType.Readable)
@@ -67,20 +95,25 @@ public class Item : InteractableBase
         }
         else
         {
-            bool pickedUp = InventoryGrid.Instance.TryAddItem(this);
-            if (pickedUp)
+            //Use TryAddItemAmount for stacked world drops (e.g 7x Pistol Rounds as one pickup)
+            int toAdd = Mathf.Max(1, worldStackCount);
+            int leftover = InventoryGrid.Instance.TryAddItemAmount(this, toAdd);
+            if (leftover < toAdd)
             {
-                // Refresh weapon HUD in case picked-up item is ammo for equipped weapon
+                //At least some were added
                 WeaponHUD.Instance?.RefreshAmmoText();
+                if (leftover > 0)
+                    HUDFeedback.Instance?.ShowWarning(
+                        $"Picked up {toAdd - leftover}/{toAdd} — inventory full!");
                 gameObject.SetActive(false);
             }
             else
             {
-                Debug.Log("No space in inventory! Reorganize items or discard them to make space.");
                 HUDFeedback.Instance?.ShowWarning("No space in inventory!");
             }
         }
     }
+
     public void ShowReadableText() => Debug.Log($"=== {itemName} ===\n{readableText}\n================");
     public string GetItemName() => itemName;
     public string GetDescription() => itemDescription;
@@ -90,4 +123,16 @@ public class Item : InteractableBase
     public ItemSize GetSize() => size;
     public int GetMaxStackSize() => maxStackSize;
     public bool IsStarterItem() => isStarterItem;
+    private void UpdatePromptMessage()
+    {
+        promptMessage = worldStackCount > 1
+            ? $"E - Pick up {itemName} x{worldStackCount}"
+            : $"E - Pick up {itemName}";
+    }
+    public void SetWorldStackCount(int count)
+    {
+        worldStackCount = Mathf.Max(1, count);
+        UpdatePromptMessage();
+    }
+    public int GetWorldStackCount() => worldStackCount;
 }

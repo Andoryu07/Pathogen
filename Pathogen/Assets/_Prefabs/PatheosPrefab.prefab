@@ -50,6 +50,8 @@ MonoBehaviour:
   amount: 100
   worldSprite: {fileID: -2238668774040641269, guid: fdcae4dde3866664da9180b0947f414a, type: 3}
   spriteColor: {r: 0.24313727, g: 0.24313727, b: 0.24313727, a: 1}
+  showWorldSprite: 0
+  worldScale: 0.1
 --- !u!212 &4891921013831580076
 SpriteRenderer:
   m_ObjectHideFlags: 0

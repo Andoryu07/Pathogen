@@ -1,5 +1,5 @@
 using UnityEngine;
-/// Fired by AimSystem toward the cursor. Travels in a straight line, damages the first IDamageable it hits, then destroys itself
+/// Fired by AimSystem toward the cursor. Travels in a straight line, damages the first IDamageable it hits, then destroys itself.
 public class Projectile : MonoBehaviour
 {
     // Set by AimSystem.FireProjectile() — no Inspector wiring needed
@@ -15,20 +15,18 @@ public class Projectile : MonoBehaviour
     private float travelledDistance = 0f;
     private bool hit = false;
     private Rigidbody2D rb;
-
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-        SpriteRenderer sr = GetComponent<SpriteRenderer>();
-        if (sr == null)
-        {
-            sr = gameObject.AddComponent<SpriteRenderer>();
-            sr.sprite = BuildCircleSprite(8);
-            sr.color = bulletColor;
-            transform.localScale = new Vector3(0.12f, 0.12f, 1f);
-        }
-    }
 
+        // Always build and assign the procedural circle sprite
+        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+        if (sr == null) sr = gameObject.AddComponent<SpriteRenderer>();
+        sr.sprite = BuildCircleSprite(8);
+        sr.color = bulletColor;
+        sr.sortingOrder = 10; // render on top of ground sprites
+        transform.localScale = new Vector3(0.12f, 0.12f, 1f);
+    }
     ///Called immediately after instantiation by AimSystem
     public void Launch(Vector2 dir, float spd = -1f)
     {
@@ -52,10 +50,14 @@ public class Projectile : MonoBehaviour
         if (hit) return;
 
         // Accept hit if: layer matches the enemy layer mask, OR tagged "Enemy"
-        bool layerMatch = enemyLayer.value != 0 && (enemyLayer.value & (1 << other.gameObject.layer)) != 0;
+        bool layerMatch = enemyLayer.value != 0 &&
+                          (enemyLayer.value & (1 << other.gameObject.layer)) != 0;
         bool tagMatch = other.CompareTag("Enemy");
+
         if (!layerMatch && !tagMatch) return;
+
         hit = true;
+
         IDamageable target = other.GetComponent<IDamageable>();
         if (target != null)
         {
