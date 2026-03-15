@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 286f857d92e1c9b4e9a6939acd1e6a05, type: 3}
+  m_Name: FirstAidKitShopItem
+  m_EditorClassIdentifier: Assembly-CSharp::ShopItemData
+  itemPrefab: {fileID: 747256383279408493, guid: 30903333297777345b97b755ce310210, type: 3}
+  displayName: First Aid Kit
+  displayIcon: {fileID: -1444210703911494812, guid: e6fd966f3a1eeb540ace6061d9387a43, type: 3}
+  price: 2000
+  requiredItemName: 
+  description: A healing item

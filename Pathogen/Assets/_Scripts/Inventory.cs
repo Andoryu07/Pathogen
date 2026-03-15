@@ -78,9 +78,8 @@ public class InventoryGrid : MonoBehaviour
         Debug.Log($"[Inventory] No space for {item.GetItemName()} ({item.GetSize().width}x{item.GetSize().height})");
         return false;
     }
-    /// Adds multiple instances of the same item at once
-    /// Fills existing stacks first, then opens new stacks for overflow
-    /// Returns how many could NOT be added (0 = all fit)
+
+    /// Add multiple instances of the same item at once
     public int TryAddItemAmount(Item itemPrefab, int amount)
     {
         int remaining = amount;
@@ -194,20 +193,18 @@ public class InventoryGrid : MonoBehaviour
         stackCounts.Remove(item);
     }
 
+
     /// Removes one instance from the item's stack
-    /// Only removes the stack slot itself when count reaches 0
     public void RemoveItem(Item item)
     {
         if (!items.Contains(item)) return;
-
         if (stackCounts.TryGetValue(item, out int count) && count > 1)
         {
             stackCounts[item] = count - 1;
             Debug.Log($"[Inventory] Consumed one {item.GetItemName()} — {count - 1} remaining in stack.");
             return;
         }
-
-        // Stack empty — remove the slot entirely
+        //Stack empty — remove the slot entirely
         RemoveItemFromGrid(item);
         items.Remove(item);
     }
@@ -260,6 +257,33 @@ public class InventoryGrid : MonoBehaviour
     {
         if (stackCounts.TryGetValue(item, out int count)) return count;
         return 1;
+    }
+
+    ///Returns true if the item can be placed or stacked in the current grid
+    public bool HasSpaceForItem(Item item)
+    {
+        if (item == null) return false;
+        // If stackable, check for an existing partial stack first
+        if (item.GetMaxStackSize() > 1)
+        {
+            foreach (Item existing in items)
+            {
+                if (existing.GetItemName() == item.GetItemName() &&
+                    stackCounts.TryGetValue(existing, out int count) &&
+                    count < existing.GetMaxStackSize())
+                    return true;
+            }
+        }
+        // Otherwise check for a free grid position
+        for (int rotPass = 0; rotPass < 2; rotPass++)
+        {
+            bool rotated = rotPass == 1;
+            for (int y = 0; y < gridHeight; y++)
+                for (int x = 0; x < gridWidth; x++)
+                    if (CanPlaceItemAt(item, x, y, rotated))
+                        return true;
+        }
+        return false;
     }
 
     public List<Item> GetAllItems() => items;
