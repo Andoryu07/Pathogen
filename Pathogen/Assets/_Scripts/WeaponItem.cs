@@ -1,10 +1,11 @@
 using UnityEngine;
+
 /// Holds the weapon's WeaponData reference and tracks the current magazine count at runtime.
 public class WeaponItem : MonoBehaviour
 {
     [Header("Weapon Stats")]
     [SerializeField] public WeaponData data;
-    // Runtime — not serialised; resets each play session
+    // Runtime — not serialised
     private int currentMag = -1;   // -1 = uninitialised
     /// Returns the current rounds in the magazine
     /// Auto-fills to max on first access (simulates weapon spawning loaded)
@@ -16,11 +17,9 @@ public class WeaponItem : MonoBehaviour
             return currentMag;
         }
     }
-
     public int MagSize => data != null ? data.magSize : 0;
     public string AmmoItemName => data != null ? data.ammoItemName : "";
     public bool IsMelee => MagSize == 0;
-
     ///Consume one round from the magazine. Returns false if empty
     public bool ConsumeRound()
     {
@@ -29,27 +28,28 @@ public class WeaponItem : MonoBehaviour
         currentMag--;
         return true;
     }
-
     /// Top-up reload: pulls only the rounds needed to fill the mag from inventory
-    /// Returns the number of rounds actually loaded (0 if already full or no ammo)
     public int Reload()
     {
         if (IsMelee) return 0;
-
         int needed = MagSize - CurrentMag;
         if (needed <= 0) return 0;
-
         int loaded = 0;
         for (int i = 0; i < needed; i++)
         {
             Item ammoItem = InventoryGrid.Instance.GetItem(AmmoItemName);
-            if (ammoItem == null) break;           
+            if (ammoItem == null) break;             // no more ammo in inventory
             InventoryGrid.Instance.RemoveItem(ammoItem);
             loaded++;
         }
-
         currentMag += loaded;
         return loaded;
+    }
+
+    /// Apply all current upgrades from UpgradeManager to this weapon instance
+    public void ApplyUpgrades(WeaponUpgradeData upgradeData)
+    {
+        UpgradeManager.Instance?.ApplyUpgradesFromData(this, upgradeData);
     }
     /// Total ammo available in inventory for this weapon (excludes current mag)
     public int AmmoInInventory()

@@ -1,5 +1,4 @@
 using UnityEngine;
-
 /// ScriptableObject that holds all stats for a weapon
 [CreateAssetMenu(fileName = "WeaponData", menuName = "Pathogen/Weapon Data")]
 public class WeaponData : ScriptableObject
@@ -19,4 +18,6 @@ public class WeaponData : ScriptableObject
     public float damage = 25f;
     [Tooltip("Seconds between shots (0 = unlimited click speed).")]
     public float fireRate = 0.25f;
+    [Tooltip("Reload speed multiplier. 1.0 = base speed, 0.5 = twice as fast.")]
+    public float reloadSpeedMultiplier = 1.0f;
 }
