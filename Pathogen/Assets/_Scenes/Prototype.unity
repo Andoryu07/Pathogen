@@ -3135,7 +3135,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 2111100440}
   m_Direction: 2
   m_Value: 0
-  m_Size: 0.999532
+  m_Size: 0.9999946
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -10558,7 +10558,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.0005407568}
+  m_AnchoredPosition: {x: 0, y: 0.00044197557}
   m_SizeDelta: {x: 0, y: 300}
   m_Pivot: {x: 0, y: 1}
 --- !u!1 &1157790504
@@ -16167,7 +16167,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 144149662757477140, guid: da8e4714f7ea67944b2e82a8b4f0d209, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 751698622824813860, guid: da8e4714f7ea67944b2e82a8b4f0d209, type: 3}
       propertyPath: m_LocalScale.x
@@ -17638,11 +17638,9 @@ MonoBehaviour:
   testItems:
   - itemPrefab: {fileID: 8234824942987186895, guid: 66e568d3569f47145ba278b52854b781, type: 3}
     amount: 1
-  - itemPrefab: {fileID: 8234824942987186895, guid: a1d2da78bc4077848860e3d9863b9110, type: 3}
-    amount: 200
-  - itemPrefab: {fileID: 8234824942987186895, guid: 097cfded379f40546a0a7f7d1d858414, type: 3}
+  - itemPrefab: {fileID: 8234824942987186895, guid: 71d933e897acade47afe0c83374d6a19, type: 3}
     amount: 1
-  - itemPrefab: {fileID: 8234824942987186895, guid: a8d56ac39e8c1304a86995624e373fcd, type: 3}
+  - itemPrefab: {fileID: 8234824942987186895, guid: 0e06dfbdf2f8d994a9cb0deb4d012165, type: 3}
     amount: 1
   spawnKey: 286
   clearKey: 287
@@ -18363,7 +18361,10 @@ MonoBehaviour:
   weaponButtonPrefab: {fileID: 217763942131420615, guid: aba74b05a62725d4b953ba5a494dc530, type: 3}
   upgradeEntryPrefab: {fileID: 9092887260870883781, guid: 80239149d485e8642a1f4d83fec3472d, type: 3}
   weapons:
+  - {fileID: 11400000, guid: cca0b7d4128b72b42bf216eb46d124b5, type: 2}
   - {fileID: 11400000, guid: 58ecd5cbcd773264cbdcab79298829d9, type: 2}
+  - {fileID: 11400000, guid: 705fdfdbefbac5c41a6f027476bea949, type: 2}
+  - {fileID: 11400000, guid: 3da45655e8d531e43ba9a00634400a8c, type: 2}
 --- !u!1 &2001219137
 GameObject:
   m_ObjectHideFlags: 0

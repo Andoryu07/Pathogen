@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16b7423d88f3bd54faccfc8dc431ab96, type: 3}
+  m_Name: PistolUpgradeData
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponUpgradeData
+  weaponName: Pistol
+  weaponIcon: {fileID: -710709222084980389, guid: 4c0650dba9e4fc64b88cb546e2551043, type: 3}
+  isMelee: 0
+  damageValues:
+  - 25
+  - 30
+  - 36
+  - 43
+  - 52
+  - 62
+  damagePrices: 0000000096000000fa000000900100005802000084030000
+  magValues: 0c0000000d0000000e0000000f0000001200000014000000
+  magPrices: 0000000078000000c800000040010000e0010000d0020000
+  fireRateValues:
+  - 0.25
+  - 0.22
+  - 0.19
+  - 0.16
+  - 0.13
+  - 0.1
+  fireRatePrices: 00000000b40000002c010000cc010000a8020000e8030000
+  reloadMultipliers:
+  - 1
+  - 0.85
+  - 0.72
+  - 0.6
+  - 0.5
+  - 0.4
+  reloadPrices: 0000000082000000dc0000005e010000080200000c030000
