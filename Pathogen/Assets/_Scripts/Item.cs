@@ -33,6 +33,7 @@ public class Item : InteractableBase
     [SerializeField] private int maxStackSize = 1;
     [Header("Flags")]
     [SerializeField] private bool isStarterItem = false;
+
     [Header("World Drop")]
     [Tooltip("When dropped in the world, how many are in this pickup. Set at runtime by loot spawner.")]
     [SerializeField] private int worldStackCount = 1;
@@ -53,13 +54,14 @@ public class Item : InteractableBase
 
     void OnEnable()
     {
-        // Applies sprite immediately when activated (e.g. loot drop SetActive(true))
+        // Apply sprite immediately when activated (e.g. loot drop SetActive(true))
         ApplyWorldSprite(scaleApplied: false);
     }
 
     void Start()
     {
-        // Applies scale, overrides any prefab-saved scale correctly
+        // Apply scale here — guaranteed to run after full instantiation,
+        // overrides any prefab-saved scale correctly
         ApplyWorldSprite(scaleApplied: true);
     }
 
@@ -72,7 +74,7 @@ public class Item : InteractableBase
         {
             spriteRenderer.sprite = itemIcon;
             spriteRenderer.enabled = true;
-            spriteRenderer.sortingOrder = 0; // render below player (player should be order 1+)
+            spriteRenderer.sortingOrder = 0;   // render below player (player should be order 1+)
             if (scaleApplied)
                 transform.localScale = new Vector3(worldSpriteScale, worldSpriteScale, 1f);
         }
@@ -81,6 +83,7 @@ public class Item : InteractableBase
             spriteRenderer.enabled = false;
         }
     }
+
     public override void Interact()
     {
         if (itemType == ItemType.Readable)
@@ -95,12 +98,14 @@ public class Item : InteractableBase
         }
         else
         {
-            //Use TryAddItemAmount for stacked world drops (e.g 7x Pistol Rounds as one pickup)
+            // Use TryAddItemAmount for stacked world drops (e.g. 7x Pistol Rounds as one pickup)
             int toAdd = Mathf.Max(1, worldStackCount);
             int leftover = InventoryGrid.Instance.TryAddItemAmount(this, toAdd);
+
             if (leftover < toAdd)
             {
-                //At least some were added
+                // Report to QuestManager for ObtainItem quests
+                QuestManager.Instance?.ReportItemObtained(itemName);
                 WeaponHUD.Instance?.RefreshAmmoText();
                 if (leftover > 0)
                     HUDFeedback.Instance?.ShowWarning(
@@ -114,7 +119,9 @@ public class Item : InteractableBase
         }
     }
 
-    public void ShowReadableText() => Debug.Log($"=== {itemName} ===\n{readableText}\n================");
+    public void ShowReadableText()
+        => Debug.Log($"=== {itemName} ===\n{readableText}\n================");
+
     public string GetItemName() => itemName;
     public string GetDescription() => itemDescription;
     public string GetReadableText() => readableText;
@@ -123,6 +130,7 @@ public class Item : InteractableBase
     public ItemSize GetSize() => size;
     public int GetMaxStackSize() => maxStackSize;
     public bool IsStarterItem() => isStarterItem;
+
     private void UpdatePromptMessage()
     {
         promptMessage = worldStackCount > 1
