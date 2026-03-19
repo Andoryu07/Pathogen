@@ -13,7 +13,7 @@ public class QuestEntry : MonoBehaviour,
     [SerializeField] private TextMeshProUGUI progressText;
     [SerializeField] private TextMeshProUGUI rewardText;
     [Header("Accept Interaction")]
-    [SerializeField] private Image acceptProgressBar; 
+    [SerializeField] private Image acceptProgressBar;  
     [SerializeField] private TextMeshProUGUI acceptLabel;      
     [SerializeField] private float holdDuration = 1f;
     [Header("Claim Button")]
@@ -21,6 +21,8 @@ public class QuestEntry : MonoBehaviour,
     [Header("Donate Button (DonateItem quests only)")]
     [SerializeField] private Button donateButton;
     [SerializeField] private TextMeshProUGUI donateButtonText;
+    [SerializeField] private Button donateAllButton;
+    [SerializeField] private TextMeshProUGUI donateAllButtonText;
     [Header("Background")]
     [SerializeField] private Image backgroundImage;
     [Header("Colors")]
@@ -37,7 +39,6 @@ public class QuestEntry : MonoBehaviour,
     private bool isHolding = false;
     private float holdTimer = 0f;
     private System.Action onClaimedCallback;
-
     public void Configure(QuestData questData, System.Action onClaimed)
     {
         data = questData;
@@ -45,24 +46,18 @@ public class QuestEntry : MonoBehaviour,
 
         if (claimButton != null) claimButton.onClick.AddListener(TryClaim);
         if (donateButton != null) donateButton.onClick.AddListener(TryDonate);
+        if (donateAllButton != null) donateAllButton.onClick.AddListener(TryDonateAll);
 
         Refresh();
     }
-
     public void Refresh()
     {
         if (data == null) return;
-        currentState = QuestManager.Instance != null
-            ? QuestManager.Instance.GetState(data)
-            : QuestState.Available;
+        currentState = QuestManager.Instance != null ? QuestManager.Instance.GetState(data) : QuestState.Available;
 
         int current = QuestManager.Instance?.GetProgress(data) ?? 0;
-
-        // Name and description
         if (nameText != null) nameText.text = data.questName;
         if (descText != null) descText.text = data.description;
-
-        // Reward text
         if (rewardText != null)
         {
             string itemNames = "";
@@ -81,7 +76,6 @@ public class QuestEntry : MonoBehaviour,
             rewardText.text = $"Reward: {pathStr}{sep}{itemNames}";
             rewardText.color = colReward;
         }
-
         switch (currentState)
         {
             case QuestState.Available:
@@ -104,6 +98,7 @@ public class QuestEntry : MonoBehaviour,
         if (acceptProgressBar != null) acceptProgressBar.gameObject.SetActive(false);
         if (claimButton != null) claimButton.gameObject.SetActive(false);
         if (donateButton != null) donateButton.gameObject.SetActive(false);
+        if (donateAllButton != null) donateAllButton.gameObject.SetActive(false);
     }
 
     private void SetActiveState(int current)
@@ -118,16 +113,34 @@ public class QuestEntry : MonoBehaviour,
         if (acceptLabel != null) acceptLabel.gameObject.SetActive(false);
         if (acceptProgressBar != null) acceptProgressBar.gameObject.SetActive(false);
         if (claimButton != null) claimButton.gameObject.SetActive(false);
-
         // Show donate button only for DonateItem quests
         bool isDonate = data.questType == QuestType.DonateItem;
         if (donateButton != null) donateButton.gameObject.SetActive(isDonate);
-        if (donateButtonText != null && isDonate)
-            donateButtonText.text = InventoryGrid.Instance.HasItem(data.targetName)
-                ? $"Donate {data.targetName}"
-                : $"Need: {data.targetName}";
-        if (donateButton != null && isDonate)
-            donateButton.interactable = InventoryGrid.Instance.HasItem(data.targetName);
+        if (donateAllButton != null) donateAllButton.gameObject.SetActive(isDonate);
+        if (isDonate)
+        {
+            bool hasDonatable = HasDonationItem();
+            int remaining = data.requiredCount - current;
+            int inInventory = CountDonationItems();
+            int willDonate = Mathf.Min(remaining, inInventory);
+            if (donateButtonText != null)
+                donateButtonText.text = hasDonatable
+                    ? "Donate 1"
+                    : "Need: " + data.targetName;
+            if (donateButton != null)
+                donateButton.interactable = hasDonatable;
+            if (donateAllButtonText != null)
+                donateAllButtonText.text = "Donate All (" + willDonate + ")";
+            if (donateAllButton != null)
+                donateAllButton.interactable = hasDonatable && willDonate > 0;
+        }
+        // Show donation progress text
+        if (progressText != null && isDonate)
+        {
+            progressText.gameObject.SetActive(true);
+            progressText.text = "Donated: " + current + " / " + data.requiredCount;
+            progressText.color = colProgress;
+        }
     }
 
     private void SetCompletedState(int current)
@@ -143,6 +156,7 @@ public class QuestEntry : MonoBehaviour,
         if (acceptProgressBar != null) acceptProgressBar.gameObject.SetActive(false);
         if (claimButton != null) claimButton.gameObject.SetActive(true);
         if (donateButton != null) donateButton.gameObject.SetActive(false);
+        if (donateAllButton != null) donateAllButton.gameObject.SetActive(false);
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -158,10 +172,8 @@ public class QuestEntry : MonoBehaviour,
             acceptProgressBar.gameObject.SetActive(true);
         }
     }
-
     public void OnPointerUp(PointerEventData eventData) => CancelHold();
     public void OnPointerExit(PointerEventData eventData) => CancelHold();
-
     public void OnPointerEnter(PointerEventData eventData)
     {
         if (currentState == QuestState.Available && backgroundImage != null)
@@ -197,20 +209,56 @@ public class QuestEntry : MonoBehaviour,
         }
     }
 
+    private bool HasDonationItem()
+    {
+        return InventoryGrid.Instance.GetItem(data.targetName) != null;
+    }
+
+    private int CountDonationItems()
+    {
+        int total = 0;
+        foreach (Item item in InventoryGrid.Instance.GetAllItems())
+            if (item.GetItemName() == data.targetName)
+                total += InventoryGrid.Instance.GetStackCount(item);
+        return total;
+    }
+
     private void TryDonate()
     {
         if (data == null || data.questType != QuestType.DonateItem) return;
-
         Item item = InventoryGrid.Instance.GetItem(data.targetName);
         if (item == null)
         {
             HUDFeedback.Instance?.ShowWarning($"You don't have {data.targetName}.");
             return;
         }
-
         InventoryGrid.Instance.RemoveItem(item);
         QuestManager.Instance?.ReportItemDonated(data.targetName);
         InventoryUIManager.Instance?.RefreshInventoryGrid();
+        Refresh();
+    }
+
+    private void TryDonateAll()
+    {
+        if (data == null || data.questType != QuestType.DonateItem) return;
+        int current = QuestManager.Instance?.GetProgress(data) ?? 0;
+        int remaining = data.requiredCount - current;
+        int inInv = CountDonationItems();
+        int toGive = Mathf.Min(remaining, inInv);
+        if (toGive <= 0)
+        {
+            HUDFeedback.Instance?.ShowWarning("You don't have any " + data.targetName + ".");
+            return;
+        }
+        for (int i = 0; i < toGive; i++)
+        {
+            Item item = InventoryGrid.Instance.GetItem(data.targetName);
+            if (item == null) break;
+            InventoryGrid.Instance.RemoveItem(item);
+            QuestManager.Instance?.ReportItemDonated(data.targetName);
+        }
+        InventoryUIManager.Instance?.RefreshInventoryGrid();
+        HUDFeedback.Instance?.ShowInfo("Donated " + toGive + "x " + data.targetName + " to Silas.");
         Refresh();
     }
 

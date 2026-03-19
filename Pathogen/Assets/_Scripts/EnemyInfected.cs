@@ -25,7 +25,7 @@ public class EnemyInfected : MonoBehaviour, IDamageable
     [Range(0f, 1f)]
     private float ammoDropChance = 0.20f;                       
     [SerializeField] private int ammoDropMin = 2;
-    [SerializeField] private int ammoDropMax = 8
+    [SerializeField] private int ammoDropMax = 8;
     [Header("Attack Visuals")]
     [SerializeField] private Color windupColor = new Color(1f, 0.3f, 0.3f, 1f);
     [SerializeField] private Color normalColor = Color.white;

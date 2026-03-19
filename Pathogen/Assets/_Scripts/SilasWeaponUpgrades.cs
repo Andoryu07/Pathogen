@@ -2,7 +2,6 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// Manages the weapon upgrades panel — weapon list on the left, upgrade entries on the right.
-
 public class SilasWeaponUpgrades : MonoBehaviour
 {
     [Header("References")]
@@ -20,7 +19,6 @@ public class SilasWeaponUpgrades : MonoBehaviour
     void OnEnable()
     {
         BuildWeaponList();
-
         // Auto-select first weapon that the player owns
         if (weapons != null)
         {
@@ -33,7 +31,6 @@ public class SilasWeaponUpgrades : MonoBehaviour
                 }
             }
         }
-
         // Nothing owned yet — clear upgrade list
         ClearUpgradeList();
     }
@@ -42,9 +39,7 @@ public class SilasWeaponUpgrades : MonoBehaviour
     {
         foreach (Transform c in weaponListParent) Destroy(c.gameObject);
         weaponButtons.Clear();
-
         if (weapons == null) return;
-
         foreach (WeaponUpgradeData data in weapons)
         {
             if (data == null) continue;
@@ -64,10 +59,10 @@ public class SilasWeaponUpgrades : MonoBehaviour
         // Update selection highlight
         foreach (var btn in weaponButtons)
             btn.SetSelected(false);
-        // Find and highlight the selected button
-        for (int i = 0; i < weaponButtons.Count; i++)
-            if (weapons != null && i < weapons.Length && weapons[i] == data)
-                weaponButtons[i].SetSelected(true);
+        // Find and highlight the matching button by weapon name
+        foreach (var btn in weaponButtons)
+            if (btn.GetWeaponName() == data.weaponName)
+                btn.SetSelected(true);
 
         BuildUpgradeList(data);
     }
@@ -78,6 +73,7 @@ public class SilasWeaponUpgrades : MonoBehaviour
         if (data == null || upgradeEntryPrefab == null) return;
         // Damage — always shown for all weapons
         SpawnEntry(data, "Damage", "Strength");
+
         if (!data.isMelee)
         {
             SpawnEntry(data, "MagSize", "Magazine Size");
@@ -105,7 +101,6 @@ public class SilasWeaponUpgrades : MonoBehaviour
     {
         // Check inventory for the weapon
         if (InventoryGrid.Instance.HasItem(weaponName)) return true;
-
         // Also check if it's currently equipped
         PlayerController player = PlayerController.LocalInstance;
         if (player?.EquippedWeapon != null &&

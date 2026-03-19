@@ -1,21 +1,20 @@
 using UnityEngine;
 using System.Collections;
 
-
-/// LEAPER anomaly — extremely fast, low HP, spider-like movement
+/// LEAPER anomaly
 [RequireComponent(typeof(Rigidbody2D))]
 public class AnomalyLeaper : MonoBehaviour, IDamageable
 {
 
     [Header("Stats")]
-    [SerializeField] private float maxHealth = 45f;  
-    [SerializeField] private float scurrySpeed = 7f;     
+    [SerializeField] private float maxHealth = 45f;    
+    [SerializeField] private float scurrySpeed = 7f;  
     [SerializeField] private float contactDamage = 20f;
-    [SerializeField] private float attackWindup = 0.25f; 
+    [SerializeField] private float attackWindup = 0.25f;  
     [SerializeField] private float attackCooldown = 0.8f;
     [Header("Radii")]
-    [SerializeField] private float detectionRadius = 10f;  
-    [SerializeField] private float lungeRadius = 4f;   
+    [SerializeField] private float detectionRadius = 10f;   
+    [SerializeField] private float lungeRadius = 4f;    
     [SerializeField] private float attackRadius = 0.8f;
     [Header("Lunge")]
     [SerializeField] private float lungeSpeed = 18f;   
@@ -23,7 +22,7 @@ public class AnomalyLeaper : MonoBehaviour, IDamageable
     [SerializeField] private float lungeCooldown = 2f;
     [Header("Erratic Movement")]
     [SerializeField] private float directionChangeInterval = 0.3f; 
-    [SerializeField] private float erraticStrength = 0.4f; 
+    [SerializeField] private float erraticStrength = 0.4f; // 0=straight, 1=very erratic
     [Header("Visuals")]
     [SerializeField] private Color normalColor = new Color(0.2f, 0.6f, 0.2f, 1f); // green
     [SerializeField] private Color lungeColor = new Color(1f, 1f, 0.1f, 1f); // yellow flash
@@ -70,16 +69,13 @@ public class AnomalyLeaper : MonoBehaviour, IDamageable
     void Update()
     {
         if (state == State.Dead || playerTransform == null) return;
-
         float dist = Vector2.Distance(transform.position, playerTransform.position);
         lungeCooldownTimer -= Time.deltaTime;
-
         switch (state)
         {
             case State.Idle:
                 if (dist <= detectionRadius) state = State.Scurry;
                 break;
-
             case State.Scurry:
                 if (dist > detectionRadius) { state = State.Idle; break; }
                 // Close enough to attack
@@ -116,7 +112,6 @@ public class AnomalyLeaper : MonoBehaviour, IDamageable
                 break;
         }
     }
-
     void FixedUpdate()
     {
         if (state == State.Dead) return;
@@ -128,15 +123,14 @@ public class AnomalyLeaper : MonoBehaviour, IDamageable
     {
         isLunging = true;
         if (sr != null) sr.color = lungeColor;
-
         Vector2 lungeDir = ((Vector2)playerTransform.position - rb.position).normalized;
         float elapsed = 0f;
-
         while (elapsed < lungeDuration)
         {
             rb.MovePosition(rb.position + lungeDir * lungeSpeed * Time.fixedDeltaTime);
             elapsed += Time.fixedDeltaTime;
             yield return new WaitForFixedUpdate();
+
             // If we've reached attack range mid-lunge, stop and attack
             if (Vector2.Distance(transform.position, playerTransform.position) <= attackRadius)
                 break;
@@ -211,6 +205,9 @@ public class AnomalyLeaper : MonoBehaviour, IDamageable
         }
         else yield return new WaitForSeconds(deathDelay);
 
+        QuestManager.Instance?.ReportEnemyKill(gameObject.tag);
+        Debug.Log("[" + gameObject.name + "] Reporting kill — tag:" + gameObject.tag);
+        QuestManager.Instance?.ReportEnemyKill(gameObject.tag);
         lootTable?.DropAll(lootPos);
         Destroy(gameObject);
     }

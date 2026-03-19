@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-/// Left-side weapon list button. All visuals wired in Inspector
+/// Left-side weapon list button
 public class WeaponButtonEntry : MonoBehaviour
 {
     [Header("References")]
@@ -14,6 +14,7 @@ public class WeaponButtonEntry : MonoBehaviour
     [SerializeField] private Color colSelected = new Color(0.25f, 0.55f, 0.90f, 0.85f);
 
     private Button button;
+    private string storedWeaponName;
 
     public void Configure(WeaponUpgradeData data, System.Action<WeaponUpgradeData> onSelected)
     {
@@ -25,6 +26,7 @@ public class WeaponButtonEntry : MonoBehaviour
             if (data.weaponIcon != null) weaponIcon.sprite = data.weaponIcon;
         }
 
+        storedWeaponName = data.weaponName;
         if (weaponName != null) weaponName.text = data.weaponName;
 
         if (button != null)
@@ -33,9 +35,12 @@ public class WeaponButtonEntry : MonoBehaviour
             button.onClick.AddListener(() => onSelected?.Invoke(cap));
         }
     }
+
     public void SetSelected(bool selected)
     {
         if (backgroundImage != null)
             backgroundImage.color = selected ? colSelected : colNormal;
     }
+
+    public string GetWeaponName() => storedWeaponName;
 }

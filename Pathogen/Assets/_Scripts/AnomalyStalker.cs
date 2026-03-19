@@ -1,26 +1,25 @@
 using UnityEngine;
 using System.Collections;
 
-/// STALKER anomaly — blind, reacts to sound
+/// STALKER anomaly
 [RequireComponent(typeof(Rigidbody2D))]
 public class AnomalyStalker : MonoBehaviour, IDamageable
 {
-
     [Header("Stats")]
     [SerializeField] private float maxHealth = 150f;
     [SerializeField] private float patrolSpeed = 1.5f;
-    [SerializeField] private float alertSpeed = 3.5f; 
-    [SerializeField] private float chaseSpeed = 5.5f;   
+    [SerializeField] private float alertSpeed = 3.5f;   
+    [SerializeField] private float chaseSpeed = 5.5f; 
     [SerializeField] private float contactDamage = 35f;
     [SerializeField] private float attackWindup = 0.5f;
     [SerializeField] private float attackCooldown = 1.2f;
     [Header("Detection (Sound)")]
     [SerializeField] private float soundRadius = 5f;   
-    [SerializeField] private float sprintSoundRadius = 10f;  
+    [SerializeField] private float sprintSoundRadius = 10f; 
     [SerializeField] private float attackRadius = 1.0f;
-    [SerializeField] private float loseInterestTime = 4f;     
+    [SerializeField] private float loseInterestTime = 4f;    
     [Header("Patrol")]
-    [SerializeField] private float patrolRadius = 4f;    
+    [SerializeField] private float patrolRadius = 4f;     
     [SerializeField] private float patrolWaitMin = 1f;
     [SerializeField] private float patrolWaitMax = 3f;
     [Header("Visuals")]
@@ -53,6 +52,7 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
         sr = GetComponent<SpriteRenderer>();
         lootTable = GetComponent<AnomalyLootTable>();
         currentHealth = maxHealth;
+
         if (rb != null)
         {
             rb.isKinematic = true;
@@ -73,12 +73,15 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
     void Update()
     {
         if (state == State.Dead || playerTransform == null) return;
+
         float dist = Vector2.Distance(transform.position, playerTransform.position);
+
         switch (state)
         {
             case State.Patrol:
                 CheckSoundDetection();
                 break;
+
             case State.Alert:
                 // Moving toward last sound position — check again for sound
                 CheckSoundDetection();
@@ -113,7 +116,6 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
                     loseInterestTimer = 0f;
                 }
                 break;
-
             case State.Attack:
                 if (!isWinding && !isAttacking && dist > attackRadius)
                     state = State.Chase;
@@ -124,6 +126,7 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
     void FixedUpdate()
     {
         if (state == State.Dead) return;
+
         switch (state)
         {
             case State.Alert:
@@ -139,12 +142,15 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
     {
         if (playerController == null) return;
         if (!PlayerMakesSound()) return;
+
         float dist = Vector2.Distance(transform.position, playerTransform.position);
         float hearingRange = playerController.IsSprinting ? sprintSoundRadius : soundRadius;
+
         if (dist <= hearingRange)
         {
             lastSoundPos = playerTransform.position;
             loseInterestTimer = 0f;
+
             if (state == State.Patrol || state == State.Alert)
             {
                 state = State.Alert;
@@ -214,6 +220,7 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
         Vector2 dir = (target - rb.position).normalized;
         rb.MovePosition(rb.position + dir * speed * Time.fixedDeltaTime);
     }
+
     private IEnumerator AttackRoutine()
     {
         isWinding = true;
@@ -242,7 +249,6 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
         // Taking damage alerts the Stalker regardless of sound
         if (state == State.Patrol || state == State.Alert)
             EnterChase();
-
         if (sr != null) StartCoroutine(DamageFlash());
         if (currentHealth <= 0f && deathCoroutine == null)
             deathCoroutine = StartCoroutine(DieRoutine());
@@ -254,7 +260,9 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
         if (attackCoroutine != null) { StopCoroutine(attackCoroutine); attackCoroutine = null; }
         if (patrolCoroutine != null) { StopCoroutine(patrolCoroutine); patrolCoroutine = null; }
         if (sr != null) sr.color = normalColor;
+
         Vector2 lootPos = transform.position;
+
         if (sr != null)
         {
             float elapsed = 0f;
@@ -269,6 +277,9 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
         }
         else yield return new WaitForSeconds(deathDelay);
 
+        QuestManager.Instance?.ReportEnemyKill(gameObject.tag);
+        Debug.Log("[" + gameObject.name + "] Reporting kill — tag:" + gameObject.tag);
+        QuestManager.Instance?.ReportEnemyKill(gameObject.tag);
         lootTable?.DropAll(lootPos);
         Destroy(gameObject);
     }

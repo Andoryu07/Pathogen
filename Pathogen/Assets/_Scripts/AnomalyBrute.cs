@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-/// BRUTE anomaly — slow, massive HP
+/// BRUTE anomaly
 [RequireComponent(typeof(Rigidbody2D))]
 public class AnomalyBrute : MonoBehaviour, IDamageable
 {
@@ -42,7 +42,6 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
         sr = GetComponent<SpriteRenderer>();
         lootTable = GetComponent<AnomalyLootTable>();
         currentHealth = maxHealth;
-
         if (rb != null)
         {
             rb.isKinematic = true;
@@ -55,11 +54,9 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
     {
         playerTransform = PlayerController.LocalInstance?.transform;
     }
-
     void Update()
     {
         if (state == State.Dead || playerTransform == null) return;
-
         float dist = Vector2.Distance(transform.position, playerTransform.position);
 
         switch (state)
@@ -114,7 +111,6 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
             }
             yield return null;
         }
-        // SLAM
         if (sr != null) sr.color = slamColor;
         float dist = Vector2.Distance(transform.position, playerTransform.position);
         if (dist <= slamRadius)
@@ -122,14 +118,10 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
             PlayerController.LocalInstance?.TakeDamage(slamDamage);
             HUDFeedback.Instance?.ShowWarning($"BRUTE SLAM! -{slamDamage} HP");
         }
-        // Camera shake hook — plug CameraShake.Instance?.Shake() here when built
         TriggerScreenShake();
-
         yield return new WaitForSeconds(0.2f);
         if (sr != null) sr.color = normalColor;
-
         yield return new WaitForSeconds(slamCooldown);
-
         isAttacking = false;
         attackCoroutine = null;
         if (state == State.WindUp) state = State.Chase;
@@ -147,10 +139,8 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
         currentHealth -= damage;
         if (state == State.Idle) state = State.Chase;
         if (sr != null) StartCoroutine(DamageFlash());
-        // Show HP remaining as feedback since Brute is a mini-boss
         float hpPercent = (currentHealth / maxHealth) * 100f;
         Debug.Log($"[Brute] Took {damage} dmg — {hpPercent:F0}% HP remaining.");
-
         if (currentHealth <= 0f && deathCoroutine == null)
             deathCoroutine = StartCoroutine(DieRoutine());
     }
@@ -160,11 +150,8 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
         state = State.Dead;
         if (attackCoroutine != null) { StopCoroutine(attackCoroutine); attackCoroutine = null; }
         if (sr != null) sr.color = normalColor;
-
-        // Brute death — slower dramatic fade
         Vector2 lootPos = transform.position;
-        TriggerScreenShake(); // final death thud
-
+        TriggerScreenShake(); 
         if (sr != null)
         {
             float elapsed = 0f;
@@ -182,6 +169,8 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
         }
         else yield return new WaitForSeconds(deathDelay);
 
+        Debug.Log("[Brute] Reporting kill — tag:" + gameObject.tag + " QuestManager exists:" + (QuestManager.Instance != null));
+        QuestManager.Instance?.ReportEnemyKill(gameObject.tag);
         lootTable?.DropAll(lootPos);
         Destroy(gameObject);
     }

@@ -2,10 +2,13 @@ using UnityEngine;
 using System.Collections.Generic;
 
 public enum QuestState { Available, Active, Completed, Claimed }
+
 /// Singleton tracking quest states and progress
 public class QuestManager : MonoBehaviour
 {
     public static QuestManager Instance { get; private set; }
+    [Header("All Quests — register here so tracking works from game start")]
+    [SerializeField] private QuestData[] allQuests;
 
     // Progress tracked per quest by questName
     private Dictionary<string, QuestState> states = new Dictionary<string, QuestState>();
@@ -14,7 +17,13 @@ public class QuestManager : MonoBehaviour
     void Awake()
     {
         if (Instance == null) { Instance = this; DontDestroyOnLoad(gameObject); }
-        else Destroy(gameObject);
+        else { Destroy(gameObject); return; }
+    }
+
+    void Start()
+    {
+        // Register quests assigned directly in the Inspector
+        RegisterQuests(allQuests);
     }
 
     public QuestState GetState(QuestData quest)
@@ -32,12 +41,41 @@ public class QuestManager : MonoBehaviour
     public bool IsActive(QuestData quest) => GetState(quest) == QuestState.Active;
     public bool IsCompleted(QuestData quest) => GetState(quest) == QuestState.Completed;
     public bool IsClaimed(QuestData quest) => GetState(quest) == QuestState.Claimed;
+
     public void AcceptQuest(QuestData quest)
     {
         if (GetState(quest) != QuestState.Available) return;
         states[quest.questName] = QuestState.Active;
-        progress[quest.questName] = 0;
-        Debug.Log($"[Quests] Accepted: {quest.questName}");
+        // For ObtainItem quests, pre-count items already in inventory
+        if (quest.questType == QuestType.ObtainItem)
+        {
+            int alreadyHave = CountItemInInventory(quest.targetName);
+            progress[quest.questName] = Mathf.Min(alreadyHave, quest.requiredCount);
+            Debug.Log("[Quests] Accepted: " + quest.questName +
+                      " — pre-counted " + alreadyHave + " existing items.");
+
+            if (progress[quest.questName] >= quest.requiredCount)
+            {
+                states[quest.questName] = QuestState.Completed;
+                HUDFeedback.Instance?.ShowInfo("Quest complete: " + quest.questName + "! Return to Silas.");
+            }
+        }
+        else
+        {
+            progress[quest.questName] = 0;
+            Debug.Log("[Quests] Accepted: " + quest.questName);
+        }
+    }
+
+    private int CountItemInInventory(string itemName)
+    {
+        int total = 0;
+        foreach (Item item in InventoryGrid.Instance.GetAllItems())
+        {
+            if (item.GetItemName() == itemName)
+                total += InventoryGrid.Instance.GetStackCount(item);
+        }
+        return total;
     }
 
     public void ReportEnemyKill(string enemyTag)
@@ -57,23 +95,36 @@ public class QuestManager : MonoBehaviour
 
     private void ReportProgress(QuestType type, string target)
     {
-        // Notify all registered quests — SilasQuestPanel re-registers on open
-        // We broadcast to all active quests of matching type
+        Debug.Log("[QuestManager] ReportProgress — type:" + type + " target:" + target +
+                  " registered:" + registeredQuests.Count + " active:" + states.Count);
+
         foreach (var kvp in new Dictionary<string, QuestState>(states))
         {
             if (kvp.Value != QuestState.Active) continue;
             QuestData quest = GetQuestDataByName(kvp.Key);
-            if (quest == null || quest.questType != type) continue;
-            if (quest.targetName != target) continue;
-
+            if (quest == null)
+            {
+                Debug.LogWarning("[QuestManager] Active quest " + kvp.Key + " not found in registeredQuests!");
+                continue;
+            }
+            if (quest.questType != type)
+            {
+                Debug.Log("[QuestManager] Skipping " + quest.questName + " — type mismatch " + quest.questType + " vs " + type);
+                continue;
+            }
+            if (quest.targetName != target)
+            {
+                Debug.Log("[QuestManager] Skipping " + quest.questName + " — target mismatch: quest=" + quest.targetName + " reported=" + target);
+                continue;
+            }
             progress[quest.questName] = Mathf.Min(
                 GetProgress(quest) + 1, quest.requiredCount);
-
+            Debug.Log("[QuestManager] Progress on " + quest.questName + ": " + progress[quest.questName] + "/" + quest.requiredCount);
             if (progress[quest.questName] >= quest.requiredCount)
             {
                 states[quest.questName] = QuestState.Completed;
-                HUDFeedback.Instance?.ShowInfo($"Quest complete: {quest.questName}! Return to Silas.");
-                Debug.Log($"[Quests] Completed: {quest.questName}");
+                HUDFeedback.Instance?.ShowInfo("Quest complete: " + quest.questName + "! Return to Silas.");
+                Debug.Log("[Quests] Completed: " + quest.questName);
             }
         }
     }
@@ -82,7 +133,6 @@ public class QuestManager : MonoBehaviour
     public bool ClaimRewards(QuestData quest)
     {
         if (GetState(quest) != QuestState.Completed) return false;
-
         // Check space for all item rewards first
         if (quest.itemRewards != null)
         {
@@ -97,6 +147,7 @@ public class QuestManager : MonoBehaviour
                 }
             }
         }
+
         // Give Patheos
         if (quest.patheosReward > 0)
             WalletManager.Instance?.Add(quest.patheosReward);
@@ -125,11 +176,18 @@ public class QuestManager : MonoBehaviour
     }
 
     private List<QuestData> registeredQuests = new List<QuestData>();
+
+    /// Register all quests at game start
     public void RegisterQuests(QuestData[] quests)
     {
-        registeredQuests.Clear();
-        if (quests != null)
-            registeredQuests.AddRange(quests);
+        if (quests == null) return;
+        foreach (var q in quests)
+        {
+            if (q == null) continue;
+            if (!registeredQuests.Exists(r => r != null && r.questName == q.questName))
+                registeredQuests.Add(q);
+        }
+        Debug.Log($"[QuestManager] {registeredQuests.Count} quest(s) registered.");
     }
 
     private QuestData GetQuestDataByName(string name)

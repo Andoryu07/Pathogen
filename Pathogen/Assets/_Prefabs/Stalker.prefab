@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 1845926674803262034}
   m_Layer: 6
   m_Name: Stalker
-  m_TagString: Enemy
+  m_TagString: Stalker
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 3854322140559064633}
   m_Layer: 6
   m_Name: EnemyInfected
-  m_TagString: Enemy
+  m_TagString: Infected
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

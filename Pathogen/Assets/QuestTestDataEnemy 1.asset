@@ -10,13 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 699297d0ef70bd24aa1d63f50e3b2c34, type: 3}
-  m_Name: QuestDonationTestData
+  m_Name: QuestTestDataEnemy 1
   m_EditorClassIdentifier: Assembly-CSharp::QuestData
-  questName: Donate 30 pistol ammo
-  description: Donate 30 pistol rounds
-  questType: 2
-  targetName: Pistol Rounds
-  requiredCount: 30
+  questName: Defeat Stalker
+  description: Defeat Stalker
+  questType: 0
+  targetName: Stalker
+  requiredCount: 1
   patheosReward: 500
-  itemRewards:
-  - {fileID: 747256383279408493, guid: 097cfded379f40546a0a7f7d1d858414, type: 3}
+  itemRewards: []
