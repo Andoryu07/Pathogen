@@ -8,7 +8,9 @@ public class Projectile : MonoBehaviour
     [HideInInspector] public LayerMask enemyLayer;
     [Header("Visuals")]
     [SerializeField] private float speed = 20f;
-    [SerializeField] private Color bulletColor = new Color(1f, 0.95f, 0.4f, 1f); // yellow
+    [SerializeField] private Color bulletColor = new Color(1f, 0.95f, 0.4f, 1f);
+    [Tooltip("Assign a small circle sprite. If empty a fallback is generated at runtime.")]
+    [SerializeField] private Sprite bulletSprite;
 
     private Vector2 direction;
     private Vector2 origin;
@@ -18,13 +20,12 @@ public class Projectile : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-
-        // Always build and assign the procedural circle sprite
         SpriteRenderer sr = GetComponent<SpriteRenderer>();
         if (sr == null) sr = gameObject.AddComponent<SpriteRenderer>();
-        sr.sprite = BuildCircleSprite(8);
+        // Use Inspector-assigned sprite; fall back to procedural if none assigned
+        sr.sprite = bulletSprite != null ? bulletSprite : BuildCircleSprite(8);
         sr.color = bulletColor;
-        sr.sortingOrder = 10; // render on top of ground sprites
+        sr.sortingOrder = 10;
         transform.localScale = new Vector3(0.12f, 0.12f, 1f);
     }
     ///Called immediately after instantiation by AimSystem
@@ -48,12 +49,9 @@ public class Projectile : MonoBehaviour
     void OnTriggerEnter2D(Collider2D other)
     {
         if (hit) return;
-
         // Accept hit if: layer matches the enemy layer mask, OR tagged "Enemy"
-        bool layerMatch = enemyLayer.value != 0 &&
-                          (enemyLayer.value & (1 << other.gameObject.layer)) != 0;
+        bool layerMatch = enemyLayer.value != 0 && (enemyLayer.value & (1 << other.gameObject.layer)) != 0;
         bool tagMatch = other.CompareTag("Enemy");
-
         if (!layerMatch && !tagMatch) return;
 
         hit = true;

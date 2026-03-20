@@ -80,7 +80,6 @@ public class StoreboxUIManager : MonoBehaviour
         // Clear old rows (only remove rows belonging to this side)
         rows.RemoveAll(r => r.inBox == inBox);
         foreach (Transform c in parent) Destroy(c.gameObject);
-        EnsureVerticalList(parent);
         foreach (var item in items)
         {
             Item cap = item;
@@ -111,7 +110,6 @@ public class StoreboxUIManager : MonoBehaviour
                 iconLE.preferredWidth = 32f;
                 iconLE.preferredHeight = 32f;
             }
-            // Name label — append stack count when > 1
             int stackCount = inBox
                 ? StoreboxManager.Instance.GetStackCount(item)
                 : InventoryGrid.Instance.GetStackCount(item);
@@ -131,16 +129,13 @@ public class StoreboxUIManager : MonoBehaviour
             labelLE.preferredHeight = 36f;
             Button btn = rowGO.AddComponent<Button>();
             btn.targetGraphic = bg;
-
             ColorBlock cb = btn.colors;
             cb.normalColor = ColNormal;
             cb.highlightedColor = ColHover;
             cb.selectedColor = ColSelected;
             cb.pressedColor = ColSelected;
             btn.colors = cb;
-
             btn.onClick.AddListener(() => OnRowClicked(cap, mine, bg));
-
             rows.Add((item, bg, inBox));
         }
     }
@@ -158,7 +153,6 @@ public class StoreboxUIManager : MonoBehaviour
             ClearAction();
             return;
         }
-
         selectedItem = item;
         selectedIsInBox = inBox;
         bg.color = ColSelected;
@@ -221,9 +215,7 @@ public class StoreboxUIManager : MonoBehaviour
                 if (!ok) break;
                 withdrawn++;
             }
-            SetFeedback(withdrawn == count
-                ? $"Withdrew all {count}x {item.GetItemName()}"
-                : $"Withdrew {withdrawn}/{count} — inventory full.");
+            SetFeedback(withdrawn == count ? $"Withdrew all {count}x {item.GetItemName()}" : $"Withdrew {withdrawn}/{count} — inventory full.");
         }
         else
         {
@@ -236,7 +228,6 @@ public class StoreboxUIManager : MonoBehaviour
             }
             SetFeedback($"Stored all {stored}x {item.GetItemName()}");
         }
-
         selectedItem = null;
         ClearAction();
         Refresh();
@@ -262,30 +253,4 @@ public class StoreboxUIManager : MonoBehaviour
         }
     }
 
-    private static void EnsureVerticalList(Transform content)
-    {
-        RectTransform crt = content.GetComponent<RectTransform>();
-        if (crt != null)
-        {
-            crt.anchorMin = new Vector2(0f, 1f);
-            crt.anchorMax = new Vector2(1f, 1f);
-            crt.pivot = new Vector2(0.5f, 1f);
-            crt.offsetMin = new Vector2(0f, crt.offsetMin.y);
-            crt.offsetMax = new Vector2(0f, crt.offsetMax.y);
-        }
-
-        var vlg = content.GetComponent<VerticalLayoutGroup>();
-        if (vlg == null) vlg = content.gameObject.AddComponent<VerticalLayoutGroup>();
-        vlg.childControlWidth = true;
-        vlg.childForceExpandWidth = true;
-        vlg.childControlHeight = false;
-        vlg.childForceExpandHeight = false;
-        vlg.spacing = 4f;
-        vlg.padding = new RectOffset(4, 4, 4, 4);
-
-        var csf = content.GetComponent<ContentSizeFitter>();
-        if (csf == null) csf = content.gameObject.AddComponent<ContentSizeFitter>();
-        csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-        csf.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
-    }
 }

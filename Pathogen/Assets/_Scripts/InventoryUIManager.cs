@@ -37,8 +37,9 @@ public class InventoryUIManager : MonoBehaviour
     [SerializeField] private Transform gridParent;
     [SerializeField] private GameObject slotPrefab;
     [SerializeField] private float gridMargin = 0f;
-    private const int GRID_WIDTH = 7;
-    private const int GRID_HEIGHT = 6;
+    // Read from InventoryGrid at runtime so Hip Pouch expansions work
+    private int GRID_WIDTH => inventoryGrid != null ? inventoryGrid.GridWidth : 7;
+    private int GRID_HEIGHT => inventoryGrid != null ? inventoryGrid.GridHeight : 6;
     private float tileSize = 64f;
     [Header("Hover Panel")]
     [SerializeField] private GameObject hoverPanel;
@@ -209,6 +210,42 @@ public class InventoryUIManager : MonoBehaviour
         }
     }
 
+    /// Adds one new column of slots — called after Hip Pouch expands the inventory.
+    /// Preserves existing tileSize so tiles never shrink
+    public void RebuildGrid()
+    {
+        int newWidth = GRID_WIDTH;    // already incremented by InventoryGrid.ExpandGrid()
+        int oldWidth = newWidth - 1;
+
+        // Copy existing slots into a wider array
+        var newSlots = new InventorySlotUI[newWidth, GRID_HEIGHT];
+        if (slots != null)
+            for (int x = 0; x < oldWidth; x++)
+                for (int y = 0; y < GRID_HEIGHT; y++)
+                    newSlots[x, y] = slots[x, y];
+
+        // Instantiate only the new right-hand column
+        for (int y = 0; y < GRID_HEIGHT; y++)
+        {
+            GameObject go = Instantiate(slotPrefab, gridParent);
+            InventorySlotUI slot = go.GetComponent<InventorySlotUI>();
+            slot.Initialize(oldWidth, y, this);
+            newSlots[oldWidth, y] = slot;
+        }
+
+        slots = newSlots;
+
+        // Update the GridLayoutGroup column count and expand width by one tile
+        GridLayoutGroup layout = gridParent.GetComponent<GridLayoutGroup>();
+        if (layout != null) layout.constraintCount = newWidth;
+
+        RectTransform gridRT = gridParent.GetComponent<RectTransform>();
+        if (gridRT != null)
+            gridRT.sizeDelta = new Vector2(gridRT.sizeDelta.x + tileSize, gridRT.sizeDelta.y);
+
+        RefreshInventoryGrid();
+    }
+
     public void RefreshInventoryGrid()
     {
         if (inventoryGrid == null)
@@ -237,7 +274,7 @@ public class InventoryUIManager : MonoBehaviour
                     bool eBottom = (dy == size.height - 1);
                     bool eLeft = (dx == 0);
                     bool eRight = (dx == size.width - 1);
-                    slots[sx, sy].SetItem(item, isTopLeft, isBottomRight,eTop, eBottom, eLeft, eRight, stackCount);
+                    slots[sx, sy].SetItem(item, isTopLeft, isBottomRight, eTop, eBottom, eLeft, eRight, stackCount);
                     if (isTopLeft) slots[sx, sy].SetIconSize(size.width * tileSize, size.height * tileSize);
                 }
         }
@@ -490,11 +527,11 @@ public class InventoryUIManager : MonoBehaviour
     private void RefreshDocumentsList()
     {
         foreach (Transform c in documentsListParent) Destroy(c.gameObject);
-        EnsureVerticalList(documentsListParent, 40f);
+        // VerticalLayoutGroup + ContentSizeFitter set in Inspector on documentsListParent
         foreach (var doc in ReadableManager.Instance.GetAllReadables())
         {
             GameObject go = Instantiate(documentButtonPrefab, documentsListParent);
-            ForceFullWidth(go, 40f);
+            SetItemHeight(go, 40f);
             var label = go.GetComponentInChildren<TextMeshProUGUI>();
             if (label != null) label.text = doc.GetItemName();
             var btn = go.GetComponent<Button>();
@@ -516,13 +553,13 @@ public class InventoryUIManager : MonoBehaviour
     {
         if (tutorialsListParent == null) return;
         foreach (Transform c in tutorialsListParent) Destroy(c.gameObject);
-        EnsureVerticalList(tutorialsListParent, 44f);
+        // VerticalLayoutGroup + ContentSizeFitter set in Inspector on tutorialsListParent
 
         var tutorials = TutorialManager.Instance.GetAllTutorials();
         foreach (var tut in tutorials)
         {
             GameObject go = Instantiate(tutorialButtonPrefab, tutorialsListParent);
-            ForceFullWidth(go, 44f);
+            SetItemHeight(go, 44f);
             var label = go.GetComponentInChildren<TextMeshProUGUI>();
             if (label != null) label.text = tut.title;
             var btn = go.GetComponent<Button>();
@@ -561,7 +598,7 @@ public class InventoryUIManager : MonoBehaviour
         List<Transform> old = new List<Transform>();
         foreach (Transform c in collectibleRewardsParent) old.Add(c);
         foreach (Transform c in old) DestroyImmediate(c.gameObject);
-        EnsureVerticalList(collectibleRewardsParent, 56f);
+        // VerticalLayoutGroup + ContentSizeFitter set in Inspector on collectibleRewardsParent
         var rewards = new (int n, string lbl, string fx)[]
         {
             (1,  "1 Talisman",   "+10% Max Stamina"),
@@ -573,7 +610,7 @@ public class InventoryUIManager : MonoBehaviour
         {
             bool unlocked = collected >= r.n;
             GameObject go = Instantiate(collectibleRewardPrefab, collectibleRewardsParent);
-            ForceFullWidth(go, 56f);
+            SetItemHeight(go, 56f);
             var texts = go.GetComponentsInChildren<TextMeshProUGUI>();
             if (texts.Length >= 2) { texts[0].text = r.lbl; texts[1].text = r.fx; }
             else if (texts.Length == 1) texts[0].text = $"{r.lbl}  —  {r.fx}";
@@ -597,12 +634,12 @@ public class InventoryUIManager : MonoBehaviour
             return;
         }
         foreach (Transform c in craftingListParent) Destroy(c.gameObject);
-        EnsureVerticalList(craftingListParent, CraftingRecipeUI.ROW_HEIGHT);
+        // VerticalLayoutGroup + ContentSizeFitter set in Inspector on craftingListParent
         List<CraftingRecipe> visible = CraftingManager.Instance.GetVisibleRecipes();
         foreach (var recipe in visible)
         {
             GameObject go = Instantiate(craftingRecipePrefab, craftingListParent);
-            ForceFullWidth(go, CraftingRecipeUI.ROW_HEIGHT);
+            SetItemHeight(go, CraftingRecipeUI.ROW_HEIGHT);
 
             if (go.GetComponent<Image>() == null)
                 go.AddComponent<Image>();
@@ -613,49 +650,13 @@ public class InventoryUIManager : MonoBehaviour
         }
     }
 
-    // Ensures Content has a VerticalLayoutGroup + ContentSizeFitter and forces the Content RectTransform to stretch horizontally so children can fill the full scroll area width
-    private static void EnsureVerticalList(Transform content, float itemHeight)
+    /// Sets preferred height on a spawned list entry
+    private static void SetItemHeight(GameObject go, float height)
     {
-        // Force Content to stretch to full width of the ScrollView viewport
-        RectTransform crt = content.GetComponent<RectTransform>();
-        if (crt != null)
-        {
-            crt.anchorMin = new Vector2(0f, 1f);
-            crt.anchorMax = new Vector2(1f, 1f);
-            crt.pivot = new Vector2(0.5f, 1f);
-            crt.offsetMin = new Vector2(0f, crt.offsetMin.y);
-            crt.offsetMax = new Vector2(0f, crt.offsetMax.y);
-        }
-        var vlg = content.GetComponent<VerticalLayoutGroup>();
-        if (vlg == null) vlg = content.gameObject.AddComponent<VerticalLayoutGroup>();
-        vlg.childControlWidth = true;
-        vlg.childForceExpandWidth = true;
-        vlg.childControlHeight = false;   // must be false — height comes from LayoutElement
-        vlg.childForceExpandHeight = false;
-        vlg.spacing = 6f;
-        vlg.padding = new RectOffset(6, 6, 6, 6);
-        // ContentSizeFitter grows Content vertically to fit all children
-        var csf = content.GetComponent<ContentSizeFitter>();
-        if (csf == null) csf = content.gameObject.AddComponent<ContentSizeFitter>();
-        csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-        csf.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
-    }
-
-    // Forces a prefab instance to fill the list width with a fixed height, the LayoutElement.preferredHeight is what VerticalLayoutGroup reads when childControlHeight = false
-    private static void ForceFullWidth(GameObject go, float height)
-    {
-        // LayoutElement tells the parent VerticalLayoutGroup the desired size
         var le = go.GetComponent<LayoutElement>();
         if (le == null) le = go.AddComponent<LayoutElement>();
         le.preferredHeight = height;
         le.minHeight = height;
         le.flexibleWidth = 1f;
-        //RectTransform as a fallback
-        RectTransform rt = go.GetComponent<RectTransform>();
-        if (rt == null) return;
-        rt.anchorMin = new Vector2(0f, 1f);
-        rt.anchorMax = new Vector2(1f, 1f);
-        rt.pivot = new Vector2(0.5f, 1f);
-        rt.sizeDelta = new Vector2(0f, height);
     }
 }

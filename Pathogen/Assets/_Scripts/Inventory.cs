@@ -54,7 +54,6 @@ public class InventoryGrid : MonoBehaviour
                 }
             }
         }
-
         //No existing stack with room — place as a new stack
         for (int rotPass = 0; rotPass < 2; rotPass++)
         {
@@ -285,6 +284,19 @@ public class InventoryGrid : MonoBehaviour
         }
         return false;
     }
-
     public List<Item> GetAllItems() => items;
+
+    /// Expands the grid by one row (called by Hip Pouch pickup)
+    public void ExpandGrid()
+    {
+        int newWidth = gridWidth + 1;
+        Item[,] newGrid = new Item[newWidth, gridHeight];
+        // Copy existing grid contents
+        for (int x = 0; x < gridWidth; x++)
+            for (int y = 0; y < gridHeight; y++)
+                newGrid[x, y] = grid[x, y];
+        grid = newGrid;
+        gridWidth = newWidth;
+        Debug.Log("[Inventory] Grid expanded to " + gridWidth + "x" + gridHeight);
+    }
 }

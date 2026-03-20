@@ -4,217 +4,63 @@ using UnityEngine.EventSystems;
 using TMPro;
 using System.Collections.Generic;
 
-
-/// One full recipe row. Builds its own child UI entirely from code so the prefab only needs this script + Image on the root
+/// One crafting recipe row
 public class CraftingRecipeUI : MonoBehaviour,
     IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
 {
-    // Row height exposed so InventoryUIManager can match ForceFullWidth
     public const float ROW_HEIGHT = 110f;
-
+    [Header("Ingredient Slots (wire in order, up to max ingredients)")]
+    [SerializeField] private Image[] ingredientBoxImages;
+    [SerializeField] private TextMeshProUGUI[] ingredientNameTexts;
+    [SerializeField] private Image[] ingredientIconImages;
+    [Header("Result Slot")]
+    [SerializeField] private Image resultIconImage;
+    [SerializeField] private TextMeshProUGUI resultNameText;
+    [Header("Hold UI")]
+    [SerializeField] private TextMeshProUGUI hintLabel;
+    [SerializeField] private Image progressBar;
     [Header("Hold Settings")]
     [SerializeField] private float holdDuration = 1f;
-    private CraftingRecipe recipe;
-    private bool isHolding = false;
-    private float holdTimer = 0f;
-    private bool canCraft = false;
-    private Image progressBar;
-    private TextMeshProUGUI hintLabel;
-    private List<Image> ingredientBoxes = new List<Image>();
-    private List<TextMeshProUGUI> ingredientTexts = new List<TextMeshProUGUI>();
-    private List<bool> lastIngredientState = new List<bool>();
+
     private static readonly Color ColHave = new Color(0.20f, 0.75f, 0.20f, 1f);
     private static readonly Color ColMissing = new Color(0.80f, 0.20f, 0.20f, 1f);
     private static readonly Color ColResult = new Color(0.25f, 0.55f, 0.90f, 1f);
     private static readonly Color BgCan = new Color(0.12f, 0.22f, 0.12f, 0.90f);
     private static readonly Color BgCant = new Color(0.22f, 0.12f, 0.12f, 0.90f);
+    private CraftingRecipe recipe;
+    private bool isHolding = false;
+    private float holdTimer = 0f;
+    private bool canCraft = false;
 
     public void Setup(CraftingRecipe r)
     {
         recipe = r;
-        BuildUI();
+        // Populate icons and names from recipe data
+        for (int i = 0; i < r.ingredients.Count; i++)
+        {
+            if (i >= ingredientBoxImages.Length) break;
+            var ing = r.ingredients[i];
+            if (ingredientIconImages != null && i < ingredientIconImages.Length
+                && ingredientIconImages[i] != null)
+            {
+                ingredientIconImages[i].sprite = ing.icon;
+                ingredientIconImages[i].enabled = ing.icon != null;
+            }
+            if (ingredientNameTexts != null && i < ingredientNameTexts.Length
+                && ingredientNameTexts[i] != null)
+                ingredientNameTexts[i].text = ing.itemName;
+        }
+
+        if (resultIconImage != null)
+        {
+            resultIconImage.sprite = r.resultIcon;
+            resultIconImage.enabled = r.resultIcon != null;
+        }
+        if (resultNameText != null)
+            resultNameText.text = r.resultItemName;
+
+        if (progressBar != null) progressBar.gameObject.SetActive(false);
         RefreshColors();
-    }
-
-    private void BuildUI()
-    {
-        RectTransform root = GetComponent<RectTransform>();
-        var vlg = gameObject.AddComponent<VerticalLayoutGroup>();
-        vlg.childControlWidth = true;
-        vlg.childForceExpandWidth = true;
-        vlg.childControlHeight = false;
-        vlg.childForceExpandHeight = false;
-        vlg.spacing = 0f;
-        vlg.padding = new RectOffset(6, 6, 6, 4);
-        GameObject rowGO = CreateChild("SlotsRow", gameObject);
-        var hlg = rowGO.AddComponent<HorizontalLayoutGroup>();
-        hlg.childControlWidth = false;
-        hlg.childForceExpandWidth = false;
-        hlg.childControlHeight = true;
-        hlg.childForceExpandHeight = true;
-        hlg.spacing = 8f;
-        hlg.childAlignment = TextAnchor.MiddleCenter;
-        AddLayoutElement(rowGO, preferredHeight: 72f, flexibleWidth: 1f);
-        List<bool> status = CraftingManager.Instance.GetIngredientStatus(recipe);
-        canCraft = CraftingManager.Instance.HasAllIngredients(recipe);
-        for (int i = 0; i < recipe.ingredients.Count; i++)
-        {
-            if (i > 0) SpawnSeparatorInRow(rowGO, "+");
-            var ing = recipe.ingredients[i];
-            bool has = i < status.Count && status[i];
-            SpawnIngredientCell(rowGO, ing, has);
-        }
-        SpawnSeparatorInRow(rowGO, "=");
-        SpawnResultCell(rowGO);
-        GameObject hintGO = CreateChild("HintLabel", gameObject);
-        hintLabel = hintGO.AddComponent<TextMeshProUGUI>();
-        hintLabel.text = "Hold to craft";
-        hintLabel.fontSize = 13f;
-        hintLabel.alignment = TextAlignmentOptions.Center;
-        hintLabel.color = Color.white;
-        AddLayoutElement(hintGO, preferredHeight: 16f, flexibleWidth: 1f);
-        //Progress bar
-        GameObject barGO = CreateChild("ProgressBar", gameObject);
-        var barRT = barGO.GetComponent<RectTransform>();
-        barRT.anchorMin = new Vector2(0f, 0f);
-        barRT.anchorMax = new Vector2(1f, 0f);
-        barRT.pivot = new Vector2(0.5f, 0f);
-        barRT.sizeDelta = new Vector2(0f, 5f);
-        barRT.anchoredPosition = Vector2.zero;
-        progressBar = barGO.AddComponent<Image>();
-        progressBar.color = new Color(0.3f, 0.9f, 0.3f, 1f);
-        progressBar.type = Image.Type.Filled;
-        progressBar.fillMethod = Image.FillMethod.Horizontal;
-        progressBar.fillAmount = 0f;
-        barGO.SetActive(false);
-        var barLE = barGO.AddComponent<LayoutElement>();
-        barLE.ignoreLayout = true;
-    }
-
-
-    //  Slot builders
-    private void SpawnIngredientCell(GameObject parent, CraftingRecipe.Ingredient ing, bool has)
-    {
-        // Cell root
-        GameObject cell = CreateChild($"Ing_{ing.itemName}", parent);
-        AddLayoutElement(cell, preferredWidth: 64f, preferredHeight: 72f);
-        var cellVLG = cell.AddComponent<VerticalLayoutGroup>();
-        cellVLG.childControlWidth = true;
-        cellVLG.childForceExpandWidth = true;
-        cellVLG.childControlHeight = false;
-        cellVLG.childForceExpandHeight = false;
-        cellVLG.spacing = 2f;
-        cellVLG.padding = new RectOffset(0, 0, 0, 0);
-        cellVLG.childAlignment = TextAnchor.UpperCenter;
-        GameObject boxGO = CreateChild("Box", cell);
-        Image boxImg = boxGO.AddComponent<Image>();
-        boxImg.color = has ? ColHave : ColMissing;
-        AddLayoutElement(boxGO, preferredWidth: 48f, preferredHeight: 48f);
-        if (ing.icon != null)
-        {
-            GameObject iconGO = CreateChild("Icon", boxGO);
-            var iconRT = iconGO.GetComponent<RectTransform>();
-            iconRT.anchorMin = Vector2.zero;
-            iconRT.anchorMax = Vector2.one;
-            iconRT.sizeDelta = Vector2.zero;
-            Image iconImg = iconGO.AddComponent<Image>();
-            iconImg.sprite = ing.icon;
-            iconImg.raycastTarget = false;
-        }
-        if (ing.amount > 1)
-        {
-            GameObject amtGO = CreateChild("Amount", boxGO);
-            var amtRT = amtGO.GetComponent<RectTransform>();
-            amtRT.anchorMin = new Vector2(1f, 1f);
-            amtRT.anchorMax = new Vector2(1f, 1f);
-            amtRT.pivot = new Vector2(1f, 1f);
-            amtRT.sizeDelta = new Vector2(28f, 18f);
-            amtRT.anchoredPosition = Vector2.zero;
-            var amtTMP = amtGO.AddComponent<TextMeshProUGUI>();
-            amtTMP.text = $"x{ing.amount}";
-            amtTMP.fontSize = 11f;
-            amtTMP.alignment = TextAlignmentOptions.TopRight;
-            amtTMP.color = Color.white;
-            var amtLE = amtGO.AddComponent<LayoutElement>();
-            amtLE.ignoreLayout = true;
-        }
-        GameObject nameGO = CreateChild("Name", cell);
-        var nameTMP = nameGO.AddComponent<TextMeshProUGUI>();
-        nameTMP.text = ing.itemName;
-        nameTMP.fontSize = 11f;
-        nameTMP.alignment = TextAlignmentOptions.Center;
-        nameTMP.color = has ? ColHave : ColMissing;
-        nameTMP.enableWordWrapping = false;
-        nameTMP.overflowMode = TextOverflowModes.Ellipsis;
-        AddLayoutElement(nameGO, preferredHeight: 16f, flexibleWidth: 1f);
-        ingredientBoxes.Add(boxImg);
-        ingredientTexts.Add(nameTMP);
-        lastIngredientState.Add(has);
-    }
-
-    private void SpawnResultCell(GameObject parent)
-    {
-        GameObject cell = CreateChild("Result", parent);
-        AddLayoutElement(cell, preferredWidth: 64f, preferredHeight: 72f);
-        var cellVLG = cell.AddComponent<VerticalLayoutGroup>();
-        cellVLG.childControlWidth = true;
-        cellVLG.childForceExpandWidth = true;
-        cellVLG.childControlHeight = false;
-        cellVLG.childForceExpandHeight = false;
-        cellVLG.spacing = 2f;
-        cellVLG.childAlignment = TextAnchor.UpperCenter;
-        GameObject boxGO = CreateChild("Box", cell);
-        Image boxImg = boxGO.AddComponent<Image>();
-        boxImg.color = ColResult;
-        AddLayoutElement(boxGO, preferredWidth: 48f, preferredHeight: 48f);
-        if (recipe.resultIcon != null)
-        {
-            GameObject iconGO = CreateChild("Icon", boxGO);
-            var iconRT = iconGO.GetComponent<RectTransform>();
-            iconRT.anchorMin = Vector2.zero;
-            iconRT.anchorMax = Vector2.one;
-            iconRT.sizeDelta = Vector2.zero;
-            Image iconImg = iconGO.AddComponent<Image>();
-            iconImg.sprite = recipe.resultIcon;
-            iconImg.raycastTarget = false;
-        }
-        if (recipe.resultAmount > 1)
-        {
-            GameObject amtGO = CreateChild("Amount", boxGO);
-            var amtRT = amtGO.GetComponent<RectTransform>();
-            amtRT.anchorMin = new Vector2(1f, 1f);
-            amtRT.anchorMax = new Vector2(1f, 1f);
-            amtRT.pivot = new Vector2(1f, 1f);
-            amtRT.sizeDelta = new Vector2(28f, 18f);
-            amtRT.anchoredPosition = Vector2.zero;
-            var amtTMP = amtGO.AddComponent<TextMeshProUGUI>();
-            amtTMP.text = $"x{recipe.resultAmount}";
-            amtTMP.fontSize = 11f;
-            amtTMP.alignment = TextAlignmentOptions.TopRight;
-            amtTMP.color = Color.white;
-            var amtLE = amtGO.AddComponent<LayoutElement>();
-            amtLE.ignoreLayout = true;
-        }
-        GameObject nameGO = CreateChild("ResultName", cell);
-        var nameTMP = nameGO.AddComponent<TextMeshProUGUI>();
-        nameTMP.text = recipe.resultItemName;
-        nameTMP.fontSize = 11f;
-        nameTMP.alignment = TextAlignmentOptions.Center;
-        nameTMP.color = Color.white;
-        nameTMP.enableWordWrapping = false;
-        nameTMP.overflowMode = TextOverflowModes.Ellipsis;
-        AddLayoutElement(nameGO, preferredHeight: 16f, flexibleWidth: 1f);
-    }
-
-    private void SpawnSeparatorInRow(GameObject parent, string text)
-    {
-        GameObject g = CreateChild(text, parent);
-        var tmp = g.AddComponent<TextMeshProUGUI>();
-        tmp.text = text;
-        tmp.fontSize = 20f;
-        tmp.alignment = TextAlignmentOptions.Center;
-        tmp.color = new Color(0.8f, 0.8f, 0.8f, 1f);
-        AddLayoutElement(g, preferredWidth: 20f, preferredHeight: 72f);
     }
 
     public void RefreshColors()
@@ -222,18 +68,22 @@ public class CraftingRecipeUI : MonoBehaviour,
         if (recipe == null) return;
         List<bool> status = CraftingManager.Instance.GetIngredientStatus(recipe);
         canCraft = CraftingManager.Instance.HasAllIngredients(recipe);
-
-        for (int i = 0; i < ingredientBoxes.Count && i < status.Count; i++)
+        for (int i = 0; i < status.Count; i++)
         {
             Color c = status[i] ? ColHave : ColMissing;
-            if (ingredientBoxes[i] != null) ingredientBoxes[i].color = c;
-            if (ingredientTexts[i] != null) ingredientTexts[i].color = c;
+            if (ingredientBoxImages != null && i < ingredientBoxImages.Length
+                && ingredientBoxImages[i] != null)
+                ingredientBoxImages[i].color = c;
+            if (ingredientNameTexts != null && i < ingredientNameTexts.Length
+                && ingredientNameTexts[i] != null)
+                ingredientNameTexts[i].color = c;
         }
-
         var bg = GetComponent<Image>();
         if (bg != null) bg.color = canCraft ? BgCan : BgCant;
         if (hintLabel != null)
-            hintLabel.color = canCraft ? Color.white : new Color(0.55f, 0.55f, 0.55f, 1f);
+            hintLabel.color = canCraft
+                ? Color.white
+                : new Color(0.55f, 0.55f, 0.55f, 1f);
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -241,7 +91,11 @@ public class CraftingRecipeUI : MonoBehaviour,
         if (!canCraft) return;
         isHolding = true;
         holdTimer = 0f;
-        if (progressBar != null) progressBar.gameObject.SetActive(true);
+        if (progressBar != null)
+        {
+            progressBar.fillAmount = 0f;
+            progressBar.gameObject.SetActive(true);
+        }
     }
 
     public void OnPointerUp(PointerEventData eventData) => CancelHold();
@@ -251,7 +105,11 @@ public class CraftingRecipeUI : MonoBehaviour,
     {
         isHolding = false;
         holdTimer = 0f;
-        if (progressBar != null) { progressBar.fillAmount = 0f; progressBar.gameObject.SetActive(false); }
+        if (progressBar != null)
+        {
+            progressBar.fillAmount = 0f;
+            progressBar.gameObject.SetActive(false);
+        }
     }
 
     void Update()
@@ -269,32 +127,16 @@ public class CraftingRecipeUI : MonoBehaviour,
 
     private void ExecuteCraft()
     {
-        if (progressBar != null) { progressBar.fillAmount = 0f; progressBar.gameObject.SetActive(false); }
+        if (progressBar != null)
+        {
+            progressBar.fillAmount = 0f;
+            progressBar.gameObject.SetActive(false);
+        }
         bool success = CraftingManager.Instance.TryCraft(recipe);
         if (success)
         {
             InventoryUIManager.Instance.RefreshCraftingList();
             InventoryUIManager.Instance.RefreshInventoryGrid();
         }
-    }
-
-    private static GameObject CreateChild(string name, GameObject parent)
-    {
-        var go = new GameObject(name, typeof(RectTransform));
-        go.transform.SetParent(parent.transform, false);
-        return go;
-    }
-
-    private static void AddLayoutElement(GameObject go,
-        float preferredWidth = -1f,
-        float preferredHeight = -1f,
-        float flexibleWidth = -1f,
-        float flexibleHeight = -1f)
-    {
-        var le = go.AddComponent<LayoutElement>();
-        if (preferredWidth >= 0) le.preferredWidth = preferredWidth;
-        if (preferredHeight >= 0) le.preferredHeight = preferredHeight;
-        if (flexibleWidth >= 0) le.flexibleWidth = flexibleWidth;
-        if (flexibleHeight >= 0) le.flexibleHeight = flexibleHeight;
     }
 }

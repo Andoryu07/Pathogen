@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipe
   ingredients:
   - itemName: Gauze
-    icon: {fileID: 10915, guid: 0000000000000000f000000000000000, type: 0}
+    icon: {fileID: 4992234311425757626, guid: 6fce1749ef63fd84a8318a93e059d526, type: 3}
     amount: 1
   - itemName: Medical Tape
-    icon: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+    icon: {fileID: 1181417596393626142, guid: 6f1d397bf4b80904c8c58bdc880bbabb, type: 3}
     amount: 1
   resultItemName: Bandage
-  resultIcon: {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
+  resultIcon: {fileID: -1715899276601117715, guid: 8224a979b253e8e40814ab29b83975e1, type: 3}
   resultAmount: 1
   resultItemPrefab: {fileID: 8234824942987186895, guid: ff66b50d14cc9ae4394d6ca773297952, type: 3}
   lockedByDefault: 0
