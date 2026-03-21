@@ -8,19 +8,13 @@ public class ReadableManager : MonoBehaviour
     [SerializeField] private Transform readableListParent;
 
     private List<Item> readables = new List<Item>();
+    private HashSet<string> collectedNames = new HashSet<string>();
     public static ReadableManager Instance { get; private set; }
 
     void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        if (Instance == null) { Instance = this; DontDestroyOnLoad(gameObject); }
+        else Destroy(gameObject);
     }
 
     public bool AddReadable(Item readable)
@@ -30,24 +24,29 @@ public class ReadableManager : MonoBehaviour
             Debug.LogError("Not a readable");
             return false;
         }
-
         if (!readables.Contains(readable))
         {
             readables.Add(readable);
+            collectedNames.Add(readable.GetItemName());
             Debug.Log($"Document '{readable.GetItemName()}' added to diary");
             return true;
         }
-
         return false;
     }
 
     public bool HasReadable(string readableName)
-    {
-        return readables.Exists(r => r.GetItemName() == readableName);
-    }
+        => readables.Exists(r => r.GetItemName() == readableName);
 
-    public List<Item> GetAllReadables()
+    public bool HasCollectedDocument(string name)
+        => collectedNames.Contains(name);
+
+    public List<Item> GetAllReadables() => readables;
+
+    ///Restore collected document names from save data
+    public void LoadDocuments(List<string> names)
     {
-        return readables;
+        if (names == null) return;
+        foreach (var name in names)
+            collectedNames.Add(name);
     }
 }

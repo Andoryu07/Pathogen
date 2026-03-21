@@ -4,7 +4,7 @@ public class SpecialItemManager : MonoBehaviour
 {
     public static SpecialItemManager Instance { get; private set; }
 
-    private bool hasLighter = true;   // Player starts with lighter
+    private bool hasLighter = true;   
     private bool hasHazardMask = false;
     private int hipPouchCount = 0;
     private const int MaxHipPouches = 3;
@@ -16,6 +16,15 @@ public class SpecialItemManager : MonoBehaviour
     {
         if (Instance == null) { Instance = this; DontDestroyOnLoad(gameObject); }
         else Destroy(gameObject);
+    }
+
+    ///Restore special item state from save data
+    public void LoadState(bool lighter, bool hazardMask, int pouches)
+    {
+        hasLighter = lighter;
+        hasHazardMask = hazardMask;
+        hipPouchCount = pouches;
+        Debug.Log("[SpecialItems] State loaded.");
     }
 
     public void PickUpHazardMask()

@@ -1,16 +1,16 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-
-///infection system.
+/// Full infection system
 public class InfectionManager : MonoBehaviour
 {
     public static InfectionManager Instance { get; private set; }
+
     private const int HitsForStage1 = 1;
     private const int HitsForStage2 = 3;
     private const int HitsForStage3 = 5;
     [Header("Screen Overlay Images (assign in Inspector)")]
-    [SerializeField] private Image cornersImage;   // blue vignette corners
+    [SerializeField] private Image cornersImage;   // blue corners
     [SerializeField] private Image staticImage;    // static/noise overlay
     [Header("Stage 3 Damage")]
     [SerializeField] private float stage3Interval = 30f;   // seconds between ticks
@@ -26,6 +26,7 @@ public class InfectionManager : MonoBehaviour
     private float appliedHPMult = 0f;
     private float appliedStamMult = 0f;
     public int InfectionStage => infectionStage;
+    public int InfectionHits => infectionHits;
     public bool IsInfected => infectionStage > 0;
     public bool IsSuppressed => suppressed;
 
@@ -65,17 +66,14 @@ public class InfectionManager : MonoBehaviour
             }
         }
     }
-
-    ///Called by EnemyInfected on each successful hit
+    /// Called by EnemyInfected on each successful hit
     public void RegisterInfectedHit()
     {
         infectionHits++;
         int oldStage = infectionStage;
-
         if (infectionHits >= HitsForStage3) infectionStage = 3;
         else if (infectionHits >= HitsForStage2) infectionStage = 2;
         else if (infectionHits >= HitsForStage1) infectionStage = 1;
-
         if (infectionStage > oldStage)
             OnStageAdvanced(infectionStage);
         else
@@ -93,6 +91,16 @@ public class InfectionManager : MonoBehaviour
             $"Symptoms suppressed for {Mathf.RoundToInt(duration / 60)} min.");
     }
 
+    ///Restore infection state from save data
+    public void LoadState(int stage, int hits)
+    {
+        RemoveStatPenalties();
+        infectionStage = stage;
+        infectionHits = hits;
+        if (infectionStage > 0) ApplyStatPenalties(infectionStage);
+        RefreshOverlay();
+    }
+
     ///Antidote or Stage-3 full-heal: fully clears all infection
     public void ClearInfection()
     {
@@ -107,7 +115,7 @@ public class InfectionManager : MonoBehaviour
         Debug.Log("[Infection] Cleared.");
     }
 
-    // Called by PlayerController when healed to full HP
+    /// Called by PlayerController when healed to full HP
     public void OnPlayerFullyHealed()
     {
         if (infectionStage == 3)
@@ -116,11 +124,10 @@ public class InfectionManager : MonoBehaviour
 
     private void OnStageAdvanced(int stage)
     {
-        // Removes old penalties before applying new ones
+        // Remove old penalties before applying new ones
         RemoveStatPenalties();
         ApplyStatPenalties(stage);
         RefreshOverlay();
-
         string msg = stage switch
         {
             1 => "Infected — Stage 1! Max HP and Stamina reduced by 20%.",
@@ -136,13 +143,11 @@ public class InfectionManager : MonoBehaviour
     {
         PlayerController player = PlayerController.LocalInstance;
         if (player == null) return;
-
         // Stage 1 = 20% reduction, Stage 2+ = 40%
         float mult = stage >= 2 ? 0.40f : 0.20f;
         appliedHPMult = mult;
         appliedStamMult = mult;
         statsApplied = true;
-
         player.ApplyInfectionPenalty(appliedHPMult, appliedStamMult);
         Debug.Log($"[Infection] Applied {mult * 100}% HP+Stamina penalty.");
     }
@@ -172,13 +177,14 @@ public class InfectionManager : MonoBehaviour
 
     private void RefreshOverlay()
     {
-        // While suppressed — hides all effects
+        // While suppressed — hide all effects
         if (suppressed)
         {
             SetOverlayAlpha(cornersImage, 0f);
             SetOverlayAlpha(staticImage, 0f);
             return;
         }
+
         switch (infectionStage)
         {
             case 0:
@@ -186,16 +192,17 @@ public class InfectionManager : MonoBehaviour
                 SetOverlayAlpha(staticImage, 0f);
                 break;
             case 1:
-                //Subtle blue corners, no static
+                // Subtle blue corners, no static
                 SetOverlayAlpha(cornersImage, 0.18f);
                 SetOverlayAlpha(staticImage, 0f);
                 break;
             case 2:
-                //Stronger corners + light static
+                // Stronger corners + light static
                 SetOverlayAlpha(cornersImage, 0.38f);
                 SetOverlayAlpha(staticImage, 0.12f);
                 break;
             case 3:
+                // Full intensity
                 SetOverlayAlpha(cornersImage, 0.55f);
                 SetOverlayAlpha(staticImage, 0.22f);
                 break;

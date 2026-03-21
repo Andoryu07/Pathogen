@@ -50,10 +50,12 @@ public class InventoryGrid : MonoBehaviour
                 {
                     stackCounts[existing] = count + 1;
                     Debug.Log($"[Inventory] Stacked {item.GetItemName()} onto existing stack ({count + 1}/{maxStack})");
+                    QuestManager.Instance?.ReportItemObtained(item.GetItemName());
                     return true;
                 }
             }
         }
+
         //No existing stack with room — place as a new stack
         for (int rotPass = 0; rotPass < 2; rotPass++)
         {
@@ -68,6 +70,7 @@ public class InventoryGrid : MonoBehaviour
                         items.Add(item);
                         stackCounts[item] = 1;
                         Debug.Log($"[Inventory] Added {item.GetItemName()} at [{x},{y}] rotated={rotated} (1/{maxStack})");
+                        QuestManager.Instance?.ReportItemObtained(item.GetItemName());
                         return true;
                     }
                 }
@@ -208,7 +211,7 @@ public class InventoryGrid : MonoBehaviour
         items.Remove(item);
     }
 
-    ///Removes the entire stack regardless of count (e.g. discard)
+    ///Removes the entire stack regardless of count
     public void RemoveItemStack(Item item)
     {
         if (!items.Contains(item)) return;
@@ -257,7 +260,6 @@ public class InventoryGrid : MonoBehaviour
         if (stackCounts.TryGetValue(item, out int count)) return count;
         return 1;
     }
-
     ///Returns true if the item can be placed or stacked in the current grid
     public bool HasSpaceForItem(Item item)
     {
@@ -284,17 +286,43 @@ public class InventoryGrid : MonoBehaviour
         }
         return false;
     }
+
+    ///Returns total count of an item across all stacks.
+    public int CountItem(string itemName)
+    {
+        int total = 0;
+        foreach (var item in items)
+            if (item != null && item.GetItemName() == itemName)
+                total += GetStackCount(item);
+        return total;
+    }
+
+    ///Removes one from a stack — same as RemoveItem but named explicitly
+    public void ConsumeOneFromStack(Item item) => RemoveItem(item);
+
+    /// Places an item at a specific position with a known stack count
+    /// Used exclusively by SaveManager when restoring inventory
+    public void PlaceItemAtPublic(Item item, int x, int y, bool rotated, int stackCount)
+    {
+        PlaceItemAt(item, x, y, rotated);
+        items.Add(item);
+        stackCounts[item] = Mathf.Max(1, stackCount);
+    }
+
     public List<Item> GetAllItems() => items;
 
     /// Expands the grid by one row (called by Hip Pouch pickup)
+    /// Preserves all existing items
     public void ExpandGrid()
     {
         int newWidth = gridWidth + 1;
         Item[,] newGrid = new Item[newWidth, gridHeight];
+
         // Copy existing grid contents
         for (int x = 0; x < gridWidth; x++)
             for (int y = 0; y < gridHeight; y++)
                 newGrid[x, y] = grid[x, y];
+
         grid = newGrid;
         gridWidth = newWidth;
         Debug.Log("[Inventory] Grid expanded to " + gridWidth + "x" + gridHeight);

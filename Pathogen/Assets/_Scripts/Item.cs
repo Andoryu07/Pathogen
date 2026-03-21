@@ -59,6 +59,7 @@ public class Item : InteractableBase
 
     void Start()
     {
+        // Apply scale here — guaranteed to run after full instantiation, overrides any prefab-saved scale correctly
         ApplyWorldSprite(scaleApplied: true);
     }
 
@@ -71,7 +72,7 @@ public class Item : InteractableBase
         {
             spriteRenderer.sprite = itemIcon;
             spriteRenderer.enabled = true;
-            spriteRenderer.sortingOrder = 0; 
+            spriteRenderer.sortingOrder = 0;   // render below player (player should be order 1+)
             if (scaleApplied)
                 transform.localScale = new Vector3(worldSpriteScale, worldSpriteScale, 1f);
         }
@@ -98,14 +99,8 @@ public class Item : InteractableBase
             // Use TryAddItemAmount for stacked world drops (e.g. 7x Pistol Rounds as one pickup)
             int toAdd = Mathf.Max(1, worldStackCount);
             int leftover = InventoryGrid.Instance.TryAddItemAmount(this, toAdd);
-
             if (leftover < toAdd)
             {
-                // Report each picked up item individually for quest tracking
-                int pickedUp = toAdd - leftover;
-                Debug.Log("[Item] Reporting pickup: " + itemName + " x" + pickedUp);
-                for (int i = 0; i < pickedUp; i++)
-                    QuestManager.Instance?.ReportItemObtained(itemName);
                 WeaponHUD.Instance?.RefreshAmmoText();
                 if (leftover > 0)
                     HUDFeedback.Instance?.ShowWarning(

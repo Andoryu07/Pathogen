@@ -1,12 +1,9 @@
 using UnityEngine;
 using System.Collections.Generic;
-
 /// Global singleton that owns the shared storebox item pool
-/// All Storebox interactables in the world point to this one list
 public class StoreboxManager : MonoBehaviour
 {
     public static StoreboxManager Instance { get; private set; }
-
     // Items currently stored — kept as prefab references (inactive GameObjects)
     private List<Item> storedItems = new List<Item>();
     private Dictionary<Item, int> stackCounts = new Dictionary<Item, int>();
@@ -16,7 +13,9 @@ public class StoreboxManager : MonoBehaviour
         if (Instance == null) { Instance = this; DontDestroyOnLoad(gameObject); }
         else Destroy(gameObject);
     }
+
     public List<Item> GetStoredItems() => storedItems;
+
     ///Move an item from the player inventory into the storebox
     public bool StoreItem(Item item)
     {
@@ -44,7 +43,6 @@ public class StoreboxManager : MonoBehaviour
         storedItems.Add(item);
         stackCounts[item] = 1;
         Debug.Log($"[Storebox] Stored: {item.GetItemName()}");
-
         CheckUnequipWeapon(item);
         return true;
     }
@@ -58,11 +56,11 @@ public class StoreboxManager : MonoBehaviour
         Debug.Log("[Storebox] Equipped weapon was stored — slot cleared.");
     }
 
-    /// Move one instance from the storebox back into the player inventory,returns true on success, false if inventory is full
+    /// Move one instance from the storebox back into the player inventory
+    /// Returns true on success, false if inventory is full
     public bool WithdrawItem(Item item)
     {
         if (item == null || !storedItems.Contains(item)) return false;
-
         bool added = InventoryGrid.Instance.TryAddItem(item);
         if (!added)
         {
@@ -83,6 +81,22 @@ public class StoreboxManager : MonoBehaviour
         }
         return true;
     }
+
+    /// Clears all stored items — used before restoring from save
+    public void ClearAll()
+    {
+        storedItems.Clear();
+        stackCounts.Clear();
+    }
+
+    ///Directly loads a stored item with a given stack count — used by save/load
+    public void LoadItem(Item item, int count)
+    {
+        if (item == null) return;
+        storedItems.Add(item);
+        stackCounts[item] = Mathf.Max(1, count);
+    }
+
     ///Returns the current stack count for a stored item
     public int GetStackCount(Item item)
     {

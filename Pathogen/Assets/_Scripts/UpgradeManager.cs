@@ -1,10 +1,12 @@
 using UnityEngine;
 using System.Collections.Generic;
-/// Singleton that tracks purchased upgrade levels for all weapons
+/// Singleton that tracks purchased upgrade levels for all weapons.
+/// Persists across scenes.
 public class UpgradeManager : MonoBehaviour
 {
     public static UpgradeManager Instance { get; private set; }
     private Dictionary<string, int> upgradeLevels = new Dictionary<string, int>();
+
     void Awake()
     {
         if (Instance == null) { Instance = this; DontDestroyOnLoad(gameObject); }
@@ -26,14 +28,15 @@ public class UpgradeManager : MonoBehaviour
         // Re-apply upgrades to equipped weapon if it matches
         ApplyToEquippedWeapon(weaponName);
     }
-
-    /// Applies all current upgrade levels to the equipped weapon if it matches weaponName.
+    /// Applies all current upgrade levels to the equipped weapon if it matches weaponName
     public void ApplyToEquippedWeapon(string weaponName)
     {
         PlayerController player = PlayerController.LocalInstance;
         if (player?.EquippedWeapon == null) return;
+
         WeaponItem wi = player.EquippedWeapon.GetComponent<WeaponItem>();
         if (wi == null || wi.data == null || wi.data.weaponName != weaponName) return;
+
         ApplyUpgrades(wi);
     }
 
@@ -42,9 +45,11 @@ public class UpgradeManager : MonoBehaviour
     {
         if (wi == null || wi.data == null) return;
         string wn = wi.data.weaponName;
-        //Finds the matching WeaponUpgradeData
-    }
 
+        // Find the matching WeaponUpgradeData — search all registered upgrade data
+        // WeaponUpgradeData provides the value arrays; levels come from this manager
+        // SilasWeaponUpgrades passes upgrade data via ApplyUpgradesFromData
+    }
     /// Applies upgrades to a WeaponItem using provided WeaponUpgradeData
     public void ApplyUpgradesFromData(WeaponItem wi, WeaponUpgradeData data)
     {
@@ -81,6 +86,21 @@ public class UpgradeManager : MonoBehaviour
         // Refresh HUD ammo display since mag size may have changed
         WeaponHUD.Instance?.RefreshAmmoText();
     }
-    private static string Key(string weaponName, string upgradeType)
-        => $"{weaponName}_{upgradeType}";
+
+    public List<SavedUpgrade> GetAllLevels()
+    {
+        var list = new List<SavedUpgrade>();
+        foreach (var kvp in upgradeLevels)
+            list.Add(new SavedUpgrade { key = kvp.Key, level = kvp.Value });
+        return list;
+    }
+
+    public void LoadAllLevels(List<SavedUpgrade> saved)
+    {
+        upgradeLevels.Clear();
+        if (saved == null) return;
+        foreach (var s in saved)
+            upgradeLevels[s.key] = s.level;
+    }
+    private static string Key(string weaponName, string upgradeType) => $"{weaponName}_{upgradeType}";
 }

@@ -30,6 +30,7 @@ public class TutorialManager : MonoBehaviour
     }
 
     /// Adds a tutorial only once (ignores duplicates by title)
+    /// Returns true if it was newly added
     public bool AddTutorial(string title, string body)
     {
         if (seen.Contains(title)) return false;
@@ -39,6 +40,14 @@ public class TutorialManager : MonoBehaviour
     }
 
     public List<TutorialEntry> GetAllTutorials() => tutorials;
+
+    ///Restore tutorials from save data
+    public void LoadTutorials(List<SavedTutorial> saved)
+    {
+        if (saved == null) return;
+        foreach (var s in saved)
+            AddTutorial(s.title, s.body);
+    }
 
     // Pre-seed tutorials that are available from the start
     private void SeedDefaultTutorials()

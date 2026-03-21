@@ -4,6 +4,7 @@ public class PlayerController : MonoBehaviour
 {
     // Single-player convenience reference — set in Awake
     public static PlayerController LocalInstance { get; private set; }
+
     [Header("Movement Settings")]
     [SerializeField] private float walkSpeed = 5f;
     [SerializeField] private float sprintSpeed = 8f;
@@ -162,6 +163,20 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    ///Directly set health values — used by save/load
+    public void SetHealth(float current, float max)
+    {
+        maxHealth = max;
+        currentHealth = Mathf.Clamp(current, 0f, maxHealth);
+    }
+
+    ///Directly set stamina values — used by save/load
+    public void SetStamina(float current, float max)
+    {
+        maxStamina = max;
+        currentStamina = Mathf.Clamp(current, 0f, maxStamina);
+    }
+
     public void Heal(float amount)
     {
         currentHealth += amount;
@@ -178,8 +193,8 @@ public class PlayerController : MonoBehaviour
         currentStamina = Mathf.Min(currentStamina + bonus, maxStamina);
     }
 
- 
     /// Reduces maxHealth and maxStamina by a fraction (called by InfectionManager)
+    /// Also clamps current values so they don't exceed the new reduced max
     public void ApplyInfectionPenalty(float hpFraction, float stamFraction)
     {
         maxHealth -= maxHealth * hpFraction;
@@ -187,8 +202,8 @@ public class PlayerController : MonoBehaviour
         currentHealth = Mathf.Min(currentHealth, maxHealth);
         currentStamina = Mathf.Min(currentStamina, maxStamina);
     }
-
     /// Restores the stat reduction previously applied by ApplyInfectionPenalty
+    /// Uses the same fractions to reverse exactly what was taken
     public void RemoveInfectionPenalty(float hpFraction, float stamFraction)
     {
         // Reverse: if maxHealth was multiplied by (1 - f), divide by (1 - f) to restore

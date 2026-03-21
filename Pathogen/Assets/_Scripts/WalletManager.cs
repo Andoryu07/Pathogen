@@ -1,11 +1,8 @@
 using UnityEngine;
-
 /// Singleton that tracks the player's Patheos currency total
-/// Persists across scenes (DontDestroyOnLoad)
 public class WalletManager : MonoBehaviour
 {
     public static WalletManager Instance { get; private set; }
-
     private int balance = 0;
     public int Balance => balance;
 
@@ -15,7 +12,7 @@ public class WalletManager : MonoBehaviour
         else Destroy(gameObject);
     }
 
-    ///Add Patheos to the wallet (e.g. from pickup or enemy drop)
+    ///Add Patheos to the wallet (from pickup or enemy drop)
     public void Add(int amount)
     {
         if (amount <= 0) return;
@@ -24,7 +21,8 @@ public class WalletManager : MonoBehaviour
         HUDFeedback.Instance?.ShowInfo($"+{amount} Patheos");
         OnBalanceChanged();
     }
-    ///Spend Patheos (e.g. at Silas merchant). Returns false if insufficient funds
+
+    ///Spend Patheos (at Silas merchant). Returns false if insufficient funds
     public bool Spend(int amount)
     {
         if (amount > balance)
@@ -36,6 +34,13 @@ public class WalletManager : MonoBehaviour
         Debug.Log($"[Wallet] -{amount} Patheos — total: {balance}");
         OnBalanceChanged();
         return true;
+    }
+
+    ///Restore balance from save data
+    public void LoadBalance(int amount)
+    {
+        balance = Mathf.Max(0, amount);
+        OnBalanceChanged();
     }
 
     private void OnBalanceChanged()

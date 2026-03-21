@@ -1,15 +1,12 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-
-/// Singleton that owns all recipes, tracks which are unlocked and executes crafting (consuming ingredients, producing result)
+/// Singleton that owns all recipes, tracks which are unlocked, and executes crafting (consuming ingredients, producing result).
 public class CraftingManager : MonoBehaviour
 {
     public static CraftingManager Instance { get; private set; }
-
     [Header("All Recipes in the Game")]
     [SerializeField] private List<CraftingRecipe> allRecipes = new List<CraftingRecipe>();
-
     // Recipes the player has unlocked (either by finding all ingredients once, or by picking up a recipe document)
     private HashSet<CraftingRecipe> unlockedRecipes = new HashSet<CraftingRecipe>();
 
@@ -26,7 +23,7 @@ public class CraftingManager : MonoBehaviour
         }
     }
 
-    /// Unlocks a recipe by name (called from e.g. picking up a recipe)
+    /// Unlocks a recipe by name (called from e.g. picking up a recipe scroll)
     public void UnlockRecipe(string recipeName)
     {
         var recipe = allRecipes.Find(r => r.name == recipeName);
@@ -68,17 +65,28 @@ public class CraftingManager : MonoBehaviour
         return visible;
     }
 
-    /// How many of itemName the player currently has in inventory
+    /// Total units of itemName across all stacks in the inventory
     public int CountInInventory(string itemName)
     {
-        int count = 0;
-        foreach (var item in InventoryGrid.Instance.GetAllItems())
-            if (item.GetItemName() == itemName)
-                count++;
-        return count;
+        return InventoryGrid.Instance.CountItem(itemName);
     }
 
     ///True if every ingredient requirement is currently met
+    public List<string> GetUnlockedRecipeNames()
+    {
+        var list = new List<string>();
+        foreach (var r in unlockedRecipes)
+            if (r != null) list.Add(r.resultItemName);
+        return list;
+    }
+
+    public void LoadUnlockedRecipes(List<string> names)
+    {
+        if (names == null) return;
+        foreach (var name in names)
+            UnlockRecipe(name);
+    }
+
     public bool HasAllIngredients(CraftingRecipe recipe)
     {
         foreach (var ing in recipe.ingredients)
@@ -87,6 +95,7 @@ public class CraftingManager : MonoBehaviour
         return true;
     }
 
+    /// Per-ingredient status: true = player has enough, false = not enough
     public List<bool> GetIngredientStatus(CraftingRecipe recipe)
     {
         var status = new List<bool>();
@@ -95,6 +104,8 @@ public class CraftingManager : MonoBehaviour
         return status;
     }
 
+    /// Attempts to craft the recipe. Returns true on success
+    /// Consumes ingredients and adds the result to inventory (or drops it)
     public bool TryCraft(CraftingRecipe recipe)
     {
         if (!HasAllIngredients(recipe))
@@ -102,55 +113,43 @@ public class CraftingManager : MonoBehaviour
             Debug.Log($"[Crafting] Cannot craft {recipe.resultItemName} — missing ingredients.");
             return false;
         }
-        // Consume ingredients
+
+        // Consume ingredients — drain from stacks, remove empty stacks
+        // Consume ingredients — one unit at a time, stack-aware
         foreach (var ing in recipe.ingredients)
         {
             int toRemove = ing.amount;
-            var items = new List<Item>(InventoryGrid.Instance.GetAllItems());
-            foreach (var item in items)
+            while (toRemove > 0)
             {
-                if (toRemove <= 0) break;
-                if (item.GetItemName() == ing.itemName)
-                {
-                    InventoryGrid.Instance.RemoveItem(item);
-                    toRemove--;
-                }
+                var snapshot = new List<Item>(InventoryGrid.Instance.GetAllItems());
+                Item found = snapshot.Find(i => i.GetItemName() == ing.itemName);
+                if (found == null) break;
+                InventoryGrid.Instance.ConsumeOneFromStack(found);
+                toRemove--;
             }
         }
-
         // Produce result
         if (recipe.resultItemPrefab == null)
         {
             Debug.LogWarning($"[Crafting] Recipe '{recipe.resultItemName}' has no result prefab assigned!");
             return false;
         }
-
-        // Instantiate result (inactive so it doesn't appear in the world)
-        Item result = Instantiate(recipe.resultItemPrefab);
-        result.gameObject.SetActive(false);
-
-        bool addedToInventory = InventoryGrid.Instance.TryAddItem(result);
-        if (!addedToInventory)
+        // Spawn result and add to inventory (stacking handled inside TryAddItem)
+        for (int i = 0; i < recipe.resultAmount; i++)
         {
-            PlayerController player = FindObjectOfType<PlayerController>();
-            if (player != null)
+            Item result = Instantiate(recipe.resultItemPrefab);
+            result.gameObject.SetActive(false);
+            bool added = InventoryGrid.Instance.TryAddItem(result);
+            if (!added)
             {
-                result.transform.position = player.transform.position;
+                // Inventory full — drop at player position
+                PlayerController player = FindObjectOfType<PlayerController>();
+                result.transform.position = player != null ? player.transform.position : Vector3.zero;
                 result.gameObject.SetActive(true);
-                Debug.Log($"[Crafting] Inventory full — {recipe.resultItemName} dropped at player position.");
-            }
-            else
-            {
-                // Last resort: just enable near origin
-                result.transform.position = Vector3.zero;
-                result.gameObject.SetActive(true);
+                Debug.Log($"[Crafting] Inventory full — {recipe.resultItemName} dropped.");
             }
         }
-        else
-        {
-            Debug.Log($"[Crafting] Crafted: {recipe.resultItemName}");
-        }
-
+        Debug.Log($"[Crafting] Crafted: {recipe.resultItemName} x{recipe.resultAmount}");
         return true;
     }
 }
