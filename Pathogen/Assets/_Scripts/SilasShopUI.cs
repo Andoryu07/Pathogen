@@ -1,8 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-/// Silas shop UI — tab-style navigation.
-/// Opens directly on the Item Shop tab
+/// Silas shop UI — tab-style navigation
 public class SilasShopUI : MonoBehaviour
 {
     public static SilasShopUI Instance { get; private set; }
@@ -44,8 +43,21 @@ public class SilasShopUI : MonoBehaviour
     public void Open()
     {
         gameObject.SetActive(true);
-        ShowItemShop();   // always open on item shop first
+        ShowItemShop();
         WeaponHUD.Instance?.Hide();
+    }
+
+    ///Open directly on a specific tab. 0=ItemShop, 1=WeaponUpgrades, 2=Quests
+    public void OpenOnTab(int tab)
+    {
+        gameObject.SetActive(true);
+        WeaponHUD.Instance?.Hide();
+        switch (tab)
+        {
+            case 1: ShowWeaponUpgrades(); break;
+            case 2: ShowQuests(); break;
+            default: ShowItemShop(); break;
+        }
     }
 
     public void Close()

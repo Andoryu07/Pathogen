@@ -18,3 +18,5 @@ MonoBehaviour:
   range: 8
   damage: 60
   fireRate: 0.8
+  reloadSpeedMultiplier: 1
+  rangedDamageMultiplier: 0.5

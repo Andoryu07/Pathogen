@@ -1,18 +1,16 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-
 /// Basic Infected enemy
 [RequireComponent(typeof(Rigidbody2D))]
 public class EnemyInfected : MonoBehaviour, IDamageable
 {
-
     [Header("Stats")]
     [SerializeField] private float maxHealth = 80f;
-    [SerializeField] private float moveSpeed = 2.0f;  
-    [SerializeField] private float contactDamage = 15f;    // HP damage per hit
-    [SerializeField] private float attackWindup = 0.7f;   // seconds before hit lands
-    [SerializeField] private float attackCooldown = 1.5f;   // seconds between attacks
+    [SerializeField] private float moveSpeed = 2.0f;   
+    [SerializeField] private float contactDamage = 15f;    
+    [SerializeField] private float attackWindup = 0.7f;   
+    [SerializeField] private float attackCooldown = 1.5f;   
     [Header("Radii")]
     [SerializeField] private float detectionRadius = 7f;
     [SerializeField] private float attackRadius = 0.9f;
@@ -20,19 +18,18 @@ public class EnemyInfected : MonoBehaviour, IDamageable
     [SerializeField] private GameObject patheosPrefab;              
     [SerializeField] private int patheosMinAmount = 100;
     [SerializeField] private int patheosMaxAmount = 1500;
-    [SerializeField] private GameObject ammoDropPrefab;           
+    [SerializeField] private GameObject ammoDropPrefab;             
     [SerializeField]
     [Range(0f, 1f)]
-    private float ammoDropChance = 0.20f;                       
+    private float ammoDropChance = 0.20f;                        
     [SerializeField] private int ammoDropMin = 2;
     [SerializeField] private int ammoDropMax = 8;
     [Header("Attack Visuals")]
     [SerializeField] private Color windupColor = new Color(1f, 0.3f, 0.3f, 1f);
     [SerializeField] private Color normalColor = Color.white;
-    [SerializeField] private float deathDelay = 1.0f;             // seconds before GO destroyed
+    [SerializeField] private float deathDelay = 1.0f;            
     private enum State { Idle, Chase, Attack, Dead }
     private State state = State.Idle;
-
     private float currentHealth;
     private float attackTimer = 0f;
     private bool isWinding = false;
@@ -48,6 +45,7 @@ public class EnemyInfected : MonoBehaviour, IDamageable
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
         currentHealth = maxHealth;
+        // Kinematic so the enemy moves by velocity but never physically pushes or gets pushed by other rigidbodies (player, projectiles etc.)
         if (rb != null)
         {
             rb.isKinematic = true;
@@ -64,15 +62,12 @@ public class EnemyInfected : MonoBehaviour, IDamageable
     void Update()
     {
         if (state == State.Dead || playerTransform == null) return;
-
         float dist = Vector2.Distance(transform.position, playerTransform.position);
-
         switch (state)
         {
             case State.Idle:
                 if (dist <= detectionRadius) state = State.Chase;
                 break;
-
             case State.Chase:
                 if (dist <= attackRadius && !isAttacking)
                 {
@@ -85,7 +80,6 @@ public class EnemyInfected : MonoBehaviour, IDamageable
                     state = State.Idle;
                 }
                 break;
-
             case State.Attack:
                 // AttackRoutine handles this state; return to Chase if player leaves radius
                 if (!isWinding && !isAttacking && dist > attackRadius)
@@ -154,7 +148,6 @@ public class EnemyInfected : MonoBehaviour, IDamageable
             StopCoroutine(attackCoroutine);
             attackCoroutine = null;
         }
-
         // Reset sprite color in case we died mid-windup
         if (sr != null) sr.color = normalColor;
         Debug.Log($"[EnemyInfected] Died.");
@@ -178,6 +171,9 @@ public class EnemyInfected : MonoBehaviour, IDamageable
             yield return new WaitForSeconds(deathDelay);
         }
         QuestManager.Instance?.ReportEnemyKill(gameObject.tag);
+        PersistentEnemy pe = GetComponent<PersistentEnemy>();
+        Debug.Log("[EnemyInfected] PersistentEnemy component found: " + (pe != null) + (pe != null ? " ID: " + pe.SceneID : " — add PersistentEnemy component!"));
+        pe?.RegisterDeath();
         DropLoot(lootPosition);
         Destroy(gameObject);
     }
@@ -203,6 +199,7 @@ public class EnemyInfected : MonoBehaviour, IDamageable
         {
             Debug.LogWarning("[EnemyInfected] patheosPrefab is not assigned — no currency dropped.");
         }
+        // Ammo drop — single pickup with stacked count
         float roll = Random.value;
         Debug.Log($"[EnemyInfected] Ammo roll: {roll:F2} vs chance {ammoDropChance:F2}");
         if (ammoDropPrefab != null && roll <= ammoDropChance)
@@ -229,6 +226,34 @@ public class EnemyInfected : MonoBehaviour, IDamageable
         sr.color = Color.white;
         yield return new WaitForSeconds(0.08f);
         if (state != State.Dead) sr.color = original;
+    }
+
+    ///Called by SafeRoomBoundary — pushes enemy back and returns to idle
+    public void ForceRepel(Vector2 pushTarget, float pauseDuration)
+    {
+        if (state == State.Dead) return;
+        if (attackCoroutine != null) { StopCoroutine(attackCoroutine); attackCoroutine = null; }
+        isAttacking = false;
+        isWinding = false;
+        state = State.Idle;
+        StartCoroutine(RepelRoutine(pushTarget, pauseDuration));
+    }
+
+    private System.Collections.IEnumerator RepelRoutine(Vector2 pushTarget, float pause)
+    {
+        // Move back to push target over 0.3s
+        float elapsed = 0f;
+        Vector2 startPos = rb.position;
+        while (elapsed < 0.3f)
+        {
+            elapsed += Time.fixedDeltaTime;
+            rb.MovePosition(Vector2.Lerp(startPos, pushTarget, elapsed / 0.3f));
+            yield return new WaitForFixedUpdate();
+        }
+        // Pause at boundary
+        yield return new WaitForSeconds(pause);
+        // Return to idle
+        state = State.Idle;
     }
 
     void OnDrawGizmosSelected()

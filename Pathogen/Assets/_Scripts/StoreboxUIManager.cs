@@ -20,9 +20,12 @@ public class StoreboxUIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI allButtonText;
     [SerializeField] private TextMeshProUGUI feedbackText;
     [SerializeField] private Button closeButton;
+    [Header("Row Prefab")]
+    [Tooltip("Prefab with Image bg + HorizontalLayoutGroup + StoreboxRowUI script")]
+    [SerializeField] private GameObject rowPrefab;
 
     private Item selectedItem = null;
-    private bool selectedIsInBox = false;   // true = box side, false = inventory side
+    private bool selectedIsInBox = false;
     // Colours
     private static readonly Color ColSelected = new Color(0.25f, 0.55f, 0.90f, 0.85f);
     private static readonly Color ColNormal = new Color(0.18f, 0.18f, 0.18f, 0.85f);
@@ -77,65 +80,47 @@ public class StoreboxUIManager : MonoBehaviour
 
     private void BuildList(Transform parent, IEnumerable<Item> items, bool inBox)
     {
-        // Clear old rows (only remove rows belonging to this side)
         rows.RemoveAll(r => r.inBox == inBox);
         foreach (Transform c in parent) Destroy(c.gameObject);
         foreach (var item in items)
         {
             Item cap = item;
             bool mine = inBox;
-            GameObject rowGO = new GameObject(item.GetItemName(), typeof(RectTransform));
+            // Instantiate row from prefab — all visual structure set in Inspector
+            GameObject rowGO = rowPrefab != null
+                ? Instantiate(rowPrefab, parent)
+                : new GameObject(item.GetItemName(), typeof(RectTransform));
             rowGO.transform.SetParent(parent, false);
-            var le = rowGO.AddComponent<LayoutElement>();
-            le.preferredHeight = 44f;
-            le.minHeight = 44f;
-            le.flexibleWidth = 1f;
-            Image bg = rowGO.AddComponent<Image>();
-            bg.color = (selectedItem == item) ? ColSelected : ColNormal;
-            var hlg = rowGO.AddComponent<HorizontalLayoutGroup>();
-            hlg.childControlWidth = false;
-            hlg.childForceExpandWidth = false;
-            hlg.childControlHeight = true;
-            hlg.childForceExpandHeight = true;
-            hlg.spacing = 6f;
-            hlg.padding = new RectOffset(8, 8, 4, 4);
-            if (item.GetIcon() != null)
-            {
-                GameObject iconGO = new GameObject("Icon", typeof(RectTransform));
-                iconGO.transform.SetParent(rowGO.transform, false);
-                Image iconImg = iconGO.AddComponent<Image>();
-                iconImg.sprite = item.GetIcon();
-                iconImg.raycastTarget = false;
-                var iconLE = iconGO.AddComponent<LayoutElement>();
-                iconLE.preferredWidth = 32f;
-                iconLE.preferredHeight = 32f;
-            }
+            rowGO.name = item.GetItemName();
+
+            Image bg = rowGO.GetComponent<Image>();
+            if (bg != null) bg.color = (selectedItem == item) ? ColSelected : ColNormal;
+
+            // Populate via StoreboxRowUI if present, otherwise fallback
+            StoreboxRowUI rowUI = rowGO.GetComponent<StoreboxRowUI>();
             int stackCount = inBox
                 ? StoreboxManager.Instance.GetStackCount(item)
                 : InventoryGrid.Instance.GetStackCount(item);
             string labelText = stackCount > 1
                 ? $"{item.GetItemName()}  <color=#aaaaaa>x{stackCount}</color>"
                 : item.GetItemName();
-            GameObject labelGO = new GameObject("Label", typeof(RectTransform));
-            labelGO.transform.SetParent(rowGO.transform, false);
-            var labelTMP = labelGO.AddComponent<TextMeshProUGUI>();
-            labelTMP.text = labelText;
-            labelTMP.fontSize = 15f;
-            labelTMP.alignment = TextAlignmentOptions.MidlineLeft;
-            labelTMP.color = Color.white;
-            labelTMP.raycastTarget = false;
-            var labelLE = labelGO.AddComponent<LayoutElement>();
-            labelLE.flexibleWidth = 1f;
-            labelLE.preferredHeight = 36f;
-            Button btn = rowGO.AddComponent<Button>();
-            btn.targetGraphic = bg;
-            ColorBlock cb = btn.colors;
-            cb.normalColor = ColNormal;
-            cb.highlightedColor = ColHover;
-            cb.selectedColor = ColSelected;
-            cb.pressedColor = ColSelected;
-            btn.colors = cb;
-            btn.onClick.AddListener(() => OnRowClicked(cap, mine, bg));
+
+            if (rowUI != null)
+                rowUI.Populate(item.GetIcon(), labelText);
+
+            Button btn = rowGO.GetComponent<Button>();
+            if (btn != null)
+            {
+                btn.targetGraphic = bg;
+                ColorBlock cb = btn.colors;
+                cb.normalColor = ColNormal;
+                cb.highlightedColor = ColHover;
+                cb.selectedColor = ColSelected;
+                cb.pressedColor = ColSelected;
+                btn.colors = cb;
+                btn.onClick.AddListener(() => OnRowClicked(cap, mine, bg));
+            }
+
             rows.Add((item, bg, inBox));
         }
     }
@@ -247,9 +232,7 @@ public class StoreboxUIManager : MonoBehaviour
         if (feedbackText != null)
         {
             feedbackText.text = msg;
-            feedbackText.color = msg.Contains("full")
-                ? new Color(0.9f, 0.3f, 0.3f, 1f)
-                : new Color(0.7f, 0.9f, 0.7f, 1f);
+            feedbackText.color = msg.Contains("full") ? new Color(0.9f, 0.3f, 0.3f, 1f) : new Color(0.7f, 0.9f, 0.7f, 1f);
         }
     }
 

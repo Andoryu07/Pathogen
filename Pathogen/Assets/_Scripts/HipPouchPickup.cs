@@ -1,5 +1,7 @@
 using UnityEngine;
 /// Hip Pouch world pickup
+/// Immediately expands the inventory grid by 1 row when picked up
+/// Does NOT appear in inventory
 public class HipPouchPickup : InteractableBase
 {
     [Header("World Sprite")]
@@ -15,6 +17,7 @@ public class HipPouchPickup : InteractableBase
     public override void Interact()
     {
         SpecialItemManager.Instance?.PickUpHipPouch();
+        GetComponent<PersistentPickup>()?.RegisterCollected();
         gameObject.SetActive(false);
     }
 }

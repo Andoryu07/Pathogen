@@ -4,9 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 /// Handles saving and loading game state to/from JSON files
+/// Save files stored at: Application.persistentDataPath/saves/slot_X.json
 public class SaveManager : MonoBehaviour
 {
     public static SaveManager Instance { get; private set; }
+
     [Header("Settings")]
     [SerializeField] private int maxSlots = 3;
     [SerializeField] private float playtimeAccumulator = 0f;
@@ -28,7 +30,8 @@ public class SaveManager : MonoBehaviour
     }
 
     public int MaxSlots => maxSlots;
-    public bool SlotExists(int slot) => File.Exists(SlotPath(slot));
+    public bool SlotExists(int slot)
+        => File.Exists(SlotPath(slot));
     public SaveData ReadSlotMeta(int slot)
     {
         if (!SlotExists(slot)) return null;
@@ -114,15 +117,19 @@ public class SaveManager : MonoBehaviour
             data.hasHazardMask = SpecialItemManager.Instance.HasHazardMask;
             data.hipPouchCount = SpecialItemManager.Instance.HipPouchCount;
         }
-        data.gridWidth = InventoryGrid.Instance != null ? InventoryGrid.Instance.GridWidth : 7;
+        data.gridWidth = InventoryGrid.Instance != null
+            ? InventoryGrid.Instance.GridWidth : 7;
         // Wallet
         data.patheosBalance = WalletManager.Instance?.Balance ?? 0;
         // Upgrades
-        data.upgradeLevels = UpgradeManager.Instance?.GetAllLevels() ?? new List<SavedUpgrade>();
+        data.upgradeLevels = UpgradeManager.Instance?.GetAllLevels()
+            ?? new List<SavedUpgrade>();
         // Quests
-        data.questStates = QuestManager.Instance?.GetAllStates() ?? new List<SavedQuest>();
+        data.questStates = QuestManager.Instance?.GetAllStates()
+            ?? new List<SavedQuest>();
         // Recipes
-        data.unlockedRecipeNames = CraftingManager.Instance?.GetUnlockedRecipeNames() ?? new List<string>();
+        data.unlockedRecipeNames = CraftingManager.Instance?.GetUnlockedRecipeNames()
+            ?? new List<string>();
         // Documents
         if (ReadableManager.Instance != null)
             foreach (var doc in ReadableManager.Instance.GetAllReadables())
@@ -133,6 +140,13 @@ public class SaveManager : MonoBehaviour
                 data.tutorials.Add(new SavedTutorial { title = t.title, body = t.body });
         // Talismans
         data.talismanCount = TalismanManager.Instance?.CollectedCount ?? 0;
+        // World state
+        if (WorldPersistenceManager.Instance != null)
+        {
+            data.deadEnemyIDs = WorldPersistenceManager.Instance.GetDeadEnemyIDs();
+            data.collectedPickupIDs = WorldPersistenceManager.Instance.GetCollectedPickupIDs();
+            data.unlockedLockIDs = WorldPersistenceManager.Instance.GetUnlockedLockIDs();
+        }
 
         return data;
     }
@@ -194,7 +208,8 @@ public class SaveManager : MonoBehaviour
         // Clear and restore storebox
         RestoreStorebox(data.storeboxItems);
         // Special items
-        SpecialItemManager.Instance?.LoadState(data.hasLighter, data.hasHazardMask, data.hipPouchCount);
+        SpecialItemManager.Instance?.LoadState(
+            data.hasLighter, data.hasHazardMask, data.hipPouchCount);
         // Restore grid width expansions
         int currentWidth = InventoryGrid.Instance?.GridWidth ?? 7;
         for (int i = currentWidth; i < data.gridWidth; i++)
@@ -216,6 +231,11 @@ public class SaveManager : MonoBehaviour
         TutorialManager.Instance?.LoadTutorials(data.tutorials);
         // Talismans
         TalismanManager.Instance?.LoadCount(data.talismanCount);
+        // World state
+        WorldPersistenceManager.Instance?.LoadState(
+            data.deadEnemyIDs,
+            data.collectedPickupIDs,
+            data.unlockedLockIDs);
         // Playtime
         playtimeAccumulator = 0f;
         // Refresh all UI
@@ -227,8 +247,11 @@ public class SaveManager : MonoBehaviour
     private void RestoreInventory(List<SavedItem> savedItems)
     {
         if (InventoryGrid.Instance == null) return;
+
         // Clear current inventory
-        foreach (var item in new List<Item>(InventoryGrid.Instance.GetAllItems())) InventoryGrid.Instance.RemoveItemStack(item);
+        foreach (var item in new List<Item>(InventoryGrid.Instance.GetAllItems()))
+            InventoryGrid.Instance.RemoveItemStack(item);
+
         // We can't restore without item prefabs — ItemRegistry handles this
         ItemRegistry registry = ItemRegistry.Instance;
         if (registry == null)
@@ -236,7 +259,6 @@ public class SaveManager : MonoBehaviour
             Debug.LogWarning("[Save] ItemRegistry not found — inventory not restored.");
             return;
         }
-
         foreach (var saved in savedItems)
         {
             GameObject prefab = registry.GetPrefab(saved.itemName);
@@ -248,6 +270,7 @@ public class SaveManager : MonoBehaviour
             GameObject go = Instantiate(prefab);
             Item itemComp = go.GetComponent<Item>();
             if (itemComp == null) { Destroy(go); continue; }
+
             // Place at saved position with saved rotation
             if (InventoryGrid.Instance.CanPlaceItemAt(itemComp, saved.gridX, saved.gridY, saved.rotated))
             {
@@ -269,8 +292,10 @@ public class SaveManager : MonoBehaviour
     {
         if (StoreboxManager.Instance == null) return;
         StoreboxManager.Instance.ClearAll();
+
         ItemRegistry registry = ItemRegistry.Instance;
         if (registry == null) return;
+
         foreach (var saved in savedItems)
         {
             GameObject prefab = registry.GetPrefab(saved.itemName);

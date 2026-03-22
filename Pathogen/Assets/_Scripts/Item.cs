@@ -53,7 +53,7 @@ public class Item : InteractableBase
 
     void OnEnable()
     {
-        // Apply sprite immediately when activated (e.g. loot drop SetActive(true))
+        // Apply sprite immediately when activated 
         ApplyWorldSprite(scaleApplied: false);
     }
 
@@ -67,7 +67,6 @@ public class Item : InteractableBase
     {
         if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
         if (spriteRenderer == null) return;
-
         if (showWorldSprite && itemIcon != null)
         {
             spriteRenderer.sprite = itemIcon;
@@ -91,6 +90,7 @@ public class Item : InteractableBase
             {
                 Debug.Log($"Added document: {itemName}");
                 ShowReadableText();
+                RegisterPersistentPickup();
                 gameObject.SetActive(false);
             }
         }
@@ -99,12 +99,14 @@ public class Item : InteractableBase
             // Use TryAddItemAmount for stacked world drops (e.g. 7x Pistol Rounds as one pickup)
             int toAdd = Mathf.Max(1, worldStackCount);
             int leftover = InventoryGrid.Instance.TryAddItemAmount(this, toAdd);
+
             if (leftover < toAdd)
             {
                 WeaponHUD.Instance?.RefreshAmmoText();
                 if (leftover > 0)
                     HUDFeedback.Instance?.ShowWarning(
                         $"Picked up {toAdd - leftover}/{toAdd} — inventory full!");
+                RegisterPersistentPickup();
                 gameObject.SetActive(false);
             }
             else
@@ -113,7 +115,6 @@ public class Item : InteractableBase
             }
         }
     }
-
     public void ShowReadableText() => Debug.Log($"=== {itemName} ===\n{readableText}\n================");
     public string GetItemName() => itemName;
     public string GetDescription() => itemDescription;
@@ -123,6 +124,18 @@ public class Item : InteractableBase
     public ItemSize GetSize() => size;
     public int GetMaxStackSize() => maxStackSize;
     public bool IsStarterItem() => isStarterItem;
+
+    private void RegisterPersistentPickup()
+    {
+        PersistentPickup pp = GetComponent<PersistentPickup>();
+        if (pp == null)
+        {
+            // Not every item needs persistence (e.g. dropped loot) — only warn for scene-placed items
+            // Add PersistentPickup + unique Scene ID to any world item that should stay collected
+            return;
+        }
+        pp.RegisterCollected();
+    }
 
     private void UpdatePromptMessage()
     {

@@ -30,7 +30,6 @@ public class TalismanManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
-
     ///Call this when the player smashes a talisman in the world
     public void CollectTalisman()
     {
@@ -47,10 +46,8 @@ public class TalismanManager : MonoBehaviour
             }
         }
     }
-
     public bool IsRewardUnlocked(int threshold) => collectedCount >= threshold;
     public int GetTalismanCount() => collectedCount;
-
     ///Restore talisman count from save — re-applies all earned rewards
     public void LoadCount(int count)
     {
@@ -62,21 +59,45 @@ public class TalismanManager : MonoBehaviour
 
     private void ApplyReward(int threshold)
     {
-        // Hook up to player stats when those systems are ready
         switch (threshold)
         {
             case 1:
-                // +10% stamina
-                Debug.Log("[Talisman] Applied: +10% Stamina");
+                PlayerController.LocalInstance?.AddStaminaBonus(0.10f);
+                HUDFeedback.Instance?.ShowInfo("Talisman reward: +10% Max Stamina!");
                 break;
             case 5:
-                // +20% reload speed
-                Debug.Log("[Talisman] Applied: +20% Reload Speed");
+                reloadSpeedBonusMultiplier *= 0.80f;
+                ApplyBonusesToEquippedWeapon();
+                HUDFeedback.Instance?.ShowInfo("Talisman reward: +20% Reload Speed!");
                 break;
             case 10:
-                // +30% ranged damage
-                Debug.Log("[Talisman] Applied: +30% Ranged Damage");
+                rangedDamageBonusMultiplier *= 1.30f;
+                ApplyBonusesToEquippedWeapon();
+                HUDFeedback.Instance?.ShowInfo("Talisman reward: +30% Ranged Damage!");
                 break;
         }
+    }
+
+    // Persistent bonus multipliers — stored so they apply when new weapons are equipped
+    private float reloadSpeedBonusMultiplier = 1.0f;
+    private float rangedDamageBonusMultiplier = 1.0f;
+    public float ReloadSpeedBonusMultiplier => reloadSpeedBonusMultiplier;
+    public float RangedDamageBonusMultiplier => rangedDamageBonusMultiplier;
+    private void ApplyBonusesToEquippedWeapon()
+    {
+        PlayerController player = PlayerController.LocalInstance;
+        if (player?.EquippedWeapon == null) return;
+        WeaponItem wi = player.EquippedWeapon.GetComponent<WeaponItem>();
+        if (wi?.data == null) return;
+        wi.data.reloadSpeedMultiplier = wi.data.reloadSpeedMultiplier * reloadSpeedBonusMultiplier;
+        wi.data.rangedDamageMultiplier = wi.data.rangedDamageMultiplier * rangedDamageBonusMultiplier;
+    }
+
+    ///Called by WeaponItem.Equip to apply accumulated talisman bonuses
+    public void ApplyBonusesToWeapon(WeaponItem wi)
+    {
+        if (wi?.data == null) return;
+        wi.data.reloadSpeedMultiplier *= reloadSpeedBonusMultiplier;
+        wi.data.rangedDamageMultiplier *= rangedDamageBonusMultiplier;
     }
 }

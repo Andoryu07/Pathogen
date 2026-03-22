@@ -119,6 +119,7 @@ public class InventoryUIManager : MonoBehaviour
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Tab)) ToggleInventory();
+        if (Input.GetKeyDown(KeyCode.LeftAlt) && IsOpen) TriggerAutoSort();
         if (isDragging)
         {
             UpdateDragGhostPosition();
@@ -210,21 +211,19 @@ public class InventoryUIManager : MonoBehaviour
         }
     }
 
-    /// Adds one new column of slots — called after Hip Pouch expands the inventory.
-    /// Preserves existing tileSize so tiles never shrink
+    /// Adds one new column of slots — called after Hip Pouch expands the inventory
+    /// Preserves existing tileSize and existing item positions
     public void RebuildGrid()
     {
-        int newWidth = GRID_WIDTH;    // already incremented by InventoryGrid.ExpandGrid()
+        int newWidth = GRID_WIDTH;    
         int oldWidth = newWidth - 1;
-
         // Copy existing slots into a wider array
         var newSlots = new InventorySlotUI[newWidth, GRID_HEIGHT];
         if (slots != null)
             for (int x = 0; x < oldWidth; x++)
                 for (int y = 0; y < GRID_HEIGHT; y++)
                     newSlots[x, y] = slots[x, y];
-
-        // Instantiate only the new right-hand column
+        // Instantiate the new right-hand column slots
         for (int y = 0; y < GRID_HEIGHT; y++)
         {
             GameObject go = Instantiate(slotPrefab, gridParent);
@@ -235,15 +234,32 @@ public class InventoryUIManager : MonoBehaviour
 
         slots = newSlots;
 
-        // Update the GridLayoutGroup column count and expand width by one tile
+        // GridLayoutGroup fills left→right top→bottom, so child order must match: (0,0),(1,0)...(newWidth-1,0),(0,1),(1,1)... etc.
+        // Re-set sibling indices to enforce the correct order
+        for (int y = 0; y < GRID_HEIGHT; y++)
+            for (int x = 0; x < newWidth; x++)
+                slots[x, y].transform.SetSiblingIndex(y * newWidth + x);
+
+        // Update the GridLayoutGroup column count
         GridLayoutGroup layout = gridParent.GetComponent<GridLayoutGroup>();
         if (layout != null) layout.constraintCount = newWidth;
 
+        // Expand gridParent width by one tile
         RectTransform gridRT = gridParent.GetComponent<RectTransform>();
         if (gridRT != null)
             gridRT.sizeDelta = new Vector2(gridRT.sizeDelta.x + tileSize, gridRT.sizeDelta.y);
 
         RefreshInventoryGrid();
+    }
+
+    ///Sorts inventory to minimum space — called by Alt key
+    public void TriggerAutoSort()
+    {
+        if (inventoryGrid == null) inventoryGrid = InventoryGrid.Instance;
+        if (inventoryGrid == null) return;
+        inventoryGrid.AutoSort();
+        RefreshInventoryGrid();
+        HUDFeedback.Instance?.ShowInfo("Inventory sorted.");
     }
 
     public void RefreshInventoryGrid()
@@ -260,9 +276,7 @@ public class InventoryUIManager : MonoBehaviour
             bool rotated = inventoryGrid.IsItemRotated(item);
             if (pos.x < 0) continue;
             ItemSize size = inventoryGrid.GetEffectiveSize(item, rotated);
-
             int stackCount = inventoryGrid.GetStackCount(item);
-
             for (int dx = 0; dx < size.width; dx++)
                 for (int dy = 0; dy < size.height; dy++)
                 {
@@ -588,6 +602,8 @@ public class InventoryUIManager : MonoBehaviour
         if (activeTab == ActiveTab.Tutorials) RefreshTutorialsList();
     }
 
+    public void RefreshCollectiblesTab() => RefreshCollectibles();
+
     private void RefreshCollectibles()
     {
         if (collectiblesCountText == null) return;
@@ -614,12 +630,10 @@ public class InventoryUIManager : MonoBehaviour
             var texts = go.GetComponentsInChildren<TextMeshProUGUI>();
             if (texts.Length >= 2) { texts[0].text = r.lbl; texts[1].text = r.fx; }
             else if (texts.Length == 1) texts[0].text = $"{r.lbl}  —  {r.fx}";
-
             var img = go.GetComponent<Image>();
             if (img != null) img.color = unlocked
                 ? new Color(0.15f, 0.55f, 0.15f, 0.65f)
                 : new Color(0.22f, 0.22f, 0.22f, 0.65f);
-
             Color tc = unlocked ? Color.white : new Color(0.55f, 0.55f, 0.55f, 1f);
             foreach (var t in texts) t.color = tc;
         }
@@ -640,10 +654,8 @@ public class InventoryUIManager : MonoBehaviour
         {
             GameObject go = Instantiate(craftingRecipePrefab, craftingListParent);
             SetItemHeight(go, CraftingRecipeUI.ROW_HEIGHT);
-
             if (go.GetComponent<Image>() == null)
                 go.AddComponent<Image>();
-
             var recipeUI = go.GetComponent<CraftingRecipeUI>();
             if (recipeUI != null)
                 recipeUI.Setup(recipe);
@@ -651,6 +663,7 @@ public class InventoryUIManager : MonoBehaviour
     }
 
     /// Sets preferred height on a spawned list entry
+    /// VerticalLayoutGroup and ContentSizeFitter are configured in the Inspector on the Content transform
     private static void SetItemHeight(GameObject go, float height)
     {
         var le = go.GetComponent<LayoutElement>();

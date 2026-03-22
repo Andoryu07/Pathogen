@@ -55,7 +55,6 @@ public class InventoryGrid : MonoBehaviour
                 }
             }
         }
-
         //No existing stack with room — place as a new stack
         for (int rotPass = 0; rotPass < 2; rotPass++)
         {
@@ -76,11 +75,9 @@ public class InventoryGrid : MonoBehaviour
                 }
             }
         }
-
         Debug.Log($"[Inventory] No space for {item.GetItemName()} ({item.GetSize().width}x{item.GetSize().height})");
         return false;
     }
-
     /// Add multiple instances of the same item at once
     public int TryAddItemAmount(Item itemPrefab, int amount)
     {
@@ -195,7 +192,6 @@ public class InventoryGrid : MonoBehaviour
         stackCounts.Remove(item);
     }
 
-
     /// Removes one instance from the item's stack
     public void RemoveItem(Item item)
     {
@@ -210,8 +206,7 @@ public class InventoryGrid : MonoBehaviour
         RemoveItemFromGrid(item);
         items.Remove(item);
     }
-
-    ///Removes the entire stack regardless of count
+    ///Removes the entire stack regardless of count (e.g. discard)
     public void RemoveItemStack(Item item)
     {
         if (!items.Contains(item)) return;
@@ -286,8 +281,7 @@ public class InventoryGrid : MonoBehaviour
         }
         return false;
     }
-
-    ///Returns total count of an item across all stacks.
+    ///Returns total count of an item across all stacks
     public int CountItem(string itemName)
     {
         int total = 0;
@@ -310,7 +304,64 @@ public class InventoryGrid : MonoBehaviour
     }
 
     public List<Item> GetAllItems() => items;
+    /// Auto-sorts all items to occupy minimum space
+    /// Uses greedy bin-packing: sorts by area descending, places each item at the first available position in both orientations
+    /// Preserves all items and stack counts — only positions/rotations change
+    public void AutoSort()
+    {
+        if (items.Count == 0) return;
 
+        // Snapshot stack counts before clearing
+        var savedStacks = new Dictionary<Item, int>();
+        foreach (var item in items)
+            savedStacks[item] = GetStackCount(item);
+        // Sort items largest area first for best packing
+        var sortedItems = new List<Item>(items);
+        sortedItems.Sort((a, b) =>
+        {
+            int aArea = a.GetSize().width * a.GetSize().height;
+            int bArea = b.GetSize().width * b.GetSize().height;
+            return bArea.CompareTo(aArea);
+        });
+        // Clear grid (keep items list intact for now)
+        for (int x = 0; x < gridWidth; x++)
+            for (int y = 0; y < gridHeight; y++)
+                grid[x, y] = null;
+        itemPositions.Clear();
+        itemRotations.Clear();
+        stackCounts.Clear();
+        // Re-place each item at first available position
+        var failed = new List<Item>();
+        foreach (var item in sortedItems)
+        {
+            bool placed = false;
+            for (int rotPass = 0; rotPass < 2 && !placed; rotPass++)
+            {
+                bool rotated = rotPass == 1;
+                // Skip rotation if it produces the same shape
+                if (rotated)
+                {
+                    var s = item.GetSize();
+                    if (s.width == s.height) break;
+                }
+                for (int y = 0; y < gridHeight && !placed; y++)
+                    for (int x = 0; x < gridWidth && !placed; x++)
+                        if (CanPlaceItemAt(item, x, y, rotated))
+                        {
+                            PlaceItemAt(item, x, y, rotated);
+                            stackCounts[item] = savedStacks.TryGetValue(item, out int sc) ? sc : 1;
+                            placed = true;
+                        }
+            }
+            if (!placed) failed.Add(item);
+        }
+        // Rebuild items list in new order
+        items.Clear();
+        foreach (var item in sortedItems)
+            if (!failed.Contains(item)) items.Add(item);
+        if (failed.Count > 0) Debug.LogWarning("[AutoSort] Could not place " + failed.Count + " item(s) — inventory may be overfull.");
+        Debug.Log("[AutoSort] Complete. " + items.Count + " items sorted.");
+    }
     /// Expands the grid by one row (called by Hip Pouch pickup)
     /// Preserves all existing items
     public void ExpandGrid()

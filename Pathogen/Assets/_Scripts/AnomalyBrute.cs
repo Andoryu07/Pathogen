@@ -1,7 +1,6 @@
 using UnityEngine;
 using System.Collections;
-
-/// BRUTE anomaly
+/// BRUTE anomaly — slow, massive HP, devastating damage
 [RequireComponent(typeof(Rigidbody2D))]
 public class AnomalyBrute : MonoBehaviour, IDamageable
 {
@@ -14,7 +13,7 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
     [SerializeField] private float slamCooldown = 2.5f;
     [Header("Radii")]
     [SerializeField] private float detectionRadius = 8f;
-    [SerializeField] private float slamRadius = 1.6f;   
+    [SerializeField] private float slamRadius = 1.6f;  
     [Header("Screen Shake (hook for camera system)")]
     [SerializeField] private float shakeMagnitude = 0.3f;
     [SerializeField] private float shakeDuration = 0.4f;
@@ -42,6 +41,7 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
         sr = GetComponent<SpriteRenderer>();
         lootTable = GetComponent<AnomalyLootTable>();
         currentHealth = maxHealth;
+
         if (rb != null)
         {
             rb.isKinematic = true;
@@ -54,9 +54,11 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
     {
         playerTransform = PlayerController.LocalInstance?.transform;
     }
+
     void Update()
     {
         if (state == State.Dead || playerTransform == null) return;
+
         float dist = Vector2.Distance(transform.position, playerTransform.position);
 
         switch (state)
@@ -80,7 +82,6 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
                     state = State.Idle;
                 }
                 break;
-
             case State.WindUp:
                 // SlamRoutine handles this
                 break;
@@ -139,6 +140,7 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
         currentHealth -= damage;
         if (state == State.Idle) state = State.Chase;
         if (sr != null) StartCoroutine(DamageFlash());
+        // Show HP remaining as feedback since Brute is a mini-boss
         float hpPercent = (currentHealth / maxHealth) * 100f;
         Debug.Log($"[Brute] Took {damage} dmg — {hpPercent:F0}% HP remaining.");
         if (currentHealth <= 0f && deathCoroutine == null)
@@ -151,7 +153,8 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
         if (attackCoroutine != null) { StopCoroutine(attackCoroutine); attackCoroutine = null; }
         if (sr != null) sr.color = normalColor;
         Vector2 lootPos = transform.position;
-        TriggerScreenShake(); 
+        TriggerScreenShake(); // final death thud
+
         if (sr != null)
         {
             float elapsed = 0f;
@@ -160,17 +163,17 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
             {
                 elapsed += Time.deltaTime;
                 // Pulse once before fading
-                float pulse = elapsed < 0.5f
-                    ? Mathf.PingPong(elapsed * 6f, 1f)
-                    : 1f - ((elapsed - 0.5f) / (deathDelay - 0.5f));
+                float pulse = elapsed < 0.5f ? Mathf.PingPong(elapsed * 6f, 1f) : 1f - ((elapsed - 0.5f) / (deathDelay - 0.5f));
                 sr.color = new Color(start.r, start.g, start.b, pulse);
                 yield return null;
             }
         }
         else yield return new WaitForSeconds(deathDelay);
-
         Debug.Log("[Brute] Reporting kill — tag:" + gameObject.tag + " QuestManager exists:" + (QuestManager.Instance != null));
         QuestManager.Instance?.ReportEnemyKill(gameObject.tag);
+        PersistentEnemy pe = GetComponent<PersistentEnemy>();
+        if (pe == null) Debug.LogWarning("[Enemy] PersistentEnemy missing on " + gameObject.name + " — add it and set a Scene ID!");
+        pe?.RegisterDeath();
         lootTable?.DropAll(lootPos);
         Destroy(gameObject);
     }
@@ -182,6 +185,29 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
         sr.color = Color.white;
         yield return new WaitForSeconds(0.08f);
         if (state != State.Dead) sr.color = original;
+    }
+
+    public void ForceRepel(Vector2 pushTarget, float pauseDuration)
+    {
+        if (state == State.Dead) return;
+        if (attackCoroutine != null) { StopCoroutine(attackCoroutine); attackCoroutine = null; }
+
+        state = State.Idle;
+        StartCoroutine(RepelRoutine(pushTarget, pauseDuration));
+    }
+
+    private System.Collections.IEnumerator RepelRoutine(Vector2 pushTarget, float pause)
+    {
+        float elapsed = 0f;
+        Vector2 startPos = rb.position;
+        while (elapsed < 0.3f)
+        {
+            elapsed += Time.fixedDeltaTime;
+            rb.MovePosition(Vector2.Lerp(startPos, pushTarget, elapsed / 0.3f));
+            yield return new WaitForFixedUpdate();
+        }
+        yield return new WaitForSeconds(pause);
+        state = State.Idle;
     }
 
     void OnDrawGizmosSelected()

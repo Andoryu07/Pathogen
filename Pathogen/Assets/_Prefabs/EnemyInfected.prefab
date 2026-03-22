@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3081642766128376460}
   - component: {fileID: 1623160937118433666}
   - component: {fileID: 3854322140559064633}
+  - component: {fileID: 8898909637573651594}
   m_Layer: 6
   m_Name: EnemyInfected
   m_TagString: Infected
@@ -185,3 +186,16 @@ MonoBehaviour:
   windupColor: {r: 1, g: 0.3, b: 0.3, a: 1}
   normalColor: {r: 1, g: 1, b: 1, a: 1}
   deathDelay: 1
+--- !u!114 &8898909637573651594
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4121035452872699086}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5df082c399f361c43bcecfaadd2d4ec0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PersistentEnemy
+  sceneID: 

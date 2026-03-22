@@ -1,27 +1,25 @@
 using UnityEngine;
 using System.Collections;
-
-/// LEAPER anomaly
+/// LEAPER anomaly — extremely fast, low HP, spider-like movement
 [RequireComponent(typeof(Rigidbody2D))]
 public class AnomalyLeaper : MonoBehaviour, IDamageable
 {
-
     [Header("Stats")]
     [SerializeField] private float maxHealth = 45f;    
-    [SerializeField] private float scurrySpeed = 7f;  
+    [SerializeField] private float scurrySpeed = 7f;     
     [SerializeField] private float contactDamage = 20f;
     [SerializeField] private float attackWindup = 0.25f;  
     [SerializeField] private float attackCooldown = 0.8f;
     [Header("Radii")]
-    [SerializeField] private float detectionRadius = 10f;   
-    [SerializeField] private float lungeRadius = 4f;    
+    [SerializeField] private float detectionRadius = 10f;   // spots player from far
+    [SerializeField] private float lungeRadius = 4f;    // starts lunge from here
     [SerializeField] private float attackRadius = 0.8f;
     [Header("Lunge")]
-    [SerializeField] private float lungeSpeed = 18f;   
-    [SerializeField] private float lungeDuration = 0.25f; 
+    [SerializeField] private float lungeSpeed = 18f;   // burst speed during lunge
+    [SerializeField] private float lungeDuration = 0.25f; // how long the lunge lasts
     [SerializeField] private float lungeCooldown = 2f;
     [Header("Erratic Movement")]
-    [SerializeField] private float directionChangeInterval = 0.3f; 
+    [SerializeField] private float directionChangeInterval = 0.3f; // seconds between direction shifts
     [SerializeField] private float erraticStrength = 0.4f; // 0=straight, 1=very erratic
     [Header("Visuals")]
     [SerializeField] private Color normalColor = new Color(0.2f, 0.6f, 0.2f, 1f); // green
@@ -106,12 +104,14 @@ public class AnomalyLeaper : MonoBehaviour, IDamageable
             case State.Lunge:
                 // Handled by LungeRoutine
                 break;
+
             case State.Attack:
                 if (!isWinding && !isAttacking && dist > attackRadius)
                     state = State.Scurry;
                 break;
         }
     }
+
     void FixedUpdate()
     {
         if (state == State.Dead) return;
@@ -130,7 +130,6 @@ public class AnomalyLeaper : MonoBehaviour, IDamageable
             rb.MovePosition(rb.position + lungeDir * lungeSpeed * Time.fixedDeltaTime);
             elapsed += Time.fixedDeltaTime;
             yield return new WaitForFixedUpdate();
-
             // If we've reached attack range mid-lunge, stop and attack
             if (Vector2.Distance(transform.position, playerTransform.position) <= attackRadius)
                 break;
@@ -160,13 +159,11 @@ public class AnomalyLeaper : MonoBehaviour, IDamageable
         yield return new WaitForSeconds(attackWindup);
         if (sr != null) sr.color = normalColor;
         isWinding = false;
-
         if (Vector2.Distance(transform.position, playerTransform.position) <= attackRadius)
         {
             PlayerController.LocalInstance?.TakeDamage(contactDamage);
             HUDFeedback.Instance?.ShowWarning($"Leaper hit! -{contactDamage} HP");
         }
-
         yield return new WaitForSeconds(attackCooldown);
         isAttacking = false;
         attackCoroutine = null;
@@ -188,9 +185,7 @@ public class AnomalyLeaper : MonoBehaviour, IDamageable
         state = State.Dead;
         if (attackCoroutine != null) { StopCoroutine(attackCoroutine); attackCoroutine = null; }
         if (lungeCoroutine != null) { StopCoroutine(lungeCoroutine); lungeCoroutine = null; }
-
         Vector2 lootPos = transform.position;
-
         if (sr != null)
         {
             float elapsed = 0f;
@@ -204,10 +199,12 @@ public class AnomalyLeaper : MonoBehaviour, IDamageable
             }
         }
         else yield return new WaitForSeconds(deathDelay);
-
         QuestManager.Instance?.ReportEnemyKill(gameObject.tag);
         Debug.Log("[" + gameObject.name + "] Reporting kill — tag:" + gameObject.tag);
         QuestManager.Instance?.ReportEnemyKill(gameObject.tag);
+        PersistentEnemy pe = GetComponent<PersistentEnemy>();
+        if (pe == null) Debug.LogWarning("[Enemy] PersistentEnemy missing on " + gameObject.name + " — add it and set a Scene ID!");
+        pe?.RegisterDeath();
         lootTable?.DropAll(lootPos);
         Destroy(gameObject);
     }
@@ -219,6 +216,29 @@ public class AnomalyLeaper : MonoBehaviour, IDamageable
         sr.color = Color.white;
         yield return new WaitForSeconds(0.08f);
         if (state != State.Dead) sr.color = original;
+    }
+
+    public void ForceRepel(Vector2 pushTarget, float pauseDuration)
+    {
+        if (state == State.Dead) return;
+        if (attackCoroutine != null) { StopCoroutine(attackCoroutine); attackCoroutine = null; }
+        if (lungeCoroutine != null) { StopCoroutine(lungeCoroutine); lungeCoroutine = null; }
+        state = State.Idle;
+        StartCoroutine(RepelRoutine(pushTarget, pauseDuration));
+    }
+
+    private System.Collections.IEnumerator RepelRoutine(Vector2 pushTarget, float pause)
+    {
+        float elapsed = 0f;
+        Vector2 startPos = rb.position;
+        while (elapsed < 0.3f)
+        {
+            elapsed += Time.fixedDeltaTime;
+            rb.MovePosition(Vector2.Lerp(startPos, pushTarget, elapsed / 0.3f));
+            yield return new WaitForFixedUpdate();
+        }
+        yield return new WaitForSeconds(pause);
+        state = State.Idle;
     }
 
     void OnDrawGizmosSelected()

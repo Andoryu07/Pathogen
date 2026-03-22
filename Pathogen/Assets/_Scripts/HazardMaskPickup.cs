@@ -1,5 +1,6 @@
 using UnityEngine;
 /// Hazard Mask world pickup
+/// Does NOT appear in inventory — sets ownership flag in SpecialItemManager
 public class HazardMaskPickup : InteractableBase
 {
     [Header("World Sprite")]
@@ -15,6 +16,7 @@ public class HazardMaskPickup : InteractableBase
     public override void Interact()
     {
         SpecialItemManager.Instance?.PickUpHazardMask();
+        GetComponent<PersistentPickup>()?.RegisterCollected();
         gameObject.SetActive(false);
     }
 }

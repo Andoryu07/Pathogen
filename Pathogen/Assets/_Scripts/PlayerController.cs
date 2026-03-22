@@ -65,14 +65,13 @@ public class PlayerController : MonoBehaviour
 
     private void ReadInput()
     {
+        if (!movementEnabled) { moveInput = Vector2.zero; isSprinting = false; return; }
         moveInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
         if (moveInput.magnitude > 1f)
         {
             moveInput = moveInput.normalized;
         }
-
         bool wantsToSprint = Input.GetKey(KeyCode.LeftShift);
-
         if (wantsToSprint && !isExhausted && currentStamina > 0 && !isCrouching)
         {
             isSprinting = true;
@@ -81,7 +80,6 @@ public class PlayerController : MonoBehaviour
         {
             isSprinting = false;
         }
-
         isCrouching = Input.GetKey(KeyCode.LeftControl);
     }
 
@@ -192,7 +190,6 @@ public class PlayerController : MonoBehaviour
         maxStamina += bonus;
         currentStamina = Mathf.Min(currentStamina + bonus, maxStamina);
     }
-
     /// Reduces maxHealth and maxStamina by a fraction (called by InfectionManager)
     /// Also clamps current values so they don't exceed the new reduced max
     public void ApplyInfectionPenalty(float hpFraction, float stamFraction)
@@ -218,7 +215,22 @@ public class PlayerController : MonoBehaviour
     public void EquipWeapon(Item weapon)
     {
         equippedWeapon = weapon;
+        // Apply any accumulated talisman bonuses to the newly equipped weapon
+        if (weapon != null)
+        {
+            WeaponItem wi = weapon.GetComponent<WeaponItem>();
+            if (wi != null) TalismanManager.Instance?.ApplyBonusesToWeapon(wi);
+        }
         Debug.Log($"[Player] Equipped: {weapon?.GetItemName() ?? "nothing"}");
+    }
+
+    private bool movementEnabled = true;
+
+    ///Enables or disables all player movement — used by DialogueManager
+    public void SetMovementEnabled(bool enabled)
+    {
+        movementEnabled = enabled;
+        if (!enabled && rb != null) rb.linearVelocity = Vector2.zero;
     }
 
     private void Die()

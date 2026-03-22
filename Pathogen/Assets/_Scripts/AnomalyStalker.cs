@@ -1,23 +1,25 @@
 using UnityEngine;
 using System.Collections;
-
-/// STALKER anomaly
+/// STALKER anomaly — blind, reacts to sound.
 [RequireComponent(typeof(Rigidbody2D))]
 public class AnomalyStalker : MonoBehaviour, IDamageable
 {
+
     [Header("Stats")]
     [SerializeField] private float maxHealth = 150f;
     [SerializeField] private float patrolSpeed = 1.5f;
-    [SerializeField] private float alertSpeed = 3.5f;   
-    [SerializeField] private float chaseSpeed = 5.5f; 
+    [SerializeField] private float alertSpeed = 3.5f;   // moving to sound source
+    [SerializeField] private float chaseSpeed = 5.5f;   // full aggression speed
     [SerializeField] private float contactDamage = 35f;
     [SerializeField] private float attackWindup = 0.5f;
     [SerializeField] private float attackCooldown = 1.2f;
+
     [Header("Detection (Sound)")]
-    [SerializeField] private float soundRadius = 5f;   
-    [SerializeField] private float sprintSoundRadius = 10f; 
+    [SerializeField] private float soundRadius = 5f;     // walk detection radius
+    [SerializeField] private float sprintSoundRadius = 10f;    
     [SerializeField] private float attackRadius = 1.0f;
-    [SerializeField] private float loseInterestTime = 4f;    
+    [SerializeField] private float loseInterestTime = 4f;     
+
     [Header("Patrol")]
     [SerializeField] private float patrolRadius = 4f;     
     [SerializeField] private float patrolWaitMin = 1f;
@@ -81,7 +83,6 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
             case State.Patrol:
                 CheckSoundDetection();
                 break;
-
             case State.Alert:
                 // Moving toward last sound position — check again for sound
                 CheckSoundDetection();
@@ -167,7 +168,7 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
     private bool PlayerMakesSound()
     {
         if (playerController == null) return false;
-        // Crouching = silent. Standing still = silent. Walking/sprinting = sound
+        // Crouching = silent. Standing still = silent. Walking/sprinting = sound.
         return playerController.IsMoving && !playerController.IsCrouching;
     }
 
@@ -228,14 +229,12 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
         yield return new WaitForSeconds(attackWindup);
         if (sr != null) sr.color = chaseColor;
         isWinding = false;
-
         float dist = Vector2.Distance(transform.position, playerTransform.position);
         if (dist <= attackRadius)
         {
             PlayerController.LocalInstance?.TakeDamage(contactDamage);
             HUDFeedback.Instance?.ShowWarning($"Stalker hit! -{contactDamage} HP");
         }
-
         yield return new WaitForSeconds(attackCooldown);
         isAttacking = false;
         attackCoroutine = null;
@@ -260,9 +259,7 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
         if (attackCoroutine != null) { StopCoroutine(attackCoroutine); attackCoroutine = null; }
         if (patrolCoroutine != null) { StopCoroutine(patrolCoroutine); patrolCoroutine = null; }
         if (sr != null) sr.color = normalColor;
-
         Vector2 lootPos = transform.position;
-
         if (sr != null)
         {
             float elapsed = 0f;
@@ -276,10 +273,12 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
             }
         }
         else yield return new WaitForSeconds(deathDelay);
-
         QuestManager.Instance?.ReportEnemyKill(gameObject.tag);
         Debug.Log("[" + gameObject.name + "] Reporting kill — tag:" + gameObject.tag);
         QuestManager.Instance?.ReportEnemyKill(gameObject.tag);
+        PersistentEnemy pe = GetComponent<PersistentEnemy>();
+        if (pe == null) Debug.LogWarning("[Enemy] PersistentEnemy missing on " + gameObject.name + " — add it and set a Scene ID!");
+        pe?.RegisterDeath();
         lootTable?.DropAll(lootPos);
         Destroy(gameObject);
     }
@@ -291,6 +290,29 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
         sr.color = Color.white;
         yield return new WaitForSeconds(0.08f);
         if (state != State.Dead) sr.color = original;
+    }
+
+    public void ForceRepel(Vector2 pushTarget, float pauseDuration)
+    {
+        if (state == State.Dead) return;
+        if (attackCoroutine != null) { StopCoroutine(attackCoroutine); attackCoroutine = null; }
+        if (patrolCoroutine != null) { StopCoroutine(patrolCoroutine); patrolCoroutine = null; }
+        state = State.Patrol;
+        StartCoroutine(RepelRoutine(pushTarget, pauseDuration));
+    }
+
+    private System.Collections.IEnumerator RepelRoutine(Vector2 pushTarget, float pause)
+    {
+        float elapsed = 0f;
+        Vector2 startPos = rb.position;
+        while (elapsed < 0.3f)
+        {
+            elapsed += Time.fixedDeltaTime;
+            rb.MovePosition(Vector2.Lerp(startPos, pushTarget, elapsed / 0.3f));
+            yield return new WaitForFixedUpdate();
+        }
+        yield return new WaitForSeconds(pause);
+        state = State.Patrol;
     }
 
     void OnDrawGizmosSelected()
