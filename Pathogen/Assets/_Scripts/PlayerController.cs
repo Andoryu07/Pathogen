@@ -80,6 +80,7 @@ public class PlayerController : MonoBehaviour
         {
             isSprinting = false;
         }
+
         isCrouching = Input.GetKey(KeyCode.LeftControl);
     }
 
@@ -162,6 +163,18 @@ public class PlayerController : MonoBehaviour
     }
 
     ///Directly set health values — used by save/load
+    ///Applies a speed penalty (0.2 = 20% slower). Stacks with infection penalty
+    public void ApplySpeedPenalty(float fraction)
+    {
+        speedPenalty = Mathf.Clamp01(speedPenalty + fraction);
+    }
+
+    ///Removes a previously applied speed penalty
+    public void RemoveSpeedPenalty(float fraction)
+    {
+        speedPenalty = Mathf.Clamp01(speedPenalty - fraction);
+    }
+
     public void SetHealth(float current, float max)
     {
         maxHealth = max;
@@ -182,7 +195,6 @@ public class PlayerController : MonoBehaviour
         if (Mathf.Approximately(currentHealth, maxHealth))
             InfectionManager.Instance?.OnPlayerFullyHealed();
     }
-
     ///Permanently increases max stamina by a fraction (e.g. 0.10 = +10%)
     public void AddStaminaBonus(float fraction)
     {
@@ -199,6 +211,7 @@ public class PlayerController : MonoBehaviour
         currentHealth = Mathf.Min(currentHealth, maxHealth);
         currentStamina = Mathf.Min(currentStamina, maxStamina);
     }
+
     /// Restores the stat reduction previously applied by ApplyInfectionPenalty
     /// Uses the same fractions to reverse exactly what was taken
     public void RemoveInfectionPenalty(float hpFraction, float stamFraction)
@@ -223,9 +236,8 @@ public class PlayerController : MonoBehaviour
         }
         Debug.Log($"[Player] Equipped: {weapon?.GetItemName() ?? "nothing"}");
     }
-
     private bool movementEnabled = true;
-
+    private float speedPenalty = 0f;   // 0 = no penalty, 0.4 = 40% slower
     ///Enables or disables all player movement — used by DialogueManager
     public void SetMovementEnabled(bool enabled)
     {

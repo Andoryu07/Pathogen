@@ -1,6 +1,4 @@
 using UnityEngine;
-
-
 /// Handles aiming, crosshair display, enemy detection under cursor, and firing
 public class AimSystem : MonoBehaviour
 {
@@ -17,10 +15,11 @@ public class AimSystem : MonoBehaviour
     [SerializeField] private Color rangeCircleColor = new Color(1f, 1f, 1f, 0.06f);
 
     private bool isAiming = false;
-    private bool cursorInRange = false;
+    private bool cursorInRange = false;   
     private float fireCooldown = 0f;
     private WeaponItem equippedWeapon = null;
-    private bool warnedOutOfRange = false;
+    private bool warnedOutOfRange = false; 
+
     public bool IsAiming => isAiming;
     public bool CursorInRange => cursorInRange;
 
@@ -79,7 +78,7 @@ public class AimSystem : MonoBehaviour
     {
         isAiming = true;
         warnedOutOfRange = false;
-        //Don't show crosshair here — UpdateCrosshair will show it only if in range
+        // Don't show crosshair here — UpdateCrosshair will show it only if in range
         UpdateRangeIndicator();
         if (rangeIndicator != null) rangeIndicator.gameObject.SetActive(true);
         Cursor.visible = false;
@@ -96,12 +95,10 @@ public class AimSystem : MonoBehaviour
     private void UpdateCrosshair()
     {
         if (crosshairUI == null || mainCamera == null) return;
-
         Vector2 mouseScreen = Input.mousePosition;
         Vector2 worldPos = mainCamera.ScreenToWorldPoint(mouseScreen);
         float range = equippedWeapon.data.range;
         float dist = Vector2.Distance(transform.position, worldPos);
-
         bool wasInRange = cursorInRange;
         cursorInRange = dist <= range;
 
@@ -136,7 +133,6 @@ public class AimSystem : MonoBehaviour
         float diameter = equippedWeapon.data.range * 2f;
         rangeIndicator.transform.localScale = new Vector3(diameter, diameter, 1f);
     }
-
     private void TryFire()
     {
         if (equippedWeapon == null) return;
@@ -158,7 +154,9 @@ public class AimSystem : MonoBehaviour
             Projectile p = go.GetComponent<Projectile>();
             if (p != null)
             {
-                p.damage = equippedWeapon.data.damage;
+                float dmgMultiplier = TalismanManager.Instance != null
+                    ? TalismanManager.Instance.RangedDamageBonusMultiplier : 1f;
+                p.damage = equippedWeapon.data.damage * dmgMultiplier;
                 p.range = equippedWeapon.data.range;
                 p.enemyLayer = enemyLayer;
                 p.Launch(direction);
@@ -167,10 +165,13 @@ public class AimSystem : MonoBehaviour
         else
         {
             // Fallback instant raycast if no prefab assigned
+            float dmgMultiplier = TalismanManager.Instance != null
+                ? TalismanManager.Instance.RangedDamageBonusMultiplier : 1f;
+            float finalDamage = equippedWeapon.data.damage * dmgMultiplier;
             RaycastHit2D hit = Physics2D.Raycast(origin, direction,
                                                   equippedWeapon.data.range, enemyLayer);
             if (hit.collider != null)
-                hit.collider.GetComponent<IDamageable>()?.TakeDamage(equippedWeapon.data.damage);
+                hit.collider.GetComponent<IDamageable>()?.TakeDamage(finalDamage);
             Debug.DrawRay(origin, direction * equippedWeapon.data.range,
                           hit.collider != null ? Color.red : Color.yellow, 0.5f);
         }
@@ -181,6 +182,7 @@ public class AimSystem : MonoBehaviour
         if (InventoryUIManager.Instance != null && InventoryUIManager.Instance.IsOpen) return true;
         if (StoreboxUIManager.Instance != null && StoreboxUIManager.Instance.IsOpen) return true;
         if (CodePadUI.Instance != null && CodePadUI.Instance.IsOpen) return true;
+        if (SilasShopUI.Instance != null && SilasShopUI.Instance.IsOpen) return true;
         return false;
     }
 }

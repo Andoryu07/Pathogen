@@ -69,9 +69,9 @@ MonoBehaviour:
       actionFailLineIndex: -1
     - choiceText: nah show me the quests
       nextLineIndex: 4
-      actionType: 0
-      actionParameter: 
-      actionAmount: 1
+      actionType: 11
+      actionParameter: Silas
+      actionAmount: -1
       actionFailLineIndex: -1
     - choiceText: sure but take this random item please
       nextLineIndex: -1
@@ -140,3 +140,8 @@ MonoBehaviour:
     actionParameter: 
     actionAmount: 1
     actionFailLineIndex: -1
+  isRepeatable: 1
+  conditions:
+  - type: 1
+    parameter: Silas
+    intParameter: 1

@@ -1,25 +1,22 @@
 using UnityEngine;
 using System.Collections;
-/// STALKER anomaly — blind, reacts to sound.
+/// STALKER anomaly — blind, reacts to sound
 [RequireComponent(typeof(Rigidbody2D))]
 public class AnomalyStalker : MonoBehaviour, IDamageable
 {
-
     [Header("Stats")]
     [SerializeField] private float maxHealth = 150f;
     [SerializeField] private float patrolSpeed = 1.5f;
-    [SerializeField] private float alertSpeed = 3.5f;   // moving to sound source
-    [SerializeField] private float chaseSpeed = 5.5f;   // full aggression speed
+    [SerializeField] private float alertSpeed = 3.5f;   
+    [SerializeField] private float chaseSpeed = 5.5f;   
     [SerializeField] private float contactDamage = 35f;
     [SerializeField] private float attackWindup = 0.5f;
     [SerializeField] private float attackCooldown = 1.2f;
-
     [Header("Detection (Sound)")]
-    [SerializeField] private float soundRadius = 5f;     // walk detection radius
-    [SerializeField] private float sprintSoundRadius = 10f;    
+    [SerializeField] private float soundRadius = 5f;    
+    [SerializeField] private float sprintSoundRadius = 10f;  
     [SerializeField] private float attackRadius = 1.0f;
     [SerializeField] private float loseInterestTime = 4f;     
-
     [Header("Patrol")]
     [SerializeField] private float patrolRadius = 4f;     
     [SerializeField] private float patrolWaitMin = 1f;
@@ -127,7 +124,6 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
     void FixedUpdate()
     {
         if (state == State.Dead) return;
-
         switch (state)
         {
             case State.Alert:
@@ -143,10 +139,8 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
     {
         if (playerController == null) return;
         if (!PlayerMakesSound()) return;
-
         float dist = Vector2.Distance(transform.position, playerTransform.position);
         float hearingRange = playerController.IsSprinting ? sprintSoundRadius : soundRadius;
-
         if (dist <= hearingRange)
         {
             lastSoundPos = playerTransform.position;
@@ -224,6 +218,7 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
 
     private IEnumerator AttackRoutine()
     {
+        BlockingSystem.Instance?.NotifyIncomingAttack(attackWindup);
         isWinding = true;
         if (sr != null) sr.color = windupColor;
         yield return new WaitForSeconds(attackWindup);
@@ -232,8 +227,13 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
         float dist = Vector2.Distance(transform.position, playerTransform.position);
         if (dist <= attackRadius)
         {
-            PlayerController.LocalInstance?.TakeDamage(contactDamage);
-            HUDFeedback.Instance?.ShowWarning($"Stalker hit! -{contactDamage} HP");
+            bool blocked = BlockingSystem.Instance != null && BlockingSystem.Instance.IsBlocking;
+            if (blocked) HUDFeedback.Instance?.ShowInfo("Attack blocked!");
+            else
+            {
+                PlayerController.LocalInstance?.TakeDamage(contactDamage);
+                HUDFeedback.Instance?.ShowWarning($"Stalker hit! -{contactDamage} HP");
+            }
         }
         yield return new WaitForSeconds(attackCooldown);
         isAttacking = false;
@@ -273,6 +273,7 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
             }
         }
         else yield return new WaitForSeconds(deathDelay);
+
         QuestManager.Instance?.ReportEnemyKill(gameObject.tag);
         Debug.Log("[" + gameObject.name + "] Reporting kill — tag:" + gameObject.tag);
         QuestManager.Instance?.ReportEnemyKill(gameObject.tag);

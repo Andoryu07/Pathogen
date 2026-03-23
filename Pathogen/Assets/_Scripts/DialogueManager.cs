@@ -3,9 +3,8 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections;
 using System.Collections.Generic;
-
-/// Singleton managing all dialogue flow.
-/// Handles: line display, text animation, choices, actions, freezing
+using System;
+/// Singleton managing all dialogue flow
 public class DialogueManager : MonoBehaviour
 {
     public static DialogueManager Instance { get; private set; }
@@ -14,18 +13,18 @@ public class DialogueManager : MonoBehaviour
     [SerializeField] private GameObject dialoguePanel;
     [SerializeField] private TextMeshProUGUI speakerNameText;
     [SerializeField] private Image speakerPortrait;
-    [SerializeField] private GameObject portraitFrame;      
+    [SerializeField] private GameObject portraitFrame;      // parent GO — hidden when no portrait
     [SerializeField] private TextMeshProUGUI dialogueText;
     [SerializeField] private GameObject choicesContainer;   // parent of choice buttons
     [SerializeField] private Button[] choiceButtons;      // pre-built buttons (max 4)
-    [SerializeField] private TextMeshProUGUI[] choiceButtonTexts;  
-
+    [SerializeField] private TextMeshProUGUI[] choiceButtonTexts;  // TMP on each button
     [Header("Text Animation")]
     [SerializeField] private float charsPerSecond = 40f;
     [SerializeField] private bool animateText = true;
     [Header("Continue Hint")]
     [SerializeField] private GameObject continueHint;  // "Double-click to continue" label
 
+    private HashSet<string> playedConversations = new HashSet<string>();
     private DialogueConversation activeConversation;
     private int currentLineIndex;
     private bool isAnimating = false;
@@ -52,12 +51,10 @@ public class DialogueManager : MonoBehaviour
     void Update()
     {
         if (!isOpen) return;
-
         if (Input.GetMouseButtonDown(0))
         {
             float timeSinceLast = Time.unscaledTime - lastClickTime;
             lastClickTime = Time.unscaledTime;
-
             if (isAnimating)
             {
                 if (timeSinceLast <= DoubleClickGap)
@@ -97,6 +94,9 @@ public class DialogueManager : MonoBehaviour
     public void EndDialogue()
     {
         isOpen = false;
+        // Mark as played
+        if (activeConversation != null)
+            playedConversations.Add(activeConversation.name);
         if (typeCoroutine != null) { StopCoroutine(typeCoroutine); typeCoroutine = null; }
         dialoguePanel.SetActive(false);
         if (choicesContainer != null) choicesContainer.SetActive(false);
@@ -104,6 +104,7 @@ public class DialogueManager : MonoBehaviour
         FreezeParticipants(false);
         WeaponHUD.Instance?.Show();
         WeaponHUD.Instance?.RefreshAmmoText();
+
         activeConversation = null;
         frozenNpcRb = null;
     }
@@ -122,11 +123,14 @@ public class DialogueManager : MonoBehaviour
         if (speakerNameText != null)
             speakerNameText.text = line.speakerName;
         // Portrait
-        if (portraitFrame != null) portraitFrame.SetActive(line.speakerPortrait != null);
-        if (speakerPortrait != null && line.speakerPortrait != null) speakerPortrait.sprite = line.speakerPortrait;
+        if (portraitFrame != null)
+            portraitFrame.SetActive(line.speakerPortrait != null);
+        if (speakerPortrait != null && line.speakerPortrait != null)
+            speakerPortrait.sprite = line.speakerPortrait;
         // Hide choices while text is showing
         if (choicesContainer != null) choicesContainer.SetActive(false);
         if (continueHint != null) continueHint.SetActive(false);
+
         // Text
         if (animateText)
         {
@@ -178,7 +182,6 @@ public class DialogueManager : MonoBehaviour
         DialogueLine line = activeConversation.lines[currentLineIndex];
         // Don't advance if choices are showing — player must click a button
         if (line.choices != null && line.choices.Count > 0) return;
-        // Fire action before advancing
         if (line.actionType != DialogueActionType.None)
         {
             ExecuteAction(line.actionType, line.actionParameter,
@@ -205,7 +208,6 @@ public class DialogueManager : MonoBehaviour
                 choiceButtons[i].gameObject.SetActive(true);
                 if (choiceButtonTexts[i] != null)
                     choiceButtonTexts[i].text = choice.choiceText;
-
                 int capturedI = i;
                 choiceButtons[i].onClick.RemoveAllListeners();
                 choiceButtons[i].onClick.AddListener(() => OnChoiceSelected(line.choices[capturedI]));
@@ -239,33 +241,57 @@ public class DialogueManager : MonoBehaviour
                 EndDialogue();
                 SilasShopUI.Instance?.Open();
                 break;
+
             case DialogueActionType.OpenItemShop:
                 EndDialogue();
                 SilasShopUI.Instance?.Open();
                 // Tab switching handled by SilasShopUI — it opens on item shop by default
                 break;
+
             case DialogueActionType.OpenWeaponUpgrades:
                 EndDialogue();
                 // Open Silas shop on weapon upgrades tab
                 SilasShopUI.Instance?.OpenOnTab(1);
                 break;
+
             case DialogueActionType.OpenQuests:
                 EndDialogue();
                 SilasShopUI.Instance?.OpenOnTab(2);
                 break;
+
             case DialogueActionType.UnlockCraftingRecipe:
                 CraftingManager.Instance?.UnlockRecipe(parameter);
                 HUDFeedback.Instance?.ShowInfo("New recipe unlocked: " + parameter);
                 break;
+
             case DialogueActionType.GiveItem:
                 GiveItemToPlayer(parameter, amount);
                 break;
+
             case DialogueActionType.TriggerCustomEvent:
                 DialogueEventBus.Trigger(parameter);
                 break;
+
             case DialogueActionType.TakeItem:
                 TakeItemFromPlayer(parameter, amount, failLineIndex);
-                return;   // TakeItemFromPlayer handles navigation itself
+                return;
+
+            case DialogueActionType.ChangeRelationship:
+                {
+                    var npcRel = NPCRelationship.Find(parameter);
+                    npcRel?.SetRelationship((RelationshipState)amount);
+                    break;
+                }
+            case DialogueActionType.ImproveRelationship:
+                {
+                    NPCRelationship.Find(parameter)?.ImproveRelationship();
+                    break;
+                }
+            case DialogueActionType.WorsenRelationship:
+                {
+                    NPCRelationship.Find(parameter)?.WorsenRelationship();
+                    break;
+                }
         }
     }
 
@@ -288,16 +314,14 @@ public class DialogueManager : MonoBehaviour
     }
 
     /// Player gives items to the NPC
-    /// Requires the FULL amount — partial gives are rejected
-    /// On failure: shows feedback and jumps to failLineIndex
-    /// On success: advances normally
     private void TakeItemFromPlayer(string itemName, int amount, int failLineIndex)
     {
         // Check total available
         int available = InventoryGrid.Instance.CountItem(itemName);
         if (available < amount)
         {
-            HUDFeedback.Instance?.ShowWarning("You need " + amount + "x " + itemName + " (have " + available + ").");
+            HUDFeedback.Instance?.ShowWarning(
+                "You need " + amount + "x " + itemName + " (have " + available + ").");
             DialogueEventBus.Trigger("TakeItem_Failed_" + itemName);
             // Jump to fail line or stay on current line
             if (failLineIndex >= 0) ShowLine(failLineIndex);
@@ -322,12 +346,58 @@ public class DialogueManager : MonoBehaviour
         else ShowLine(next);
     }
 
+    public bool HasBeenPlayed(DialogueConversation conv)
+        => playedConversations.Contains(conv.name);
+
+    public bool AreConditionsMet(DialogueConversation conv)
+    {
+        if (conv.conditions == null) return true;
+        foreach (var cond in conv.conditions)
+        {
+            if (!CheckCondition(cond)) return false;
+        }
+        return true;
+    }
+
+    private bool CheckCondition(DialogueCondition cond)
+    {
+        switch (cond.type)
+        {
+            case ConditionType.None:
+                return true;
+            case ConditionType.RelationshipAtLeast:
+                var npc = NPCRelationship.Find(cond.parameter);
+                return npc != null && npc.IsAtLeast((RelationshipState)cond.intParameter);
+            case ConditionType.QuestCompleted:
+                var qData = Resources.Load<QuestData>(cond.parameter);
+                return QuestManager.Instance != null &&
+                       qData != null &&
+                       QuestManager.Instance.IsCompleted(qData);
+            case ConditionType.QuestActive:
+                var qDataA = Resources.Load<QuestData>(cond.parameter);
+                return QuestManager.Instance != null &&
+                       qDataA != null &&
+                       QuestManager.Instance.IsActive(qDataA);
+            case ConditionType.HasItem:
+                return InventoryGrid.Instance != null &&
+                       InventoryGrid.Instance.HasItem(cond.parameter);
+            case ConditionType.TalismanCountAtLeast:
+                return TalismanManager.Instance != null &&
+                       TalismanManager.Instance.CollectedCount >= cond.intParameter;
+            default:
+                return true;
+        }
+    }
+
     private void FreezeParticipants(bool freeze)
     {
         // Freeze player movement
         PlayerController player = PlayerController.LocalInstance;
-        if (player != null) player.SetMovementEnabled(!freeze);
+        if (player != null)
+            player.SetMovementEnabled(!freeze);
+
         // Freeze NPC
-        if (frozenNpcRb != null) frozenNpcRb.simulated = !freeze;
+        if (frozenNpcRb != null)
+            frozenNpcRb.simulated = !freeze;
     }
 }

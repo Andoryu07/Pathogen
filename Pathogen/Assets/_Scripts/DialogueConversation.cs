@@ -13,6 +13,9 @@ public enum DialogueActionType
     GiveItem,               // adds an item to inventory (uses ItemRegistry)
     TriggerCustomEvent,     // fires a named event other scripts can listen to
     TakeItem,               // player gives an item to the NPC (removed from inventory)
+    ChangeRelationship,     // changes an NPC's relationship (parameter=npcID, intParameter=new state)
+    ImproveRelationship,    // improves relationship by one step (parameter=npcID)
+    WorsenRelationship,     // worsens relationship by one step (parameter=npcID)
 }
 
 [Serializable]
@@ -55,7 +58,6 @@ public class DialogueLine
     [Tooltip("Line to jump to if TakeItem fails (player lacks items). -1 = stay on this line.")]
     public int actionFailLineIndex = -1;
 }
-
 /// ScriptableObject defining a complete dialogue conversation
 [CreateAssetMenu(fileName = "Dialogue_New", menuName = "Pathogen/Dialogue Conversation")]
 public class DialogueConversation : ScriptableObject
@@ -64,4 +66,29 @@ public class DialogueConversation : ScriptableObject
     public int startLineIndex = 0;
     [Tooltip("All lines in this conversation.")]
     public List<DialogueLine> lines = new List<DialogueLine>();
+    [Header("Repeatable")]
+    [Tooltip("If false, this conversation can only be triggered once ever.")]
+    public bool isRepeatable = false;
+    [Header("Conditions — ALL must be met to trigger")]
+    public List<DialogueCondition> conditions = new List<DialogueCondition>();
+}
+
+public enum ConditionType
+{
+    None,
+    RelationshipAtLeast,    // NPC relationship >= required level
+    QuestCompleted,         // a specific quest is completed
+    QuestActive,            // a specific quest is active
+    HasItem,                // player has item in inventory
+    TalismanCountAtLeast,   // player has collected N talismans
+}
+
+[Serializable]
+public class DialogueCondition
+{
+    public ConditionType type = ConditionType.None;
+    [Tooltip("NPC ID, quest name, item name, or talisman count depending on type.")]
+    public string parameter = "";
+    [Tooltip("For RelationshipAtLeast: 0=Hostile,1=Neutral,2=Friendly,3=Trusting. For TalismanCount: minimum count.")]
+    public int intParameter = 0;
 }

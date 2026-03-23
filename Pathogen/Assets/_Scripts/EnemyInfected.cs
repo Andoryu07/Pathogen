@@ -8,26 +8,27 @@ public class EnemyInfected : MonoBehaviour, IDamageable
     [Header("Stats")]
     [SerializeField] private float maxHealth = 80f;
     [SerializeField] private float moveSpeed = 2.0f;   
-    [SerializeField] private float contactDamage = 15f;    
+    [SerializeField] private float contactDamage = 15f;   
     [SerializeField] private float attackWindup = 0.7f;   
     [SerializeField] private float attackCooldown = 1.5f;   
     [Header("Radii")]
     [SerializeField] private float detectionRadius = 7f;
     [SerializeField] private float attackRadius = 0.9f;
     [Header("Loot")]
-    [SerializeField] private GameObject patheosPrefab;              
+    [SerializeField] private GameObject patheosPrefab;           
     [SerializeField] private int patheosMinAmount = 100;
     [SerializeField] private int patheosMaxAmount = 1500;
     [SerializeField] private GameObject ammoDropPrefab;             
     [SerializeField]
     [Range(0f, 1f)]
-    private float ammoDropChance = 0.20f;                        
+    private float ammoDropChance = 0.20f;                         
     [SerializeField] private int ammoDropMin = 2;
     [SerializeField] private int ammoDropMax = 8;
     [Header("Attack Visuals")]
     [SerializeField] private Color windupColor = new Color(1f, 0.3f, 0.3f, 1f);
     [SerializeField] private Color normalColor = Color.white;
     [SerializeField] private float deathDelay = 1.0f;            
+
     private enum State { Idle, Chase, Attack, Dead }
     private State state = State.Idle;
     private float currentHealth;
@@ -45,6 +46,7 @@ public class EnemyInfected : MonoBehaviour, IDamageable
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
         currentHealth = maxHealth;
+
         // Kinematic so the enemy moves by velocity but never physically pushes or gets pushed by other rigidbodies (player, projectiles etc.)
         if (rb != null)
         {
@@ -62,7 +64,9 @@ public class EnemyInfected : MonoBehaviour, IDamageable
     void Update()
     {
         if (state == State.Dead || playerTransform == null) return;
+
         float dist = Vector2.Distance(transform.position, playerTransform.position);
+
         switch (state)
         {
             case State.Idle:
@@ -101,22 +105,34 @@ public class EnemyInfected : MonoBehaviour, IDamageable
     {
         isWinding = true;
         attackTimer = 0f;
+        // Notify blocking system so player can parry
+        BlockingSystem.Instance?.NotifyIncomingAttack(attackWindup);
         // Tint red during windup to signal incoming attack
         if (sr != null) sr.color = windupColor;
         yield return new WaitForSeconds(attackWindup);
         if (sr != null) sr.color = normalColor;
         isWinding = false;
-        // Only deal damage if player is still in range
+        // Only deal damage if player is still in range AND not blocking
         if (playerTransform != null &&
             Vector2.Distance(transform.position, playerTransform.position) <= attackRadius)
         {
             PlayerController player = PlayerController.LocalInstance;
             if (player != null)
             {
-                player.TakeDamage(contactDamage);
-                InfectionManager.Instance?.RegisterInfectedHit();
-                HUDFeedback.Instance?.ShowWarning($"Hit! -{contactDamage} HP — infected!");
-                Debug.Log($"[EnemyInfected] Hit player for {contactDamage} — infection registered.");
+                bool blocked = BlockingSystem.Instance != null
+                               && BlockingSystem.Instance.IsBlocking;
+                if (blocked)
+                {
+                    HUDFeedback.Instance?.ShowInfo("Attack blocked!");
+                    Debug.Log("[EnemyInfected] Attack blocked by player.");
+                }
+                else
+                {
+                    player.TakeDamage(contactDamage);
+                    InfectionManager.Instance?.RegisterInfectedHit();
+                    HUDFeedback.Instance?.ShowWarning($"Hit! -{contactDamage} HP — infected!");
+                    Debug.Log($"[EnemyInfected] Hit player for {contactDamage} — infection registered.");
+                }
             }
         }
         // Cooldown before next attack attempt
@@ -172,7 +188,8 @@ public class EnemyInfected : MonoBehaviour, IDamageable
         }
         QuestManager.Instance?.ReportEnemyKill(gameObject.tag);
         PersistentEnemy pe = GetComponent<PersistentEnemy>();
-        Debug.Log("[EnemyInfected] PersistentEnemy component found: " + (pe != null) + (pe != null ? " ID: " + pe.SceneID : " — add PersistentEnemy component!"));
+        Debug.Log("[EnemyInfected] PersistentEnemy component found: " + (pe != null) +
+                  (pe != null ? " ID: " + pe.SceneID : " — add PersistentEnemy component!"));
         pe?.RegisterDeath();
         DropLoot(lootPosition);
         Destroy(gameObject);
@@ -181,6 +198,7 @@ public class EnemyInfected : MonoBehaviour, IDamageable
     private void DropLoot(Vector2 position)
     {
         Vector2 dropPos = position + Random.insideUnitCircle * 0.4f;
+
         Debug.Log($"[EnemyInfected] DropLoot called. " +
                   $"patheosPrefab={(patheosPrefab != null ? patheosPrefab.name : "NULL")}, " +
                   $"ammoDropPrefab={(ammoDropPrefab != null ? ammoDropPrefab.name : "NULL")}, " +

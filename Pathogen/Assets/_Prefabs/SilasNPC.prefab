@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 4902474900844476858}
   - component: {fileID: 3895935900538821416}
   - component: {fileID: 7437138477647030503}
+  - component: {fileID: 565399181941190977}
   m_Layer: 3
   m_Name: SilasNPC
   m_TagString: Untagged
@@ -158,3 +159,17 @@ MonoBehaviour:
   promptMessage: Interact
   conversation: {fileID: 11400000, guid: 827099e93946ba9448d162b86068dc93, type: 2}
   interactPrompt: E - Talk
+--- !u!114 &565399181941190977
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3442220936007730223}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b21ea949b1f89914ba060b98c7f55996, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NPCRelationship
+  npcID: Silas
+  initialState: 1

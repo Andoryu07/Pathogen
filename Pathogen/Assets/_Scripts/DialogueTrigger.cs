@@ -1,5 +1,4 @@
 using UnityEngine;
-/// Attached to any NPC or interactable object to start a dialogue on E press
 public class DialogueTrigger : InteractableBase
 {
     [Header("Dialogue")]
@@ -24,6 +23,19 @@ public class DialogueTrigger : InteractableBase
         if (DialogueManager.Instance == null)
         {
             Debug.LogWarning("[DialogueTrigger] DialogueManager not found in scene.");
+            return;
+        }
+        // Check repeatable
+        if (!conversation.isRepeatable &&
+            DialogueManager.Instance.HasBeenPlayed(conversation))
+        {
+            HUDFeedback.Instance?.ShowInfo("...");
+            return;
+        }
+        // Check conditions
+        if (!DialogueManager.Instance.AreConditionsMet(conversation))
+        {
+            HUDFeedback.Instance?.ShowInfo("...");
             return;
         }
         DialogueManager.Instance.StartDialogue(conversation, npcRb);
