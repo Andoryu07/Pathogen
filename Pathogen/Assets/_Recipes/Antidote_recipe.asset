@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83ec33bb374e0a14bb70171b1db4878f, type: 3}
+  m_Name: Antidote_recipe
+  m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipe
+  ingredients:
+  - itemName: Empty Syringe
+    icon: {fileID: -6748412195760950935, guid: dba95a7dcc3fde040841ee43f5db7a83, type: 3}
+    amount: 1
+  - itemName: Fungus Sample
+    icon: {fileID: -6767435938839142359, guid: b75cd95644ad53a4888686f4396186f3, type: 3}
+    amount: 1
+  - itemName: Chemical Solvent
+    icon: {fileID: -8385632726865932555, guid: ef9d1b10a15bb4b4394a566964da26e8, type: 3}
+    amount: 1
+  resultItemName: Antidote
+  resultIcon: {fileID: 7693228682592937512, guid: 3f0a121bfdfd2f84b9c5b4f3cb901ba3, type: 3}
+  resultAmount: 1
+  resultItemPrefab: {fileID: 8234824942987186895, guid: 097cfded379f40546a0a7f7d1d858414, type: 3}
+  lockedByDefault: 0

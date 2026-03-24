@@ -2613,7 +2613,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 692.6045, y: 273.93866}
+  m_AnchoredPosition: {x: -764.6, y: -493.94}
   m_SizeDelta: {x: 390.7909, y: 92.1227}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &246301671
@@ -6364,7 +6364,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CraftingManager
   allRecipes:
+  - {fileID: 11400000, guid: 9ff0f4ddebb83034b93a2b63590c1e8e, type: 2}
   - {fileID: 11400000, guid: b964f13046c1db04db08f9d255cbb1a7, type: 2}
+  - {fileID: 11400000, guid: c9cf73a457041674fbbc5d59c27b5b6f, type: 2}
+  - {fileID: 11400000, guid: 60906183d1fbd22448470364345e8f3f, type: 2}
+  - {fileID: 11400000, guid: 294a75824c08c6443b0fb7459c80b646, type: 2}
+  - {fileID: 11400000, guid: 94be9624a6bd203479a415a628c6f05f, type: 2}
+  - {fileID: 11400000, guid: 452c6677a8883524993d8662878b03e1, type: 2}
+  - {fileID: 11400000, guid: 82343861cf95fc74dafd394ca320e526, type: 2}
+  - {fileID: 11400000, guid: 54a4cd69b2370ed42b830163b21bad31, type: 2}
+  - {fileID: 11400000, guid: baab129e35a96244ea59b48cc7bd7ee1, type: 2}
 --- !u!114 &481343329
 MonoBehaviour:
   m_ObjectHideFlags: 0

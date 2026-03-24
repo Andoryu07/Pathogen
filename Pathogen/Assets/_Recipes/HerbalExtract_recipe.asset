@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83ec33bb374e0a14bb70171b1db4878f, type: 3}
+  m_Name: HerbalExtract_recipe
+  m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipe
+  ingredients:
+  - itemName: Green Herb
+    icon: {fileID: 3014530656265050946, guid: e387c54d634c3664f8bb44244d6ac3e6, type: 3}
+    amount: 1
+  - itemName: Red Herb
+    icon: {fileID: 3086071619686511630, guid: 472a77e5aa13dfc4c8125895069cf418, type: 3}
+    amount: 1
+  resultItemName: Herbal Extract
+  resultIcon: {fileID: 6777165493669289530, guid: be73b99d32d9bae4abfaf9e40bd14f76, type: 3}
+  resultAmount: 1
+  resultItemPrefab: {fileID: 8234824942987186895, guid: 68c2125cf50c3314391e94eb92846bdb, type: 3}
+  lockedByDefault: 0

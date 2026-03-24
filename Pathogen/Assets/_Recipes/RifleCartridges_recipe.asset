@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 83ec33bb374e0a14bb70171b1db4878f, type: 3}
+  m_Name: RifleCartridges_recipe
+  m_EditorClassIdentifier: Assembly-CSharp::CraftingRecipe
+  ingredients:
+  - itemName: Screws
+    icon: {fileID: -6112970480956919633, guid: cf09286699490214ba8d9034bc9281e6, type: 3}
+    amount: 2
+  - itemName: Gunpowder
+    icon: {fileID: 8536095799496803753, guid: 7d3c802c7ce6b9f4ca655c754af4bd85, type: 3}
+    amount: 2
+  resultItemName: Rifle Cartridges
+  resultIcon: {fileID: -2087151292809495672, guid: 2c5583b570700ef439e8d799ba04e687, type: 3}
+  resultAmount: 5
+  resultItemPrefab: {fileID: 8234824942987186895, guid: 894c59ec256964d4185d8079b5c0addd, type: 3}
+  lockedByDefault: 0
