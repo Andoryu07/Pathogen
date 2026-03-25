@@ -78,7 +78,8 @@ public class InventoryUIManager : MonoBehaviour
     [SerializeField] private Canvas parentCanvas;
     [Header("Wallet")]
     [SerializeField] private TMPro.TextMeshProUGUI walletText;
-
+    [Header("Auto Sort")]
+    [SerializeField] private TMPro.TextMeshProUGUI autoSortText;
     private InventorySlotUI[,] slots;
     private InventoryGrid inventoryGrid;
     private enum ActiveTab { Inventory, Documents, Tutorials, Collectibles, Crafting }
