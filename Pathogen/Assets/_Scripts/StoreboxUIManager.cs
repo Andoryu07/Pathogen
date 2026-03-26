@@ -57,6 +57,7 @@ public class StoreboxUIManager : MonoBehaviour
     public void OpenStorebox()
     {
         storeboxPanel.SetActive(true);
+        TimeScaleManager.Freeze(this);
         selectedItem = null;
         ClearAction();
         Refresh();
@@ -66,6 +67,7 @@ public class StoreboxUIManager : MonoBehaviour
     public void CloseStorebox()
     {
         storeboxPanel.SetActive(false);
+        TimeScaleManager.Unfreeze(this);
         selectedItem = null;
         WeaponHUD.Instance?.Show();
         WeaponHUD.Instance?.RefreshAmmoText();
@@ -82,6 +84,7 @@ public class StoreboxUIManager : MonoBehaviour
     {
         rows.RemoveAll(r => r.inBox == inBox);
         foreach (Transform c in parent) Destroy(c.gameObject);
+
         foreach (var item in items)
         {
             Item cap = item;
@@ -92,10 +95,8 @@ public class StoreboxUIManager : MonoBehaviour
                 : new GameObject(item.GetItemName(), typeof(RectTransform));
             rowGO.transform.SetParent(parent, false);
             rowGO.name = item.GetItemName();
-
             Image bg = rowGO.GetComponent<Image>();
             if (bg != null) bg.color = (selectedItem == item) ? ColSelected : ColNormal;
-
             // Populate via StoreboxRowUI if present, otherwise fallback
             StoreboxRowUI rowUI = rowGO.GetComponent<StoreboxRowUI>();
             int stackCount = inBox
@@ -104,10 +105,8 @@ public class StoreboxUIManager : MonoBehaviour
             string labelText = stackCount > 1
                 ? $"{item.GetItemName()}  <color=#aaaaaa>x{stackCount}</color>"
                 : item.GetItemName();
-
             if (rowUI != null)
                 rowUI.Populate(item.GetIcon(), labelText);
-
             Button btn = rowGO.GetComponent<Button>();
             if (btn != null)
             {
@@ -120,7 +119,6 @@ public class StoreboxUIManager : MonoBehaviour
                 btn.colors = cb;
                 btn.onClick.AddListener(() => OnRowClicked(cap, mine, bg));
             }
-
             rows.Add((item, bg, inBox));
         }
     }
@@ -232,7 +230,9 @@ public class StoreboxUIManager : MonoBehaviour
         if (feedbackText != null)
         {
             feedbackText.text = msg;
-            feedbackText.color = msg.Contains("full") ? new Color(0.9f, 0.3f, 0.3f, 1f) : new Color(0.7f, 0.9f, 0.7f, 1f);
+            feedbackText.color = msg.Contains("full")
+                ? new Color(0.9f, 0.3f, 0.3f, 1f)
+                : new Color(0.7f, 0.9f, 0.7f, 1f);
         }
     }
 

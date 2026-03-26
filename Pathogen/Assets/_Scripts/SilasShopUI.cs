@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.UI;
-
 /// Silas shop UI — tab-style navigation
 public class SilasShopUI : MonoBehaviour
 {
@@ -43,6 +42,7 @@ public class SilasShopUI : MonoBehaviour
     public void Open()
     {
         gameObject.SetActive(true);
+        TimeScaleManager.Freeze(this);
         ShowItemShop();
         WeaponHUD.Instance?.Hide();
     }
@@ -63,6 +63,7 @@ public class SilasShopUI : MonoBehaviour
     public void Close()
     {
         gameObject.SetActive(false);
+        TimeScaleManager.Unfreeze(this);
         WeaponHUD.Instance?.Show();
         WeaponHUD.Instance?.RefreshAmmoText();
     }

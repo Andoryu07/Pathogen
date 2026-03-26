@@ -1996,6 +1996,13 @@ MonoBehaviour:
   - {fileID: 6953068603163932101}
   - {fileID: 2418439329652389110}
   - {fileID: 433188724017386847}
+  ingredientSlotRoots:
+  - {fileID: 8608053735765719650}
+  - {fileID: 6521956351305634539}
+  - {fileID: 2722674526045360202}
+  separators:
+  - {fileID: 1748000225292452545}
+  - {fileID: 144022616497692345}
   resultIconImage: {fileID: 1979764998049919042}
   resultNameText: {fileID: 5914229404105380758}
   hintLabel: {fileID: 970582758600010143}

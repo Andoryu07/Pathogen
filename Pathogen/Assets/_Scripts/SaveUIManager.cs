@@ -1,10 +1,11 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-/// Save/Load UI panel. All UI wired in the Inspector
+/// Save/Load UI panel
 public class SaveUIManager : MonoBehaviour
 {
     public static SaveUIManager Instance { get; private set; }
+
     [Header("Panel")]
     [SerializeField] private GameObject saveUIPanel;
     [Header("Slots (one per save slot)")]
@@ -41,6 +42,7 @@ public class SaveUIManager : MonoBehaviour
     {
         loadMode = isLoadMode;
         saveUIPanel.SetActive(true);
+        TimeScaleManager.Freeze(this);
         WeaponHUD.Instance?.Hide();
         RefreshSlots();
     }
@@ -48,6 +50,7 @@ public class SaveUIManager : MonoBehaviour
     public void Close()
     {
         saveUIPanel.SetActive(false);
+        TimeScaleManager.Unfreeze(this);
         WeaponHUD.Instance?.Show();
         WeaponHUD.Instance?.RefreshAmmoText();
     }

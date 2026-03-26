@@ -21,6 +21,8 @@ public class WeaponData : ScriptableObject
     public float damage = 25f;
     [Tooltip("Seconds between shots (0 = unlimited click speed).")]
     public float fireRate = 0.25f;
+    [Tooltip("Base reload time in seconds before multiplier is applied.")]
+    public float baseReloadTime = 2.0f;
     [Tooltip("Reload speed multiplier. 1.0 = base speed, 0.5 = twice as fast.")]
     public float reloadSpeedMultiplier = 1.0f;
     [Tooltip("Ranged damage multiplier from talisman rewards. 1.0 = base damage.")]

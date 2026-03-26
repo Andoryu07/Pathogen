@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 /// Singleton managing all dialogue flow
+/// Handles: line display, text animation, choices, actions, freezing
 public class DialogueManager : MonoBehaviour
 {
     public static DialogueManager Instance { get; private set; }
@@ -13,17 +14,16 @@ public class DialogueManager : MonoBehaviour
     [SerializeField] private GameObject dialoguePanel;
     [SerializeField] private TextMeshProUGUI speakerNameText;
     [SerializeField] private Image speakerPortrait;
-    [SerializeField] private GameObject portraitFrame;      // parent GO — hidden when no portrait
+    [SerializeField] private GameObject portraitFrame;      
     [SerializeField] private TextMeshProUGUI dialogueText;
-    [SerializeField] private GameObject choicesContainer;   // parent of choice buttons
-    [SerializeField] private Button[] choiceButtons;      // pre-built buttons (max 4)
-    [SerializeField] private TextMeshProUGUI[] choiceButtonTexts;  // TMP on each button
+    [SerializeField] private GameObject choicesContainer;   
+    [SerializeField] private Button[] choiceButtons;      
+    [SerializeField] private TextMeshProUGUI[] choiceButtonTexts;
     [Header("Text Animation")]
     [SerializeField] private float charsPerSecond = 40f;
     [SerializeField] private bool animateText = true;
     [Header("Continue Hint")]
     [SerializeField] private GameObject continueHint;  // "Double-click to continue" label
-
     private HashSet<string> playedConversations = new HashSet<string>();
     private DialogueConversation activeConversation;
     private int currentLineIndex;
@@ -51,10 +51,12 @@ public class DialogueManager : MonoBehaviour
     void Update()
     {
         if (!isOpen) return;
+
         if (Input.GetMouseButtonDown(0))
         {
             float timeSinceLast = Time.unscaledTime - lastClickTime;
             lastClickTime = Time.unscaledTime;
+
             if (isAnimating)
             {
                 if (timeSinceLast <= DoubleClickGap)
@@ -87,6 +89,7 @@ public class DialogueManager : MonoBehaviour
         // Freeze player and NPC
         FreezeParticipants(true);
         dialoguePanel.SetActive(true);
+        TimeScaleManager.Freeze(this);
         WeaponHUD.Instance?.Hide();
         ShowLine(currentLineIndex);
     }
@@ -94,17 +97,16 @@ public class DialogueManager : MonoBehaviour
     public void EndDialogue()
     {
         isOpen = false;
-        // Mark as played
         if (activeConversation != null)
             playedConversations.Add(activeConversation.name);
         if (typeCoroutine != null) { StopCoroutine(typeCoroutine); typeCoroutine = null; }
         dialoguePanel.SetActive(false);
+        TimeScaleManager.Unfreeze(this);
         if (choicesContainer != null) choicesContainer.SetActive(false);
         if (continueHint != null) continueHint.SetActive(false);
         FreezeParticipants(false);
         WeaponHUD.Instance?.Show();
         WeaponHUD.Instance?.RefreshAmmoText();
-
         activeConversation = null;
         frozenNpcRb = null;
     }
@@ -130,7 +132,6 @@ public class DialogueManager : MonoBehaviour
         // Hide choices while text is showing
         if (choicesContainer != null) choicesContainer.SetActive(false);
         if (continueHint != null) continueHint.SetActive(false);
-
         // Text
         if (animateText)
         {
@@ -152,7 +153,7 @@ public class DialogueManager : MonoBehaviour
         foreach (char c in fullText)
         {
             if (dialogueText != null) dialogueText.text += c;
-            yield return new WaitForSecondsRealtime(delay);
+            yield return new WaitForSecondsRealtime(delay);  // unscaled — works when time is frozen
         }
         isAnimating = false;
         typeCoroutine = null;
@@ -163,7 +164,6 @@ public class DialogueManager : MonoBehaviour
     {
         if (typeCoroutine != null) { StopCoroutine(typeCoroutine); typeCoroutine = null; }
         isAnimating = false;
-
         DialogueLine line = activeConversation.lines[currentLineIndex];
         if (dialogueText != null) dialogueText.text = line.text;
         OnLineFullyShown(line);
@@ -182,6 +182,7 @@ public class DialogueManager : MonoBehaviour
         DialogueLine line = activeConversation.lines[currentLineIndex];
         // Don't advance if choices are showing — player must click a button
         if (line.choices != null && line.choices.Count > 0) return;
+        // Fire action before advancing
         if (line.actionType != DialogueActionType.None)
         {
             ExecuteAction(line.actionType, line.actionParameter,
@@ -241,37 +242,30 @@ public class DialogueManager : MonoBehaviour
                 EndDialogue();
                 SilasShopUI.Instance?.Open();
                 break;
-
             case DialogueActionType.OpenItemShop:
                 EndDialogue();
                 SilasShopUI.Instance?.Open();
                 // Tab switching handled by SilasShopUI — it opens on item shop by default
                 break;
-
             case DialogueActionType.OpenWeaponUpgrades:
                 EndDialogue();
                 // Open Silas shop on weapon upgrades tab
                 SilasShopUI.Instance?.OpenOnTab(1);
                 break;
-
             case DialogueActionType.OpenQuests:
                 EndDialogue();
                 SilasShopUI.Instance?.OpenOnTab(2);
                 break;
-
             case DialogueActionType.UnlockCraftingRecipe:
                 CraftingManager.Instance?.UnlockRecipe(parameter);
                 HUDFeedback.Instance?.ShowInfo("New recipe unlocked: " + parameter);
                 break;
-
             case DialogueActionType.GiveItem:
                 GiveItemToPlayer(parameter, amount);
                 break;
-
             case DialogueActionType.TriggerCustomEvent:
                 DialogueEventBus.Trigger(parameter);
                 break;
-
             case DialogueActionType.TakeItem:
                 TakeItemFromPlayer(parameter, amount, failLineIndex);
                 return;
@@ -300,6 +294,7 @@ public class DialogueManager : MonoBehaviour
         if (ItemRegistry.Instance == null) return;
         GameObject prefab = ItemRegistry.Instance.GetPrefab(itemName);
         if (prefab == null) { Debug.LogWarning("[Dialogue] No item prefab for: " + itemName); return; }
+
         int given = 0;
         for (int i = 0; i < amount; i++)
         {
@@ -314,6 +309,9 @@ public class DialogueManager : MonoBehaviour
     }
 
     /// Player gives items to the NPC
+    /// Requires the FULL amount — partial gives are rejected
+    /// On failure: shows feedback and jumps to failLineIndex (or stays on current line if -1)
+    /// On success: advances normally
     private void TakeItemFromPlayer(string itemName, int amount, int failLineIndex)
     {
         // Check total available
@@ -328,7 +326,6 @@ public class DialogueManager : MonoBehaviour
             // else stay — do nothing, dialogue remains on current line
             return;
         }
-
         // Remove the required amount
         for (int i = 0; i < amount; i++)
         {
@@ -384,6 +381,7 @@ public class DialogueManager : MonoBehaviour
             case ConditionType.TalismanCountAtLeast:
                 return TalismanManager.Instance != null &&
                        TalismanManager.Instance.CollectedCount >= cond.intParameter;
+
             default:
                 return true;
         }
@@ -395,7 +393,6 @@ public class DialogueManager : MonoBehaviour
         PlayerController player = PlayerController.LocalInstance;
         if (player != null)
             player.SetMovementEnabled(!freeze);
-
         // Freeze NPC
         if (frozenNpcRb != null)
             frozenNpcRb.simulated = !freeze;

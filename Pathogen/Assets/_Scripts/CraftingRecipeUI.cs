@@ -3,16 +3,20 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
 using System.Collections.Generic;
-
 /// One crafting recipe row
 public class CraftingRecipeUI : MonoBehaviour,
     IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
 {
     public const float ROW_HEIGHT = 110f;
+
     [Header("Ingredient Slots (wire in order, up to max ingredients)")]
     [SerializeField] private Image[] ingredientBoxImages;
     [SerializeField] private TextMeshProUGUI[] ingredientNameTexts;
     [SerializeField] private Image[] ingredientIconImages;
+    [Tooltip("Root GameObjects of each ingredient slot (including its name label). Wire in same order as images.")]
+    [SerializeField] private GameObject[] ingredientSlotRoots;
+    [Tooltip("Separator GameObjects between slots (Plus signs). Index 0 = between slot 0-1, index 1 = between slot 1-2.")]
+    [SerializeField] private GameObject[] separators;
     [Header("Result Slot")]
     [SerializeField] private Image resultIconImage;
     [SerializeField] private TextMeshProUGUI resultNameText;
@@ -35,6 +39,7 @@ public class CraftingRecipeUI : MonoBehaviour,
     public void Setup(CraftingRecipe r)
     {
         recipe = r;
+
         // Populate icons and names from recipe data
         for (int i = 0; i < r.ingredients.Count; i++)
         {
@@ -46,11 +51,11 @@ public class CraftingRecipeUI : MonoBehaviour,
                 ingredientIconImages[i].sprite = ing.icon;
                 ingredientIconImages[i].enabled = ing.icon != null;
             }
+
             if (ingredientNameTexts != null && i < ingredientNameTexts.Length
                 && ingredientNameTexts[i] != null)
                 ingredientNameTexts[i].text = ing.itemName;
         }
-
         if (resultIconImage != null)
         {
             resultIconImage.sprite = r.resultIcon;
@@ -58,16 +63,27 @@ public class CraftingRecipeUI : MonoBehaviour,
         }
         if (resultNameText != null)
             resultNameText.text = r.resultItemName;
-
         if (progressBar != null) progressBar.gameObject.SetActive(false);
+        // Disable unused ingredient slots and their preceding separators
+        if (ingredientSlotRoots != null)
+            for (int i = 0; i < ingredientSlotRoots.Length; i++)
+                if (ingredientSlotRoots[i] != null)
+                    ingredientSlotRoots[i].SetActive(i < r.ingredients.Count);
+        if (separators != null)
+            for (int i = 0; i < separators.Length; i++)
+                if (separators[i] != null)
+                    separators[i].SetActive(i < r.ingredients.Count - 1);
+
         RefreshColors();
     }
 
     public void RefreshColors()
     {
         if (recipe == null) return;
+
         List<bool> status = CraftingManager.Instance.GetIngredientStatus(recipe);
         canCraft = CraftingManager.Instance.HasAllIngredients(recipe);
+
         for (int i = 0; i < status.Count; i++)
         {
             Color c = status[i] ? ColHave : ColMissing;
@@ -78,8 +94,10 @@ public class CraftingRecipeUI : MonoBehaviour,
                 && ingredientNameTexts[i] != null)
                 ingredientNameTexts[i].color = c;
         }
+
         var bg = GetComponent<Image>();
         if (bg != null) bg.color = canCraft ? BgCan : BgCant;
+
         if (hintLabel != null)
             hintLabel.color = canCraft
                 ? Color.white

@@ -1,11 +1,10 @@
 using UnityEngine;
 
-/// Holds the weapon's WeaponData reference and tracks the current magazine count at runtime.
+/// Holds the weapon's WeaponData reference and tracks the current magazine count at runtime
 public class WeaponItem : MonoBehaviour
 {
     [Header("Weapon Stats")]
     [SerializeField] public WeaponData data;
-    // Runtime — not serialised
     private int currentMag = -1;   // -1 = uninitialised
     /// Returns the current rounds in the magazine
     /// Auto-fills to max on first access (simulates weapon spawning loaded)
@@ -29,6 +28,7 @@ public class WeaponItem : MonoBehaviour
         return true;
     }
     /// Top-up reload: pulls only the rounds needed to fill the mag from inventory
+    /// Returns rounds loaded. Actual reload uses reloadSpeedMultiplier for timing
     public int Reload()
     {
         if (IsMelee) return 0;
@@ -38,12 +38,22 @@ public class WeaponItem : MonoBehaviour
         for (int i = 0; i < needed; i++)
         {
             Item ammoItem = InventoryGrid.Instance.GetItem(AmmoItemName);
-            if (ammoItem == null) break;             // no more ammo in inventory
+            if (ammoItem == null) break;
             InventoryGrid.Instance.RemoveItem(ammoItem);
             loaded++;
         }
         currentMag += loaded;
         return loaded;
+    }
+
+    /// Base reload duration in seconds — affected by reloadSpeedMultiplier
+    /// Lower multiplier = faster reload. e.g. 0.5 = twice as fast
+    public float GetReloadDuration()
+    {
+        float baseReload = data != null ? data.baseReloadTime : 2f;
+        float multiplier = data != null ? data.reloadSpeedMultiplier : 1f;
+        // Clamp multiplier so it can't go below 0.1 (avoid instant/zero reload)
+        return baseReload * Mathf.Max(0.1f, multiplier);
     }
 
     /// Apply all current upgrades from UpgradeManager to this weapon instance
