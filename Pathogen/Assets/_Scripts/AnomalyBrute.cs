@@ -53,6 +53,12 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
 
     void Start()
     {
+        if (DifficultyManager.Instance != null)
+        {
+            maxHealth *= DifficultyManager.Instance.HealthMultiplier;
+            currentHealth = maxHealth;
+            slamDamage *= DifficultyManager.Instance.DamageMultiplier;
+        }
         playerTransform = PlayerController.LocalInstance?.transform;
     }
 

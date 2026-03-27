@@ -248,5 +248,7 @@ public class PlayerController : MonoBehaviour
     private void Die()
     {
         Debug.Log("Player has died!");
+        SetMovementEnabled(false);
+        GameOverPanel.Instance?.Show();
     }
 }

@@ -75,7 +75,17 @@ public class HealthOverlay : MonoBehaviour
                 break;
         }
     }
-
+    public void ResetOverlays()
+    {
+        SetImageAlpha(slightBloodImage, 0f);
+        SetImageAlpha(heavyBloodImage, 0f);
+        if (slightBloodImage != null) slightBloodImage.gameObject.SetActive(false);
+        if (heavyBloodImage != null) heavyBloodImage.gameObject.SetActive(false);
+        lastAppliedState = HealthState.Full;
+        currentState = HealthState.Full;
+        PlayerController.LocalInstance?.RemoveSpeedPenalty(heavySpeedPenalty);
+        PlayerController.LocalInstance?.RemoveSpeedPenalty(slightSpeedPenalty);
+    }
     private void FadeImage(Image img, float targetAlpha)
     {
         if (img == null) return;

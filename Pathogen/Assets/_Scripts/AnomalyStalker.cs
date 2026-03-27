@@ -63,6 +63,12 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
 
     void Start()
     {
+        if (DifficultyManager.Instance != null)
+        {
+            maxHealth *= DifficultyManager.Instance.HealthMultiplier;
+            currentHealth = maxHealth;
+            contactDamage *= DifficultyManager.Instance.DamageMultiplier;
+        }
         playerController = PlayerController.LocalInstance;
         if (playerController != null) playerTransform = playerController.transform;
         spawnPos = transform.position;

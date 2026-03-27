@@ -67,6 +67,12 @@ public class EnemyInfected : MonoBehaviour, IDamageable
 
     void Start()
     {
+        if (DifficultyManager.Instance != null)
+        {
+            maxHealth *= DifficultyManager.Instance.HealthMultiplier;
+            currentHealth = maxHealth;
+            contactDamage *= DifficultyManager.Instance.DamageMultiplier;
+        }
         PlayerController player = PlayerController.LocalInstance;
         if (player != null) playerTransform = player.transform;
     }

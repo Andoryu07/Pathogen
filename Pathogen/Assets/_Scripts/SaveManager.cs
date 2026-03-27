@@ -30,6 +30,7 @@ public class SaveManager : MonoBehaviour
     }
 
     public int MaxSlots => maxSlots;
+    public float GetCurrentPlaytime() => playtimeAccumulator;
     public bool SlotExists(int slot)
         => File.Exists(SlotPath(slot));
     public SaveData ReadSlotMeta(int slot)
@@ -200,6 +201,9 @@ public class SaveManager : MonoBehaviour
             player.transform.position = new Vector3(data.playerPosX, data.playerPosY, 0f);
             player.SetHealth(data.playerHP, data.playerMaxHP);
             player.SetStamina(data.playerStamina, data.playerMaxStamina);
+            player.SetMovementEnabled(true);
+            InfectionManager.Instance?.ResetOverlays();   
+            HealthOverlay.Instance?.ResetOverlays();
         }
         // Infection
         InfectionManager.Instance?.LoadState(data.infectionStage, data.infectionHits);

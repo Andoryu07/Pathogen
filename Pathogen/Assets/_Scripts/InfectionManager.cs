@@ -57,7 +57,9 @@ public class InfectionManager : MonoBehaviour
         }
         // Stage 3 periodic damage (skipped while suppressed)
         if (infectionStage == 3 && !suppressed)
-        {
+        {   // Don't drain if player is already dead
+            PlayerController player = PlayerController.LocalInstance;
+            if (player == null || player.CurrentHealth <= 0f) return;
             stage3Timer += Time.deltaTime;
             if (stage3Timer >= stage3Interval)
             {
@@ -97,6 +99,7 @@ public class InfectionManager : MonoBehaviour
         RemoveStatPenalties();
         infectionStage = stage;
         infectionHits = hits;
+        ResetOverlays();// force all overlays to zero before refreshing
         if (infectionStage > 0) ApplyStatPenalties(infectionStage);
         RefreshOverlay();
     }
@@ -207,6 +210,11 @@ public class InfectionManager : MonoBehaviour
                 SetOverlayAlpha(staticImage, 0.22f);
                 break;
         }
+    }
+    public void ResetOverlays()
+    {
+        SetOverlayAlpha(cornersImage, 0f);
+        SetOverlayAlpha(staticImage, 0f);
     }
 
     private static void SetOverlayAlpha(Image img, float alpha)

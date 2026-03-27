@@ -61,6 +61,12 @@ public class AnomalyLeaper : MonoBehaviour, IDamageable
 
     void Start()
     {
+        if (DifficultyManager.Instance != null)
+        {
+            maxHealth *= DifficultyManager.Instance.HealthMultiplier;
+            currentHealth = maxHealth;
+            contactDamage *= DifficultyManager.Instance.DamageMultiplier;
+        }
         playerTransform = PlayerController.LocalInstance?.transform;
     }
 
