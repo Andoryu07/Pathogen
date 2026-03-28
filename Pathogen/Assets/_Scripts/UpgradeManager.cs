@@ -94,7 +94,6 @@ public class UpgradeManager : MonoBehaviour
             list.Add(new SavedUpgrade { key = kvp.Key, level = kvp.Value });
         return list;
     }
-
     public void LoadAllLevels(List<SavedUpgrade> saved)
     {
         upgradeLevels.Clear();

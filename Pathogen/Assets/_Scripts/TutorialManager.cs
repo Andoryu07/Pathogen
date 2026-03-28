@@ -40,7 +40,6 @@ public class TutorialManager : MonoBehaviour
     }
 
     public List<TutorialEntry> GetAllTutorials() => tutorials;
-
     ///Restore tutorials from save data
     public void LoadTutorials(List<SavedTutorial> saved)
     {

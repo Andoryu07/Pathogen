@@ -35,7 +35,6 @@ public class QuestManager : MonoBehaviour
         if (progress.TryGetValue(quest.questName, out int p)) return p;
         return 0;
     }
-
     public bool IsActive(QuestData quest) => GetState(quest) == QuestState.Active;
     public bool IsCompleted(QuestData quest) => GetState(quest) == QuestState.Completed;
     public bool IsClaimed(QuestData quest) => GetState(quest) == QuestState.Claimed;

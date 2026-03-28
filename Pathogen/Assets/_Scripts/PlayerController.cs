@@ -4,7 +4,6 @@ public class PlayerController : MonoBehaviour
 {
     // Single-player convenience reference — set in Awake
     public static PlayerController LocalInstance { get; private set; }
-
     [Header("Movement Settings")]
     [SerializeField] private float walkSpeed = 5f;
     [SerializeField] private float sprintSpeed = 8f;
@@ -12,9 +11,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float acceleration = 10f;
     [Header("Health Settings")]
     [SerializeField] private float maxHealth = 100f;
+    private float baseMaxHealth = 0f;   
     [SerializeField] private float currentHealth;
     [Header("Stamina Settings")]
     [SerializeField] private float maxStamina = 100f;
+    private float baseMaxStamina = 0f;   
     [SerializeField] private float currentStamina;
     [SerializeField] private float staminaDrainRate = 20f;
     [SerializeField] private float staminaRegenRate = 15f;
@@ -50,6 +51,8 @@ public class PlayerController : MonoBehaviour
         }
         currentStamina = maxStamina;
         currentHealth = maxHealth;
+        baseMaxHealth = maxHealth;
+        baseMaxStamina = maxStamina;
     }
 
     void Update()
@@ -71,7 +74,9 @@ public class PlayerController : MonoBehaviour
         {
             moveInput = moveInput.normalized;
         }
+
         bool wantsToSprint = Input.GetKey(KeyCode.LeftShift);
+
         if (wantsToSprint && !isExhausted && currentStamina > 0 && !isCrouching)
         {
             isSprinting = true;
@@ -129,6 +134,7 @@ public class PlayerController : MonoBehaviour
         {
             targetSpeed = crouchSpeed;
         }
+
         // Aiming caps movement to crouch speed (cannot sprint while aiming)
         if (AimSystem.Instance != null && AimSystem.Instance.IsAiming)
             targetSpeed = Mathf.Min(targetSpeed, crouchSpeed);
@@ -175,6 +181,9 @@ public class PlayerController : MonoBehaviour
         speedPenalty = Mathf.Clamp01(speedPenalty - fraction);
     }
 
+    public float BaseMaxHealth => baseMaxHealth;
+    public float BaseMaxStamina => baseMaxStamina;
+
     public void SetHealth(float current, float max)
     {
         maxHealth = max;
@@ -187,6 +196,17 @@ public class PlayerController : MonoBehaviour
         maxStamina = max;
         currentStamina = Mathf.Clamp(current, 0f, maxStamina);
     }
+    /// Resets maxHealth and maxStamina to base Inspector values
+    /// Call before re-applying infection/talisman bonuses on load
+    public void RestoreBaseStats()
+    {
+        maxHealth = baseMaxHealth;
+        maxStamina = baseMaxStamina;
+        currentHealth = Mathf.Min(currentHealth, maxHealth);
+        currentStamina = Mathf.Min(currentStamina, maxStamina);
+        speedPenalty = 0f;
+        Debug.Log("[Player] Base stats restored.");
+    }
 
     public void Heal(float amount)
     {
@@ -195,6 +215,7 @@ public class PlayerController : MonoBehaviour
         if (Mathf.Approximately(currentHealth, maxHealth))
             InfectionManager.Instance?.OnPlayerFullyHealed();
     }
+
     ///Permanently increases max stamina by a fraction (e.g. 0.10 = +10%)
     public void AddStaminaBonus(float fraction)
     {
@@ -202,6 +223,7 @@ public class PlayerController : MonoBehaviour
         maxStamina += bonus;
         currentStamina = Mathf.Min(currentStamina + bonus, maxStamina);
     }
+
     /// Reduces maxHealth and maxStamina by a fraction (called by InfectionManager)
     /// Also clamps current values so they don't exceed the new reduced max
     public void ApplyInfectionPenalty(float hpFraction, float stamFraction)
@@ -238,7 +260,7 @@ public class PlayerController : MonoBehaviour
     }
     private bool movementEnabled = true;
     private float speedPenalty = 0f;   // 0 = no penalty, 0.4 = 40% slower
-    ///Enables or disables all player movement — used by DialogueManager
+    ///Enables or disables all player movement
     public void SetMovementEnabled(bool enabled)
     {
         movementEnabled = enabled;
@@ -247,7 +269,7 @@ public class PlayerController : MonoBehaviour
 
     private void Die()
     {
-        Debug.Log("Player has died!");
+        Debug.Log("[Player] Died.");
         SetMovementEnabled(false);
         GameOverPanel.Instance?.Show();
     }

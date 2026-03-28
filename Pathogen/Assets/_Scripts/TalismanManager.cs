@@ -30,6 +30,8 @@ public class TalismanManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
+    public int GetTalismanCount() => collectedCount;
+
     ///Call this when the player smashes a talisman in the world
     public void CollectTalisman()
     {
@@ -47,7 +49,6 @@ public class TalismanManager : MonoBehaviour
         }
     }
     public bool IsRewardUnlocked(int threshold) => collectedCount >= threshold;
-    public int GetTalismanCount() => collectedCount;
     ///Restore talisman count from save — re-applies all earned rewards
     public void LoadCount(int count)
     {

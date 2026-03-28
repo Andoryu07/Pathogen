@@ -3,7 +3,9 @@ using UnityEngine.SceneManagement;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Collections;
 /// Handles saving and loading game state to/from JSON files
+/// Supports multiple save slots (default 3)
 /// Save files stored at: Application.persistentDataPath/saves/slot_X.json
 public class SaveManager : MonoBehaviour
 {
@@ -13,6 +15,7 @@ public class SaveManager : MonoBehaviour
     [SerializeField] private int maxSlots = 3;
     [SerializeField] private float playtimeAccumulator = 0f;
 
+    private int pendingLoadSlot = -1;   // -1 = no pending load
     private string SaveDir => Path.Combine(Application.persistentDataPath, "saves");
     private string SlotPath(int slot) => Path.Combine(SaveDir, $"slot_{slot}.json");
 
@@ -31,8 +34,15 @@ public class SaveManager : MonoBehaviour
 
     public int MaxSlots => maxSlots;
     public float GetCurrentPlaytime() => playtimeAccumulator;
+    private System.Collections.IEnumerator LoadAfterFrame(int slot)
+    {
+        yield return null;  // wait one frame so all Awake/Start calls finish
+        yield return null;  // second frame for safety
+        Load(slot);
+    }
     public bool SlotExists(int slot)
         => File.Exists(SlotPath(slot));
+
     public SaveData ReadSlotMeta(int slot)
     {
         if (!SlotExists(slot)) return null;
@@ -82,9 +92,12 @@ public class SaveManager : MonoBehaviour
     private SaveData CollectSaveData(int slot, string saveName)
     {
         SaveData data = new SaveData();
+
         // Meta
         SaveData existing = ReadSlotMeta(slot);
         data.saveName = string.IsNullOrEmpty(saveName) ? "Save " + (slot + 1) : saveName;
+        data.difficulty = DifficultyManager.Instance != null
+            ? (int)DifficultyManager.Instance.Current.difficulty : 1;
         data.sceneName = SceneManager.GetActiveScene().name;
         data.timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
         data.totalPlaytime = (existing?.totalPlaytime ?? 0f) + playtimeAccumulator;
@@ -198,14 +211,13 @@ public class SaveManager : MonoBehaviour
         PlayerController player = PlayerController.LocalInstance;
         if (player != null)
         {
+            player.RestoreBaseStats();   // reset to base before applying saved values
             player.transform.position = new Vector3(data.playerPosX, data.playerPosY, 0f);
             player.SetHealth(data.playerHP, data.playerMaxHP);
             player.SetStamina(data.playerStamina, data.playerMaxStamina);
             player.SetMovementEnabled(true);
-            InfectionManager.Instance?.ResetOverlays();   
-            HealthOverlay.Instance?.ResetOverlays();
         }
-        // Infection
+        // Infection — load AFTER player stats so penalties apply to restored base
         InfectionManager.Instance?.LoadState(data.infectionStage, data.infectionHits);
         // Clear and restore inventory
         RestoreInventory(data.inventoryItems);
@@ -240,6 +252,8 @@ public class SaveManager : MonoBehaviour
             data.deadEnemyIDs,
             data.collectedPickupIDs,
             data.unlockedLockIDs);
+        // Difficulty
+        DifficultyManager.Instance?.SetDifficulty((Difficulty)data.difficulty);
         // Playtime
         playtimeAccumulator = 0f;
         // Refresh all UI
@@ -251,11 +265,9 @@ public class SaveManager : MonoBehaviour
     private void RestoreInventory(List<SavedItem> savedItems)
     {
         if (InventoryGrid.Instance == null) return;
-
         // Clear current inventory
         foreach (var item in new List<Item>(InventoryGrid.Instance.GetAllItems()))
             InventoryGrid.Instance.RemoveItemStack(item);
-
         // We can't restore without item prefabs — ItemRegistry handles this
         ItemRegistry registry = ItemRegistry.Instance;
         if (registry == null)
@@ -263,6 +275,7 @@ public class SaveManager : MonoBehaviour
             Debug.LogWarning("[Save] ItemRegistry not found — inventory not restored.");
             return;
         }
+
         foreach (var saved in savedItems)
         {
             GameObject prefab = registry.GetPrefab(saved.itemName);
@@ -274,7 +287,6 @@ public class SaveManager : MonoBehaviour
             GameObject go = Instantiate(prefab);
             Item itemComp = go.GetComponent<Item>();
             if (itemComp == null) { Destroy(go); continue; }
-
             // Place at saved position with saved rotation
             if (InventoryGrid.Instance.CanPlaceItemAt(itemComp, saved.gridX, saved.gridY, saved.rotated))
             {
@@ -296,10 +308,8 @@ public class SaveManager : MonoBehaviour
     {
         if (StoreboxManager.Instance == null) return;
         StoreboxManager.Instance.ClearAll();
-
         ItemRegistry registry = ItemRegistry.Instance;
         if (registry == null) return;
-
         foreach (var saved in savedItems)
         {
             GameObject prefab = registry.GetPrefab(saved.itemName);

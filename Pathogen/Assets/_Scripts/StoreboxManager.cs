@@ -96,7 +96,6 @@ public class StoreboxManager : MonoBehaviour
         storedItems.Add(item);
         stackCounts[item] = Mathf.Max(1, count);
     }
-
     ///Returns the current stack count for a stored item
     public int GetStackCount(Item item)
     {

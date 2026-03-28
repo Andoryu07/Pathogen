@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections;
+using UnityEngine.SceneManagement;
 /// Shown when the player dies. Freezes time, shows cause summary
 public class GameOverPanel : MonoBehaviour
 {
@@ -15,6 +16,7 @@ public class GameOverPanel : MonoBehaviour
     [Header("Buttons")]
     [SerializeField] private Button retryButton;
     [SerializeField] private Button quitButton;
+    [SerializeField] private Button mainMenuButton;
     [Header("Fade In")]
     [SerializeField] private float fadeInDuration = 1.2f;
     [SerializeField] private CanvasGroup canvasGroup;
@@ -30,24 +32,24 @@ public class GameOverPanel : MonoBehaviour
         panel.SetActive(false);
         if (retryButton != null) retryButton.onClick.AddListener(OnRetry);
         if (quitButton != null) quitButton.onClick.AddListener(OnQuit);
+        if (mainMenuButton != null) mainMenuButton.onClick.AddListener(onMainMenu);
+
     }
 
     public void Show(string cause = "")
     {
         panel.SetActive(true);
         TimeScaleManager.Freeze(this);
-
+        if (retryButton != null)
+            retryButton.gameObject.SetActive(FindMostRecentSlot() >= 0);
         if (titleText != null) titleText.text = "YOU ARE DEAD";
         if (subtitleText != null)
         {
             float playtime = SaveManager.Instance != null
                 ? SaveManager.Instance.GetCurrentPlaytime() : 0f;
-            string timeStr = FormatPlaytime(playtime);
-            subtitleText.text = string.IsNullOrEmpty(cause)
-                ? "Survived: " + timeStr
-                : cause + "\nSurvived: " + timeStr;
+            subtitleText.text = (string.IsNullOrEmpty(cause) ? "" : cause + "\n")
+                              + "Survived: " + FormatPlaytime(playtime);
         }
-
         if (canvasGroup != null)
             StartCoroutine(FadeIn());
     }
@@ -68,21 +70,14 @@ public class GameOverPanel : MonoBehaviour
     private void OnRetry()
     {
         TimeScaleManager.UnfreezeAll();
-        InfectionManager.Instance?.ResetOverlays();  
-        HealthOverlay.Instance?.ResetOverlays();
-        // Load most recent save slot
-        int slot = FindMostRecentSlot();
-        if (slot >= 0)
-            SaveManager.Instance?.Load(slot);
-        else
-        {
-            // No save found — restart scene fresh
-            UnityEngine.SceneManagement.SceneManager.LoadScene(
-                UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
-        }
         panel.SetActive(false);
+        int slot = FindMostRecentSlot();
+        if (slot >= 0) SaveManager.Instance?.Load(slot);
     }
-
+    private void onMainMenu()
+    {
+        SceneManager.LoadScene("MainMenu");
+    }
     private void OnQuit()
     {
         TimeScaleManager.UnfreezeAll();

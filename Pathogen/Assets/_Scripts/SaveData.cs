@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-
 /// Fully serializable snapshot of all game state
 /// Serialized to JSON by SaveManager using JsonUtility
 [Serializable]
@@ -8,6 +7,7 @@ public class SaveData
 {
     // Meta
     public string saveName = "";
+    public int difficulty = 1;   // Difficulty enum as int (0=Casual,1=Normal,2=Hardcore)
     public string sceneName = "";
     public string timestamp = "";
     public float totalPlaytime = 0f;

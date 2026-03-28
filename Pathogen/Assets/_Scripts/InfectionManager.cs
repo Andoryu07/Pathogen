@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
-
-/// Full infection system
+///infection system
 public class InfectionManager : MonoBehaviour
 {
     public static InfectionManager Instance { get; private set; }
@@ -9,6 +8,7 @@ public class InfectionManager : MonoBehaviour
     private const int HitsForStage1 = 1;
     private const int HitsForStage2 = 3;
     private const int HitsForStage3 = 5;
+
     [Header("Screen Overlay Images (assign in Inspector)")]
     [SerializeField] private Image cornersImage;   // blue corners
     [SerializeField] private Image staticImage;    // static/noise overlay
@@ -21,7 +21,6 @@ public class InfectionManager : MonoBehaviour
     private bool suppressed = false;
     private float suppressionTimer = 0f;
     private float stage3Timer = 0f;
-    // Stat modifier bookkeeping
     private bool statsApplied = false;
     private float appliedHPMult = 0f;
     private float appliedStamMult = 0f;
@@ -57,9 +56,7 @@ public class InfectionManager : MonoBehaviour
         }
         // Stage 3 periodic damage (skipped while suppressed)
         if (infectionStage == 3 && !suppressed)
-        {   // Don't drain if player is already dead
-            PlayerController player = PlayerController.LocalInstance;
-            if (player == null || player.CurrentHealth <= 0f) return;
+        {
             stage3Timer += Time.deltaTime;
             if (stage3Timer >= stage3Interval)
             {
@@ -68,14 +65,17 @@ public class InfectionManager : MonoBehaviour
             }
         }
     }
-    /// Called by EnemyInfected on each successful hit
+
+    ///Called by EnemyInfected on each successful hit
     public void RegisterInfectedHit()
     {
         infectionHits++;
         int oldStage = infectionStage;
+
         if (infectionHits >= HitsForStage3) infectionStage = 3;
         else if (infectionHits >= HitsForStage2) infectionStage = 2;
         else if (infectionHits >= HitsForStage1) infectionStage = 1;
+
         if (infectionStage > oldStage)
             OnStageAdvanced(infectionStage);
         else
@@ -99,9 +99,32 @@ public class InfectionManager : MonoBehaviour
         RemoveStatPenalties();
         infectionStage = stage;
         infectionHits = hits;
-        ResetOverlays();// force all overlays to zero before refreshing
         if (infectionStage > 0) ApplyStatPenalties(infectionStage);
         RefreshOverlay();
+    }
+
+    ///Fully resets infection state for scene reload
+    public void ResetForNewScene()
+    {
+        RemoveStatPenalties();
+        infectionStage = 0;
+        infectionHits = 0;
+        suppressed = false;
+        suppressionTimer = 0f;
+        stage3Timer = 0f;
+        if (cornersImage != null)
+        {
+            var c = cornersImage.color;
+            cornersImage.color = new Color(c.r, c.g, c.b, 0f);
+            cornersImage.gameObject.SetActive(false);
+        }
+        if (staticImage != null)
+        {
+            var c = staticImage.color;
+            staticImage.color = new Color(c.r, c.g, c.b, 0f);
+            staticImage.gameObject.SetActive(false);
+        }
+        Debug.Log("[Infection] Reset for new scene.");
     }
 
     ///Antidote or Stage-3 full-heal: fully clears all infection
@@ -118,7 +141,6 @@ public class InfectionManager : MonoBehaviour
         Debug.Log("[Infection] Cleared.");
     }
 
-    /// Called by PlayerController when healed to full HP
     public void OnPlayerFullyHealed()
     {
         if (infectionStage == 3)
@@ -131,6 +153,7 @@ public class InfectionManager : MonoBehaviour
         RemoveStatPenalties();
         ApplyStatPenalties(stage);
         RefreshOverlay();
+
         string msg = stage switch
         {
             1 => "Infected — Stage 1! Max HP and Stamina reduced by 20%.",
@@ -210,11 +233,6 @@ public class InfectionManager : MonoBehaviour
                 SetOverlayAlpha(staticImage, 0.22f);
                 break;
         }
-    }
-    public void ResetOverlays()
-    {
-        SetOverlayAlpha(cornersImage, 0f);
-        SetOverlayAlpha(staticImage, 0f);
     }
 
     private static void SetOverlayAlpha(Image img, float alpha)

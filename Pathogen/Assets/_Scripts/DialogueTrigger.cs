@@ -1,4 +1,5 @@
 using UnityEngine;
+/// Attach to any NPC or interactable object to start a dialogue on E press
 public class DialogueTrigger : InteractableBase
 {
     [Header("Dialogue")]
@@ -15,6 +16,13 @@ public class DialogueTrigger : InteractableBase
 
     public override void Interact()
     {
+        // Block interaction if NPC is hostile
+        NPCRelationship rel = GetComponent<NPCRelationship>();
+        if (rel != null && rel.CurrentState == RelationshipState.Hostile)
+        {
+            HUDFeedback.Instance?.ShowWarning(rel.NPCID + " is hostile — they won't talk to you.");
+            return;
+        }
         if (conversation == null)
         {
             Debug.LogWarning("[DialogueTrigger] No conversation assigned on " + gameObject.name);
