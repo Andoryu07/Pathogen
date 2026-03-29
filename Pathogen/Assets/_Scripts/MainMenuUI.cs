@@ -7,6 +7,7 @@ public class MainMenuUI : MonoBehaviour
 {
     [Header("Main Menu Panel")]
     [SerializeField] private GameObject mainMenuPanel;
+    [SerializeField] private Button continueButton;
     [SerializeField] private Button newGameButton;
     [SerializeField] private Button loadGameButton;
     [SerializeField] private Button quitButton;
@@ -19,9 +20,12 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private Button backButton;
     [Header("Scene")]
     [SerializeField] private string gameSceneName = "Prototype";
+    [SerializeField] private GameObject loadGamePanel; 
+
 
     void Start()
     {
+        TimeScaleManager.UnfreezeAll();
         mainMenuPanel.SetActive(true);
         difficultyPanel.SetActive(false);
         if (newGameButton != null) newGameButton.onClick.AddListener(OnNewGame);
@@ -31,7 +35,14 @@ public class MainMenuUI : MonoBehaviour
         if (normalButton != null) normalButton.onClick.AddListener(() => OnDifficultySelected(Difficulty.Normal));
         if (hardcoreButton != null) hardcoreButton.onClick.AddListener(() => OnDifficultySelected(Difficulty.Hardcore));
         if (backButton != null) backButton.onClick.AddListener(OnBack);
-
+        if (continueButton != null)
+        {
+            continueButton.onClick.AddListener(OnContinue);
+            // Hide continue button if no save exists
+            continueButton.gameObject.SetActive(FindMostRecentSlot() >= 0);
+        }
+        if (loadGameButton != null)
+            loadGameButton.gameObject.SetActive(HasAnySave());
         // Show descriptions on hover
         if (casualButton != null) AddHoverDescription(casualButton, Difficulty.Casual);
         if (normalButton != null) AddHoverDescription(normalButton, Difficulty.Normal);
@@ -40,17 +51,42 @@ public class MainMenuUI : MonoBehaviour
         // Set default description
         UpdateDescription(Difficulty.Normal);
     }
-
-    private void OnNewGame()
+    private void OnContinue()
     {
-        mainMenuPanel.SetActive(false);
-        difficultyPanel.SetActive(true);
+        int slot = FindMostRecentSlot();
+        if (slot < 0) return;
+        SaveManager.Instance?.SetPendingLoad(slot);
+        SceneManager.LoadScene(gameSceneName);
     }
 
     private void OnLoadGame()
     {
-        // Placeholder — will open save/load UI when main menu is fleshed out
-        Debug.Log("[MainMenu] Load game — not yet implemented.");
+        // Open SaveUIManager in load mode
+        SaveUIManager.Instance?.Open(isLoadMode: true);
+    }
+
+    private int FindMostRecentSlot()
+    {
+        if (SaveManager.Instance == null) return -1;
+        System.DateTime newest = System.DateTime.MinValue;
+        int bestSlot = -1;
+        for (int i = 0; i < SaveManager.Instance.MaxSlots; i++)
+        {
+            SaveData data = SaveManager.Instance.ReadSlotMeta(i);
+            if (data == null) continue;
+            if (System.DateTime.TryParse(data.timestamp,
+                out System.DateTime t) && t > newest)
+            { newest = t; bestSlot = i; }
+        }
+        return bestSlot;
+    }
+
+    private bool HasAnySave()
+        => FindMostRecentSlot() >= 0;
+    private void OnNewGame()
+    {
+        mainMenuPanel.SetActive(false);
+        difficultyPanel.SetActive(true);
     }
 
     private void OnDifficultySelected(Difficulty d)

@@ -31,18 +31,23 @@ public class SaveManager : MonoBehaviour
     {
         playtimeAccumulator += Time.deltaTime;
     }
-
+    public void SetPendingLoad(int slot) => pendingLoadSlot = slot;
     public int MaxSlots => maxSlots;
     public float GetCurrentPlaytime() => playtimeAccumulator;
-    private System.Collections.IEnumerator LoadAfterFrame(int slot)
-    {
-        yield return null;  // wait one frame so all Awake/Start calls finish
-        yield return null;  // second frame for safety
-        Load(slot);
-    }
     public bool SlotExists(int slot)
         => File.Exists(SlotPath(slot));
-
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (pendingLoadSlot < 0 && PlayerPrefs.HasKey("PendingLoadSlot"))
+        {
+            pendingLoadSlot = PlayerPrefs.GetInt("PendingLoadSlot");
+            PlayerPrefs.DeleteKey("PendingLoadSlot");
+            PlayerPrefs.Save();
+        }
+        if (pendingLoadSlot < 0) return;
+        int slot = pendingLoadSlot;
+        pendingLoadSlot = -1;
+    }
     public SaveData ReadSlotMeta(int slot)
     {
         if (!SlotExists(slot)) return null;

@@ -59,6 +59,8 @@ public class PlayerController : MonoBehaviour
     {
         ReadInput();
         HandleStamina();
+        UpdateMovementAudio();
+
     }
 
     void FixedUpdate()
@@ -140,6 +142,21 @@ public class PlayerController : MonoBehaviour
             targetSpeed = Mathf.Min(targetSpeed, crouchSpeed);
         Vector2 targetVelocity = moveInput * targetSpeed;
         rb.linearVelocity = Vector2.SmoothDamp(rb.linearVelocity, targetVelocity, ref currentVelocity, acceleration * Time.fixedDeltaTime);
+    }
+    private void UpdateMovementAudio()
+    {
+        if (!movementEnabled || moveInput.sqrMagnitude < 0.01f)
+        {
+            AudioManager.Instance?.StopMovement();
+            return;
+        }
+
+        if (isSprinting)
+            AudioManager.Instance?.PlaySprint();
+        else if (isCrouching)
+            AudioManager.Instance?.PlayCrouch();
+        else
+            AudioManager.Instance?.PlayWalk();
     }
 
     private void OnDrawGizmosSelected()

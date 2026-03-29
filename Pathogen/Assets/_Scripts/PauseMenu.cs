@@ -69,6 +69,7 @@ public class PauseMenu : MonoBehaviour
 
     private void OnMainMenu()
     {
+        TimeScaleManager.UnfreezeAll();
         SceneManager.LoadScene("MainMenu");
     }
 
