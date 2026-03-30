@@ -4,21 +4,22 @@ using System.Collections;
 [RequireComponent(typeof(Rigidbody2D))]
 public class AnomalyStalker : MonoBehaviour, IDamageable
 {
+
     [Header("Stats")]
     [SerializeField] private float maxHealth = 150f;
     [SerializeField] private float patrolSpeed = 1.5f;
-    [SerializeField] private float alertSpeed = 3.5f;   
-    [SerializeField] private float chaseSpeed = 5.5f;   
+    [SerializeField] private float alertSpeed = 3.5f;   // moving to sound source
+    [SerializeField] private float chaseSpeed = 5.5f;   // full aggression speed
     [SerializeField] private float contactDamage = 35f;
     [SerializeField] private float attackWindup = 0.5f;
     [SerializeField] private float attackCooldown = 1.2f;
     [Header("Detection (Sound)")]
-    [SerializeField] private float soundRadius = 5f;    
-    [SerializeField] private float sprintSoundRadius = 10f;  
+    [SerializeField] private float soundRadius = 5f;     // walk detection radius
+    [SerializeField] private float sprintSoundRadius = 10f;    // sprint detection radius
     [SerializeField] private float attackRadius = 1.0f;
-    [SerializeField] private float loseInterestTime = 4f;     
+    [SerializeField] private float loseInterestTime = 4f;    
     [Header("Patrol")]
-    [SerializeField] private float patrolRadius = 4f;     
+    [SerializeField] private float patrolRadius = 4f;    
     [SerializeField] private float patrolWaitMin = 1f;
     [SerializeField] private float patrolWaitMax = 3f;
     [Header("Visuals")]
@@ -39,6 +40,8 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
     private float loseInterestTimer = 0f;
     private Vector2 lastSoundPos;
     private Vector2 spawnPos;
+    private float passiveTimer = 0f;
+    private float passiveInterval = 5f;
     private Transform playerTransform;
     private PlayerController playerController;
     private Rigidbody2D rb;
@@ -63,6 +66,7 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
 
     void Start()
     {
+        // Apply difficulty scaling
         if (DifficultyManager.Instance != null)
         {
             maxHealth *= DifficultyManager.Instance.HealthMultiplier;
@@ -77,10 +81,15 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
 
     void Update()
     {
+        // Passive ambient sound
+        passiveTimer -= Time.deltaTime;
+        if (passiveTimer <= 0f)
+        {
+            passiveTimer = passiveInterval + Random.Range(-1.5f, 1.5f);
+            if (state == State.Patrol) AudioManager.Instance?.PlayStalkerPassive();
+        }
         if (state == State.Dead || playerTransform == null) return;
-
         float dist = Vector2.Distance(transform.position, playerTransform.position);
-
         switch (state)
         {
             case State.Patrol:
@@ -120,6 +129,7 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
                     loseInterestTimer = 0f;
                 }
                 break;
+
             case State.Attack:
                 if (!isWinding && !isAttacking && dist > attackRadius)
                     state = State.Chase;
@@ -130,6 +140,7 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
     void FixedUpdate()
     {
         if (state == State.Dead) return;
+
         switch (state)
         {
             case State.Alert:
@@ -140,7 +151,6 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
                 break;
         }
     }
-
     private void CheckSoundDetection()
     {
         if (playerController == null) return;
@@ -154,6 +164,7 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
 
             if (state == State.Patrol || state == State.Alert)
             {
+                AudioManager.Instance?.PlayStalkerSpot();
                 state = State.Alert;
                 if (sr != null) sr.color = alertColor;
                 if (patrolCoroutine != null)
@@ -195,6 +206,7 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
             // Pick a random point near spawn
             Vector2 target = spawnPos + Random.insideUnitCircle * patrolRadius;
             float wait = Random.Range(patrolWaitMin, patrolWaitMax);
+
             // Walk toward target
             float timeout = 3f;
             while (state == State.Patrol &&
@@ -206,6 +218,7 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
                 timeout -= Time.fixedDeltaTime;
                 yield return new WaitForFixedUpdate();
             }
+
             // Wait at point
             float waited = 0f;
             while (state == State.Patrol && waited < wait)
@@ -226,6 +239,7 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
     {
         BlockingSystem.Instance?.NotifyIncomingAttack(attackWindup);
         isWinding = true;
+        AudioManager.Instance?.PlayStalkerWindup();
         if (sr != null) sr.color = windupColor;
         yield return new WaitForSeconds(attackWindup);
         if (sr != null) sr.color = chaseColor;
@@ -237,6 +251,7 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
             if (blocked) HUDFeedback.Instance?.ShowInfo("Attack blocked!");
             else
             {
+                AudioManager.Instance?.PlayStalkerAttack();
                 PlayerController.LocalInstance?.TakeDamage(contactDamage);
                 HUDFeedback.Instance?.ShowWarning($"Stalker hit! -{contactDamage} HP");
             }
@@ -265,7 +280,9 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
         if (attackCoroutine != null) { StopCoroutine(attackCoroutine); attackCoroutine = null; }
         if (patrolCoroutine != null) { StopCoroutine(patrolCoroutine); patrolCoroutine = null; }
         if (sr != null) sr.color = normalColor;
+
         Vector2 lootPos = transform.position;
+
         if (sr != null)
         {
             float elapsed = 0f;

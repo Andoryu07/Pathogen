@@ -158,6 +158,7 @@ public class WeaponHUD : MonoBehaviour
         isReloading = true;
         float duration = equippedWeaponItem.GetReloadDuration();
         HUDFeedback.Instance?.ShowInfo($"Reloading... ({duration:F1}s)");
+        AudioManager.Instance?.PlayPistolReload();
         yield return new WaitForSecondsRealtime(duration);
         if (equippedWeaponItem == null) { isReloading = false; yield break; }
         int loaded = equippedWeaponItem.Reload();

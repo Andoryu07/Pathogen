@@ -178,6 +178,7 @@ public class InventoryUIManager : MonoBehaviour
 
     private void SwitchTab(ActiveTab tab)
     {
+        AudioManager.Instance?.PlayInventoryTab();
         activeTab = tab;
         inventoryGridPanel.SetActive(tab == ActiveTab.Inventory);
         documentsPanel.SetActive(tab == ActiveTab.Documents);
@@ -201,6 +202,7 @@ public class InventoryUIManager : MonoBehaviour
         if (inventoryPanel.activeSelf)
         {
             TimeScaleManager.Freeze(this);
+            AudioManager.Instance?.PlayInventoryOpen();
             RefreshInventoryGrid(); SwitchTab(activeTab);
             RefreshWalletDisplay();
             WeaponHUD.Instance?.Hide();
@@ -208,6 +210,7 @@ public class InventoryUIManager : MonoBehaviour
         else
         {
             TimeScaleManager.Unfreeze(this);
+            AudioManager.Instance?.PlayInventoryClose();
             clickPanel.SetActive(false); hoverPanel.SetActive(false); CancelDrag();
             WeaponHUD.Instance?.Show();
             WeaponHUD.Instance?.RefreshAmmoText();

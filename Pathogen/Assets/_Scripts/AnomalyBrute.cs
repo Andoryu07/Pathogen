@@ -4,9 +4,8 @@ using System.Collections;
 [RequireComponent(typeof(Rigidbody2D))]
 public class AnomalyBrute : MonoBehaviour, IDamageable
 {
-
     [Header("Stats")]
-    [SerializeField] private float maxHealth = 600f; 
+    [SerializeField] private float maxHealth = 600f;  
     [SerializeField] private float moveSpeed = 1.2f;  
     [SerializeField] private float slamDamage = 60f;    
     [SerializeField] private float slamWindup = 1.8f;   
@@ -14,7 +13,6 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
     [Header("Radii")]
     [SerializeField] private float detectionRadius = 8f;
     [SerializeField] private float slamRadius = 1.6f;   
-
     [Header("Screen Shake (hook for camera system)")]
     [SerializeField] private float shakeMagnitude = 0.3f;
     [SerializeField] private float shakeDuration = 0.4f;
@@ -24,13 +22,14 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
     [SerializeField] private Color windupColor2 = new Color(1.0f, 0.1f, 0.1f, 1f); // red pulse
     [SerializeField] private Color slamColor = Color.white;
     [SerializeField] private float deathDelay = 2.0f;   
-
     private enum State { Idle, Chase, WindUp, Dead }
     private State state = State.Idle;
     private float currentHealth;
     private bool isAttacking = false;
     private Coroutine attackCoroutine = null;
     private Coroutine deathCoroutine = null;
+    private float passiveTimer = 0f;
+    private float passiveInterval = 5f;
     private Transform playerTransform;
     private Rigidbody2D rb;
     private SpriteRenderer sr;
@@ -53,6 +52,7 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
 
     void Start()
     {
+        // Apply difficulty scaling
         if (DifficultyManager.Instance != null)
         {
             maxHealth *= DifficultyManager.Instance.HealthMultiplier;
@@ -64,15 +64,21 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
 
     void Update()
     {
+        // Passive ambient sound
+        passiveTimer -= Time.deltaTime;
+        if (passiveTimer <= 0f)
+        {
+            passiveTimer = passiveInterval + Random.Range(-1.5f, 1.5f);
+            if (state == State.Idle) AudioManager.Instance?.PlayBrutePassive();
+        }
         if (state == State.Dead || playerTransform == null) return;
-
         float dist = Vector2.Distance(transform.position, playerTransform.position);
-
         switch (state)
         {
             case State.Idle:
                 if (dist <= detectionRadius)
                 {
+                    AudioManager.Instance?.PlayBruteSpot();
                     state = State.Chase;
                     HUDFeedback.Instance?.ShowWarning("A Brute is approaching...");
                 }
@@ -89,6 +95,7 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
                     state = State.Idle;
                 }
                 break;
+
             case State.WindUp:
                 // SlamRoutine handles this
                 break;
@@ -106,9 +113,14 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
 
     private IEnumerator SlamRoutine()
     {
+        // Notify blocking system at start of windup
         BlockingSystem.Instance?.NotifyIncomingAttack(slamWindup);
+        AudioManager.Instance?.PlayBruteWindup();
+
+        // Pulse between two colours during windup to telegraph the attack
         float elapsed = 0f;
         float pulseRate = 4f;
+
         while (elapsed < slamWindup)
         {
             elapsed += Time.deltaTime;
@@ -119,8 +131,8 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
             }
             yield return null;
         }
-        // SLAM
         if (sr != null) sr.color = slamColor;
+
         float dist = Vector2.Distance(transform.position, playerTransform.position);
         if (dist <= slamRadius)
         {
@@ -130,13 +142,19 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
             else
             {
                 PlayerController.LocalInstance?.TakeDamage(slamDamage);
+                AudioManager.Instance?.PlayBruteAttack();
                 HUDFeedback.Instance?.ShowWarning($"BRUTE SLAM! -{slamDamage} HP");
             }
         }
+
+        // Camera shake hook — plug CameraShake.Instance?.Shake() here when built
         TriggerScreenShake();
+
         yield return new WaitForSeconds(0.2f);
         if (sr != null) sr.color = normalColor;
+
         yield return new WaitForSeconds(slamCooldown);
+
         isAttacking = false;
         attackCoroutine = null;
         if (state == State.WindUp) state = State.Chase;
@@ -147,7 +165,6 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
         CameraShake.Instance?.Shake(shakeMagnitude, shakeDuration);
         Debug.Log($"[Brute] Screen shake triggered — magnitude:{shakeMagnitude} duration:{shakeDuration}");
     }
-
     public void TakeDamage(float damage)
     {
         if (state == State.Dead) return;
@@ -155,19 +172,24 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
 
         if (state == State.Idle) state = State.Chase;
         if (sr != null) StartCoroutine(DamageFlash());
+
+        // Show HP remaining as feedback since Brute is a mini-boss
         float hpPercent = (currentHealth / maxHealth) * 100f;
         Debug.Log($"[Brute] Took {damage} dmg — {hpPercent:F0}% HP remaining.");
+
         if (currentHealth <= 0f && deathCoroutine == null)
             deathCoroutine = StartCoroutine(DieRoutine());
     }
-
     private IEnumerator DieRoutine()
     {
         state = State.Dead;
         if (attackCoroutine != null) { StopCoroutine(attackCoroutine); attackCoroutine = null; }
         if (sr != null) sr.color = normalColor;
+
+        // Brute death — slower dramatic fade
         Vector2 lootPos = transform.position;
-        TriggerScreenShake(); 
+        TriggerScreenShake(); // final death thud
+
         if (sr != null)
         {
             float elapsed = 0f;
@@ -185,6 +207,7 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
         }
         else yield return new WaitForSeconds(deathDelay);
 
+        AudioManager.Instance?.PlayBruteDeath();
         Debug.Log("[Brute] Reporting kill — tag:" + gameObject.tag + " QuestManager exists:" + (QuestManager.Instance != null));
         QuestManager.Instance?.ReportEnemyKill(gameObject.tag);
         PersistentEnemy pe = GetComponent<PersistentEnemy>();

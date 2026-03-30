@@ -1,7 +1,5 @@
 using UnityEngine;
 /// Central audio manager. Handles SFX and music
-/// Stackable = multiple instances overlap (e.g. UI clicks)
-/// Non-stackable = stops previous instance before playing (e.g. footsteps, reload)
 public class AudioManager : MonoBehaviour
 {
     public static AudioManager Instance { get; private set; }
@@ -26,21 +24,23 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip inventoryTabClip;
     [SerializeField] private float inventoryVolume = 0.4f;
     [Header("Items")]
-    [SerializeField] private AudioClip itemEquipClip;    
-    [SerializeField] private AudioClip itemUseClip;     
-    [SerializeField] private AudioClip itemPickupClip;   
+    [SerializeField] private AudioClip itemEquipClip;    // equipping a weapon
+    [SerializeField] private AudioClip itemUseClip;      // using/consuming an item
+    [SerializeField] private AudioClip itemPickupClip;   // picking up world item
     [SerializeField] private float itemVolume = 0.5f;
     [Header("Audio Sources")]
     [SerializeField] private AudioSource movementSource;
     [SerializeField] private AudioSource nonStackSource;  
-    [SerializeField] private AudioSource[] sfxPool;        
+    [SerializeField] private AudioSource[] sfxPool;         
     private enum MovementState { None, Walk, Crouch, Sprint }
     private MovementState currentMovement = MovementState.None;
+
     void Awake()
     {
         if (Instance == null) { Instance = this; DontDestroyOnLoad(gameObject); }
         else { Destroy(gameObject); return; }
     }
+
     public void PlayWalk() => SetMovement(MovementState.Walk);
     public void PlayCrouch() => SetMovement(MovementState.Crouch);
     public void PlaySprint() => SetMovement(MovementState.Sprint);
@@ -62,6 +62,7 @@ public class AudioManager : MonoBehaviour
         movementSource.loop = true;
         movementSource.Play();
     }
+
     public void PlayPistolFire() => PlayStackable(pistolFireClip, pistolFireVolume);
     public void PlayPistolReload() => PlayNonStack(pistolReloadClip, pistolReloadVolume);
     public void PlayCrowbarSwing() => PlayStackable(crowbarSwingClip, crowbarSwingVolume);
@@ -71,6 +72,57 @@ public class AudioManager : MonoBehaviour
     public void PlayItemEquip() => PlayNonStack(itemEquipClip, itemVolume);
     public void PlayItemUse() => PlayNonStack(itemUseClip, itemVolume);
     public void PlayItemPickup() => PlayStackable(itemPickupClip, itemVolume);
+
+    [Header("Enemy - Infected")]
+    [SerializeField] private AudioClip infectedPassiveClip;
+    [SerializeField] private AudioClip infectedSpotClip;
+    [SerializeField] private AudioClip infectedWindupClip;
+    [SerializeField] private AudioClip infectedAttackClip;
+    [SerializeField] private AudioClip infectedDeathClip;
+    [SerializeField] private float infectedVolume = 0.6f;
+    [Header("Enemy - Stalker")]
+    [SerializeField] private AudioClip stalkerPassiveClip;
+    [SerializeField] private AudioClip stalkerSpotClip;
+    [SerializeField] private AudioClip stalkerWindupClip;
+    [SerializeField] private AudioClip stalkerAttackClip;
+    [SerializeField] private AudioClip stalkerDeathClip;
+    [SerializeField] private float stalkerVolume = 0.6f;
+    [Header("Enemy - Leaper")]
+    [SerializeField] private AudioClip leaperPassiveClip;
+    [SerializeField] private AudioClip leaperSpotClip;
+    [SerializeField] private AudioClip leaperWindupClip;
+    [SerializeField] private AudioClip leaperAttackClip;
+    [SerializeField] private AudioClip leaperDeathClip;
+    [SerializeField] private float leaperVolume = 0.6f;
+    [Header("Enemy - Brute")]
+    [SerializeField] private AudioClip brutePassiveClip;
+    [SerializeField] private AudioClip bruteSpotClip;
+    [SerializeField] private AudioClip bruteWindupClip;
+    [SerializeField] private AudioClip bruteAttackClip;
+    [SerializeField] private AudioClip bruteDeathClip;
+    [SerializeField] private float bruteVolume = 0.7f;
+
+    public void PlayInfectedPassive() => PlayStackable(infectedPassiveClip, infectedVolume);
+    public void PlayInfectedSpot() => PlayStackable(infectedSpotClip, infectedVolume);
+    public void PlayInfectedWindup() => PlayStackable(infectedWindupClip, infectedVolume);
+    public void PlayInfectedAttack() => PlayStackable(infectedAttackClip, infectedVolume);
+    public void PlayInfectedDeath() => PlayStackable(infectedDeathClip, infectedVolume);
+    public void PlayStalkerPassive() => PlayStackable(stalkerPassiveClip, stalkerVolume);
+    public void PlayStalkerSpot() => PlayStackable(stalkerSpotClip, stalkerVolume);
+    public void PlayStalkerWindup() => PlayStackable(stalkerWindupClip, stalkerVolume);
+    public void PlayStalkerAttack() => PlayStackable(stalkerAttackClip, stalkerVolume);
+    public void PlayStalkerDeath() => PlayStackable(stalkerDeathClip, stalkerVolume);
+    public void PlayLeaperPassive() => PlayStackable(leaperPassiveClip, leaperVolume);
+    public void PlayLeaperSpot() => PlayStackable(leaperSpotClip, leaperVolume);
+    public void PlayLeaperWindup() => PlayStackable(leaperWindupClip, leaperVolume);
+    public void PlayLeaperAttack() => PlayStackable(leaperAttackClip, leaperVolume);
+    public void PlayLeaperDeath() => PlayStackable(leaperDeathClip, leaperVolume);
+    public void PlayBrutePassive() => PlayStackable(brutePassiveClip, bruteVolume);
+    public void PlayBruteSpot() => PlayStackable(bruteSpotClip, bruteVolume);
+    public void PlayBruteWindup() => PlayStackable(bruteWindupClip, bruteVolume);
+    public void PlayBruteAttack() => PlayStackable(bruteAttackClip, bruteVolume);
+    public void PlayBruteDeath() => PlayStackable(bruteDeathClip, bruteVolume);
+
     public void PlaySFX(AudioClip clip, float volume = 1f, bool stackable = true)
     {
         if (clip == null) return;
@@ -92,6 +144,7 @@ public class AudioManager : MonoBehaviour
         if (sfxPool.Length > 0 && sfxPool[0] != null)
             sfxPool[0].PlayOneShot(clip, volume);
     }
+
     private void PlayNonStack(AudioClip clip, float volume)
     {
         if (clip == null || nonStackSource == null) return;

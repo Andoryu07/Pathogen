@@ -140,9 +140,8 @@ public class AimSystem : MonoBehaviour
         // Delegate mag check and consumption to WeaponHUD
         bool fired = WeaponHUD.Instance != null && WeaponHUD.Instance.TryFirePublic();
         if (!fired) return;
-
+        AudioManager.Instance?.PlayPistolFire();
         fireCooldown = equippedWeapon.data.fireRate;
-
         Vector2 origin = transform.position;
         Vector2 mouseWorld = mainCamera.ScreenToWorldPoint(Input.mousePosition);
         Vector2 direction = (mouseWorld - origin).normalized;

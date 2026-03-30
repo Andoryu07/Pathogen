@@ -12,7 +12,7 @@ public class Lock : InteractableBase
 {
     [Header("Lock Settings")]
     [SerializeField] private LockType lockType = LockType.KeyItem;
-    [SerializeField] private bool isLocked = true;
+    [SerializeField] public bool isLocked = true;
     [Header("Key Item Settings")]
     [SerializeField] private string requiredItemName;
     [SerializeField] private bool consumeItem = true;

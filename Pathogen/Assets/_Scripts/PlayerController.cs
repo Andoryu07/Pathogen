@@ -267,6 +267,7 @@ public class PlayerController : MonoBehaviour
     public void EquipWeapon(Item weapon)
     {
         equippedWeapon = weapon;
+        AudioManager.Instance?.PlayItemEquip();
         // Apply any accumulated talisman bonuses to the newly equipped weapon
         if (weapon != null)
         {

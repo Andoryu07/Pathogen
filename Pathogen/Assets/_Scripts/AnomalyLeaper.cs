@@ -1,12 +1,12 @@
 using UnityEngine;
 using System.Collections;
-/// LEAPER anomaly — extremely fast, low HP, spider-like movement
+/// LEAPER anomaly
 [RequireComponent(typeof(Rigidbody2D))]
 public class AnomalyLeaper : MonoBehaviour, IDamageable
 {
     [Header("Stats")]
     [SerializeField] private float maxHealth = 45f;   
-    [SerializeField] private float scurrySpeed = 7f;    
+    [SerializeField] private float scurrySpeed = 7f;     
     [SerializeField] private float contactDamage = 20f;
     [SerializeField] private float attackWindup = 0.25f;  
     [SerializeField] private float attackCooldown = 0.8f;
@@ -15,12 +15,12 @@ public class AnomalyLeaper : MonoBehaviour, IDamageable
     [SerializeField] private float lungeRadius = 4f;    
     [SerializeField] private float attackRadius = 0.8f;
     [Header("Lunge")]
-    [SerializeField] private float lungeSpeed = 18f;
-    [SerializeField] private float lungeDuration = 0.25f;
+    [SerializeField] private float lungeSpeed = 18f;   // burst speed during lunge
+    [SerializeField] private float lungeDuration = 0.25f; // how long the lunge lasts
     [SerializeField] private float lungeCooldown = 2f;
     [Header("Erratic Movement")]
-    [SerializeField] private float directionChangeInterval = 0.3f; 
-    [SerializeField] private float erraticStrength = 0.4f;
+    [SerializeField] private float directionChangeInterval = 0.3f; // seconds between direction shifts
+    [SerializeField] private float erraticStrength = 0.4f; // 0=straight, 1=very erratic
     [Header("Visuals")]
     [SerializeField] private Color normalColor = new Color(0.2f, 0.6f, 0.2f, 1f); // green
     [SerializeField] private Color lungeColor = new Color(1f, 1f, 0.1f, 1f); // yellow flash
@@ -39,6 +39,8 @@ public class AnomalyLeaper : MonoBehaviour, IDamageable
     private Coroutine attackCoroutine = null;
     private Coroutine deathCoroutine = null;
     private Coroutine lungeCoroutine = null;
+    private float passiveTimer = 0f;
+    private float passiveInterval = 5f;
     private Transform playerTransform;
     private Rigidbody2D rb;
     private SpriteRenderer sr;
@@ -61,6 +63,7 @@ public class AnomalyLeaper : MonoBehaviour, IDamageable
 
     void Start()
     {
+        // Apply difficulty scaling
         if (DifficultyManager.Instance != null)
         {
             maxHealth *= DifficultyManager.Instance.HealthMultiplier;
@@ -72,21 +75,28 @@ public class AnomalyLeaper : MonoBehaviour, IDamageable
 
     void Update()
     {
+        // Passive ambient sound
+        passiveTimer -= Time.deltaTime;
+        if (passiveTimer <= 0f)
+        {
+            passiveTimer = passiveInterval + Random.Range(-1.5f, 1.5f);
+            if (state == State.Idle || state == State.Scurry) AudioManager.Instance?.PlayLeaperPassive();
+        }
         if (state == State.Dead || playerTransform == null) return;
-
         float dist = Vector2.Distance(transform.position, playerTransform.position);
         lungeCooldownTimer -= Time.deltaTime;
-
         switch (state)
         {
             case State.Idle:
-                if (dist <= detectionRadius) state = State.Scurry;
+                if (dist <= detectionRadius) { AudioManager.Instance?.PlayLeaperSpot(); state = State.Scurry; }
                 break;
             case State.Scurry:
                 if (dist > detectionRadius) { state = State.Idle; break; }
+
                 // Close enough to attack
                 if (dist <= attackRadius && !isAttacking)
                 {
+                    AudioManager.Instance?.PlayLeaperWindup();
                     state = State.Attack;
                     isAttacking = true;
                     attackCoroutine = StartCoroutine(AttackRoutine());
@@ -99,6 +109,7 @@ public class AnomalyLeaper : MonoBehaviour, IDamageable
                     lungeCoroutine = StartCoroutine(LungeRoutine());
                     break;
                 }
+
                 // Erratic direction update
                 dirChangeTimer -= Time.deltaTime;
                 if (dirChangeTimer <= 0f)
@@ -109,15 +120,18 @@ public class AnomalyLeaper : MonoBehaviour, IDamageable
                     moveDir = Vector2.Lerp(toPlayer, random, erraticStrength).normalized;
                 }
                 break;
+
             case State.Lunge:
                 // Handled by LungeRoutine
                 break;
+
             case State.Attack:
                 if (!isWinding && !isAttacking && dist > attackRadius)
                     state = State.Scurry;
                 break;
         }
     }
+
     void FixedUpdate()
     {
         if (state == State.Dead) return;
@@ -129,8 +143,10 @@ public class AnomalyLeaper : MonoBehaviour, IDamageable
     {
         isLunging = true;
         if (sr != null) sr.color = lungeColor;
+
         Vector2 lungeDir = ((Vector2)playerTransform.position - rb.position).normalized;
         float elapsed = 0f;
+
         while (elapsed < lungeDuration)
         {
             rb.MovePosition(rb.position + lungeDir * lungeSpeed * Time.fixedDeltaTime);
@@ -141,10 +157,12 @@ public class AnomalyLeaper : MonoBehaviour, IDamageable
             if (Vector2.Distance(transform.position, playerTransform.position) <= attackRadius)
                 break;
         }
+
         if (sr != null) sr.color = normalColor;
         isLunging = false;
         lungeCooldownTimer = lungeCooldown;
         lungeCoroutine = null;
+
         // Check if we're close enough to attack after lunge
         if (Vector2.Distance(transform.position, playerTransform.position) <= attackRadius
             && !isAttacking)
@@ -166,22 +184,24 @@ public class AnomalyLeaper : MonoBehaviour, IDamageable
         yield return new WaitForSeconds(attackWindup);
         if (sr != null) sr.color = normalColor;
         isWinding = false;
+
         if (Vector2.Distance(transform.position, playerTransform.position) <= attackRadius)
         {
             bool blocked = BlockingSystem.Instance != null && BlockingSystem.Instance.IsBlocking;
             if (blocked) HUDFeedback.Instance?.ShowInfo("Attack blocked!");
             else
             {
+                AudioManager.Instance?.PlayLeaperAttack();
                 PlayerController.LocalInstance?.TakeDamage(contactDamage);
                 HUDFeedback.Instance?.ShowWarning($"Leaper hit! -{contactDamage} HP");
             }
         }
+
         yield return new WaitForSeconds(attackCooldown);
         isAttacking = false;
         attackCoroutine = null;
         if (state == State.Attack) state = State.Scurry;
     }
-
     public void TakeDamage(float damage)
     {
         if (state == State.Dead) return;
@@ -194,6 +214,7 @@ public class AnomalyLeaper : MonoBehaviour, IDamageable
 
     private IEnumerator DieRoutine()
     {
+        AudioManager.Instance?.PlayLeaperDeath();
         state = State.Dead;
         if (attackCoroutine != null) { StopCoroutine(attackCoroutine); attackCoroutine = null; }
         if (lungeCoroutine != null) { StopCoroutine(lungeCoroutine); lungeCoroutine = null; }

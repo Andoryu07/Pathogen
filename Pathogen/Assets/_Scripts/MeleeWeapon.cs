@@ -26,6 +26,7 @@ public class MeleeWeapon : MonoBehaviour
     {
         if (Time.time - lastAttackTime < attackCooldown) return false;
         lastAttackTime = Time.time;
+        AudioManager.Instance?.PlayCrowbarSwing();
         PerformAttack(direction);
         return true;
     }

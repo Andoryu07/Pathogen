@@ -103,6 +103,7 @@ public class Item : InteractableBase
             if (leftover < toAdd)
             {
                 WeaponHUD.Instance?.RefreshAmmoText();
+                AudioManager.Instance?.PlayItemPickup();
                 if (leftover > 0)
                     HUDFeedback.Instance?.ShowWarning(
                         $"Picked up {toAdd - leftover}/{toAdd} — inventory full!");
