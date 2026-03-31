@@ -12,6 +12,8 @@ public class SearchSpot : InteractableBase
     [SerializeField] private List<GameObject> fixedItemPrefabs = new List<GameObject>();
     [Header("Random Loot Table (optional)")]
     [SerializeField] private List<LootEntry> randomLoot = new List<LootEntry>();
+    [Header("Persistence")]
+    [SerializeField] private string spotID = "";
     [Header("UI References (shared SearchSpot UI panel)")]
     [SerializeField] private GameObject searchPanel;
     [SerializeField] private TextMeshProUGUI titleText;
@@ -52,23 +54,23 @@ public class SearchSpot : InteractableBase
 
     public override void Interact()
     {
-        if (lockComponent != null)
-        {
-            lockComponent.Interact();
-        }
-        // Check lock first
         if (lockComponent != null && lockComponent.isLocked)
         {
-            HUDFeedback.Instance?.ShowWarning(spotName + " is locked.");
-            return;
+            lockComponent.Interact();
+            if (!lockComponent.isLocked)
+            {
+                promptMessage = "E - Search " + spotName;
+            }
+            else
+            {
+                return;
+            }
         }
         if (!isRevealed)
         {
             RevealContents();
             return;
         }
-
-        // Already revealed — open the panel if not open
         if (!isOpen) Open();
     }
     private void RevealContents()
@@ -207,7 +209,37 @@ public class SearchSpot : InteractableBase
             if (col != null) col.enabled = false;
         }
     }
+    public SavedSearchSpot GetSaveState()
+    {
+        var state = new SavedSearchSpot { spotID = spotID, isRevealed = isRevealed };
+        foreach (var item in spawnedItems)
+            state.remainingItems.Add(item.GetItemName());
+        return state;
+    }
+
+    public void LoadSaveState(SavedSearchSpot state)
+    {
+        if (state == null || !state.isRevealed) return;
+        isRevealed = true;
+
+        // Respawn only the remaining items
+        spawnedItems.Clear();
+        ItemRegistry registry = ItemRegistry.Instance;
+        if (registry == null) return;
+        foreach (var name in state.remainingItems)
+        {
+            GameObject prefab = registry.GetPrefab(name);
+            if (prefab == null) continue;
+            GameObject go = Instantiate(prefab);
+            Item item = go.GetComponent<Item>();
+            if (item != null) { go.SetActive(false); spawnedItems.Add(item); }
+            else Destroy(go);
+        }
+        // If no items remain, deactivate
+        if (spawnedItems.Count == 0) CheckDeactivate();
+    }
 }
+
 
 [System.Serializable]
 public class LootEntry

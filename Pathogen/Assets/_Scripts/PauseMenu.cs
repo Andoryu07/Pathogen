@@ -11,6 +11,8 @@ public class PauseMenu : MonoBehaviour
 
     [Header("Panel")]
     [SerializeField] private GameObject pausePanel;
+    [Header("Confirmation UI")]
+    [SerializeField] private ConfirmationPanel confirmationPanel;
     [Header("Buttons")]
     [SerializeField] private Button continueButton;
     [SerializeField] private Button settingsButton;
@@ -40,7 +42,11 @@ public class PauseMenu : MonoBehaviour
         // Only open pause with Escape if no other UI is blocking
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (IsPaused)
+            if (confirmationPanel != null && confirmationPanel.gameObject.activeSelf)
+            {
+                confirmationPanel.Close();
+            }
+            else if (IsPaused)
                 Resume();
             else if (!IsAnyBlockingUIOpen())
                 Pause();
@@ -57,6 +63,7 @@ public class PauseMenu : MonoBehaviour
     public void Resume()
     {
         pausePanel.SetActive(false);
+        if (confirmationPanel != null) confirmationPanel.gameObject.SetActive(false);
         TimeScaleManager.Unfreeze(this);
         WeaponHUD.Instance?.Show();
         WeaponHUD.Instance?.RefreshAmmoText();
@@ -69,11 +76,22 @@ public class PauseMenu : MonoBehaviour
 
     private void OnMainMenu()
     {
-        TimeScaleManager.UnfreezeAll();
-        SceneManager.LoadScene("MainMenu");
+        pausePanel.SetActive(false);
+        confirmationPanel.Open(PerformMainMenu, () => pausePanel.SetActive(true));
     }
 
     private void OnQuit()
+    {
+        pausePanel.SetActive(false);
+        confirmationPanel.Open(PerformQuit, () => pausePanel.SetActive(true));
+
+    }
+    private void PerformMainMenu()
+    {
+        TimeScaleManager.UnfreezeAll();
+        SceneManager.LoadScene("MainMenu");
+    }
+    private void PerformQuit()
     {
         Debug.Log("[PauseMenu] Quit requested.");
         Application.Quit();
@@ -81,9 +99,9 @@ public class PauseMenu : MonoBehaviour
         UnityEditor.EditorApplication.isPlaying = false;
 #endif
     }
-
     private static bool IsAnyBlockingUIOpen()
     {
+        if (Instance != null && Instance.confirmationPanel != null && Instance.confirmationPanel.gameObject.activeSelf) return true;
         if (InventoryUIManager.Instance != null && InventoryUIManager.Instance.IsOpen) return true;
         if (StoreboxUIManager.Instance != null && StoreboxUIManager.Instance.IsOpen) return true;
         if (CodePadUI.Instance != null && CodePadUI.Instance.IsOpen) return true;

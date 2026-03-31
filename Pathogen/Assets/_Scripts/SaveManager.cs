@@ -166,7 +166,13 @@ public class SaveManager : MonoBehaviour
             data.collectedPickupIDs = WorldPersistenceManager.Instance.GetCollectedPickupIDs();
             data.unlockedLockIDs = WorldPersistenceManager.Instance.GetUnlockedLockIDs();
         }
-
+        data.searchSpotStates.Clear();
+        foreach (var spot in FindObjectsOfType<SearchSpot>())
+        {
+            var state = spot.GetSaveState();
+            if (state.isRevealed)  // only save spots that have been interacted with
+                data.searchSpotStates.Add(state);
+        }
         return data;
     }
 
@@ -257,6 +263,18 @@ public class SaveManager : MonoBehaviour
             data.deadEnemyIDs,
             data.collectedPickupIDs,
             data.unlockedLockIDs);
+        foreach (var savedState in data.searchSpotStates)
+        {
+            foreach (var spot in FindObjectsOfType<SearchSpot>())
+            {
+                // Match by spotID field — make sure each SearchSpot has a unique spotID set
+                if (spot.GetSaveState().spotID == savedState.spotID)
+                {
+                    spot.LoadSaveState(savedState);
+                    break;
+                }
+            }
+        }
         // Difficulty
         DifficultyManager.Instance?.SetDifficulty((Difficulty)data.difficulty);
         // Playtime

@@ -130,26 +130,26 @@ public class Lock : InteractableBase
     private void Unlock()
     {
         Debug.Log("Unlocked!");
-
+        isLocked = false;
+        //Checks if its a searchspot
+        if (GetComponent<SearchSpot>() != null)
+        {
+            promptMessage = "E - Search";
+            return;
+        }
         if (targetObject != null)
         {
             if (deactivateTargetOnUnlock)
-            {
                 targetObject.SetActive(false);
-            }
             else
             {
-                Collider2D col = targetObject.GetComponent<Collider2D>();
-                if (col != null) col.enabled = false;
+                Collider2D targetCol = targetObject.GetComponent<Collider2D>();
+                if (targetCol != null) targetCol.enabled = false;
             }
         }
-        else
-        {
-            gameObject.SetActive(false);
-        }
-
         Collider2D myCol = GetComponent<Collider2D>();
         if (myCol != null) myCol.enabled = false;
+
         promptMessage = "Unlocked";
     }
 }

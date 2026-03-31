@@ -49,6 +49,8 @@ public class SaveData
     public List<string> deadEnemyIDs = new List<string>();
     public List<string> collectedPickupIDs = new List<string>();
     public List<string> unlockedLockIDs = new List<string>();
+    public List<SavedSearchSpot> searchSpotStates = new List<SavedSearchSpot>();
+
 }
 
 [Serializable]
@@ -81,4 +83,12 @@ public class SavedTutorial
 {
     public string title = "";
     public string body = "";
+}
+
+[Serializable]
+public class SavedSearchSpot
+{
+    public string spotID = "";
+    public bool isRevealed = false;
+    public List<string> remainingItems = new List<string>();
 }
