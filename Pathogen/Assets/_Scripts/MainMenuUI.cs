@@ -10,6 +10,7 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private Button continueButton;
     [SerializeField] private Button newGameButton;
     [SerializeField] private Button loadGameButton;
+    [SerializeField] private Button settingsButton;
     [SerializeField] private Button quitButton;
     [Header("Difficulty Panel")]
     [SerializeField] private GameObject difficultyPanel;
@@ -19,52 +20,84 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI descriptionText;
     [SerializeField] private Button backButton;
     [Header("Scene")]
-    [SerializeField] private string gameSceneName = "Prototype";
-    [SerializeField] private GameObject loadGamePanel; 
+    [SerializeField] private GameObject mainMenuCanvasOrPanel;  // the main menu UI root to hide
+    [SerializeField] private GameObject gameUIPanel;
+    [SerializeField] private GameObject settingsPanel;
+    [SerializeField] private MainMenuLoadUI loadGameUI;
 
-
+    [SerializeField] private GameObject pausepanel;
+    public static MainMenuUI Instance { get; private set; }
+    public bool IsMenuOpen => mainMenuCanvasOrPanel != null && mainMenuCanvasOrPanel.activeSelf;
+    
+    void Awake()
+    {
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
+    }
     void Start()
     {
-        TimeScaleManager.UnfreezeAll();
+        AudioManager.Instance?.StopMovement();
+        PlayerController.LocalInstance?.SetMovementEnabled(false);
+        TimeScaleManager.Freeze(this);
+        mainMenuCanvasOrPanel.SetActive(true);
         mainMenuPanel.SetActive(true);
         difficultyPanel.SetActive(false);
+        if (settingsPanel != null) settingsPanel.SetActive(false);
+        if (loadGameUI != null) loadGameUI.gameObject.SetActive(false);
+        gameUIPanel.SetActive(false);
         if (newGameButton != null) newGameButton.onClick.AddListener(OnNewGame);
+        if (continueButton != null) continueButton.onClick.AddListener(OnContinue);
         if (loadGameButton != null) loadGameButton.onClick.AddListener(OnLoadGame);
+        if (settingsButton != null) settingsButton.onClick.AddListener(OnSettings);
         if (quitButton != null) quitButton.onClick.AddListener(OnQuit);
         if (casualButton != null) casualButton.onClick.AddListener(() => OnDifficultySelected(Difficulty.Casual));
         if (normalButton != null) normalButton.onClick.AddListener(() => OnDifficultySelected(Difficulty.Normal));
         if (hardcoreButton != null) hardcoreButton.onClick.AddListener(() => OnDifficultySelected(Difficulty.Hardcore));
         if (backButton != null) backButton.onClick.AddListener(OnBack);
-        if (continueButton != null)
-        {
-            continueButton.onClick.AddListener(OnContinue);
-            // Hide continue button if no save exists
-            continueButton.gameObject.SetActive(FindMostRecentSlot() >= 0);
-        }
-        if (loadGameButton != null)
-            loadGameButton.gameObject.SetActive(HasAnySave());
-        // Show descriptions on hover
         if (casualButton != null) AddHoverDescription(casualButton, Difficulty.Casual);
         if (normalButton != null) AddHoverDescription(normalButton, Difficulty.Normal);
         if (hardcoreButton != null) AddHoverDescription(hardcoreButton, Difficulty.Hardcore);
-
-        // Set default description
         UpdateDescription(Difficulty.Normal);
+        bool hasSave = HasAnySave();
+        if (continueButton != null) continueButton.gameObject.SetActive(hasSave);
+        if (loadGameButton != null) loadGameButton.gameObject.SetActive(hasSave);
     }
     private void OnContinue()
     {
         int slot = FindMostRecentSlot();
-        if (slot < 0) return;
-        SaveManager.Instance?.SetPendingLoad(slot);
-        SceneManager.LoadScene(gameSceneName);
+        mainMenuCanvasOrPanel.SetActive(false);
+        gameUIPanel.SetActive(true);
+        pausepanel.SetActive(false);
+        TimeScaleManager.Unfreeze(this);
+        PlayerController.LocalInstance?.SetMovementEnabled(true);
+        if (slot >= 0) SaveManager.Instance?.Load(slot);
     }
 
     private void OnLoadGame()
     {
-        // Open SaveUIManager in load mode
-        SaveUIManager.Instance?.Open(isLoadMode: true);
-    }
+        mainMenuPanel.SetActive(false);
+        if (loadGameUI != null) loadGameUI.gameObject.SetActive(true);
+        pausepanel.SetActive(false);
 
+    }
+    public void OnLoadGameClosed()
+    {
+        mainMenuPanel.SetActive(true);
+    }
+    public void StartGameFromLoad(int slot)
+    {
+        mainMenuCanvasOrPanel.SetActive(false);
+        gameUIPanel.SetActive(true);
+        TimeScaleManager.Unfreeze(this);
+        PlayerController.LocalInstance?.SetMovementEnabled(true);
+        AudioManager.Instance?.StopMovement();
+        SaveManager.Instance?.Load(slot);
+    }
+    private void OnSettings()
+    {
+        mainMenuPanel.SetActive(false);
+        if (settingsPanel != null) settingsPanel.SetActive(true);
+    }
     private int FindMostRecentSlot()
     {
         if (SaveManager.Instance == null) return -1;
@@ -92,8 +125,12 @@ public class MainMenuUI : MonoBehaviour
     private void OnDifficultySelected(Difficulty d)
     {
         DifficultyManager.Instance?.SetDifficulty(d);
-        Debug.Log("[MainMenu] Starting game on difficulty: " + d);
-        SceneManager.LoadScene(gameSceneName);
+        difficultyPanel.SetActive(false);
+        mainMenuCanvasOrPanel.SetActive(false);
+        gameUIPanel.SetActive(true);
+        pausepanel.SetActive(false);
+        TimeScaleManager.Unfreeze(this);
+        PlayerController.LocalInstance?.SetMovementEnabled(true);
     }
 
     private void OnBack()
@@ -133,5 +170,17 @@ public class MainMenuUI : MonoBehaviour
         };
         entry.callback.AddListener(_ => UpdateDescription(d));
         trigger.triggers.Add(entry);
+    }
+
+    public void ShowMainMenu()
+    {
+        mainMenuCanvasOrPanel.SetActive(true);
+        mainMenuPanel.SetActive(true);
+        difficultyPanel.SetActive(false);
+        if (settingsPanel != null) settingsPanel.SetActive(false);
+        gameUIPanel.SetActive(false);
+        TimeScaleManager.Freeze(this);
+        PlayerController.LocalInstance?.SetMovementEnabled(false);
+        AudioManager.Instance?.StopMovement();
     }
 }

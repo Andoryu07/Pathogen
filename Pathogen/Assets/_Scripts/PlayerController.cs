@@ -145,6 +145,11 @@ public class PlayerController : MonoBehaviour
     }
     private void UpdateMovementAudio()
     {
+        if (MainMenuUI.Instance != null && MainMenuUI.Instance.IsMenuOpen)
+        {
+            AudioManager.Instance?.StopMovement();
+            return;
+        }
         if (!movementEnabled || moveInput.sqrMagnitude < 0.01f)
         {
             AudioManager.Instance?.StopMovement();

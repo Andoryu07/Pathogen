@@ -39,6 +39,8 @@ public class AudioManager : MonoBehaviour
     {
         if (Instance == null) { Instance = this; DontDestroyOnLoad(gameObject); }
         else { Destroy(gameObject); return; }
+        if (movementSource != null) movementSource.Stop();
+
     }
 
     public void PlayWalk() => SetMovement(MovementState.Walk);

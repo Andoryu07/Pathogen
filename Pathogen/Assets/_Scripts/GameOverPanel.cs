@@ -21,6 +21,8 @@ public class GameOverPanel : MonoBehaviour
     [SerializeField] private float fadeInDuration = 1.2f;
     [SerializeField] private CanvasGroup canvasGroup;
 
+    [SerializeField] private MainMenuUI mainMenuUI;  
+
     void Awake()
     {
         if (Instance == null) Instance = this;
@@ -76,7 +78,9 @@ public class GameOverPanel : MonoBehaviour
     }
     private void onMainMenu()
     {
-        SceneManager.LoadScene("MainMenu");
+        TimeScaleManager.UnfreezeAll();
+        panel.SetActive(false);
+        mainMenuUI.ShowMainMenu();
     }
     private void OnQuit()
     {

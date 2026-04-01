@@ -15,7 +15,7 @@ public class SaveManager : MonoBehaviour
     [SerializeField] private int maxSlots = 3;
     [SerializeField] private float playtimeAccumulator = 0f;
 
-    private int pendingLoadSlot = -1;   // -1 = no pending load
+    //private int pendingLoadSlot = -1;   // -1 = no pending load
     private string SaveDir => Path.Combine(Application.persistentDataPath, "saves");
     private string SlotPath(int slot) => Path.Combine(SaveDir, $"slot_{slot}.json");
 
@@ -31,23 +31,11 @@ public class SaveManager : MonoBehaviour
     {
         playtimeAccumulator += Time.deltaTime;
     }
-    public void SetPendingLoad(int slot) => pendingLoadSlot = slot;
+    //public void SetPendingLoad(int slot) => pendingLoadSlot = slot;
     public int MaxSlots => maxSlots;
     public float GetCurrentPlaytime() => playtimeAccumulator;
     public bool SlotExists(int slot)
         => File.Exists(SlotPath(slot));
-    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        if (pendingLoadSlot < 0 && PlayerPrefs.HasKey("PendingLoadSlot"))
-        {
-            pendingLoadSlot = PlayerPrefs.GetInt("PendingLoadSlot");
-            PlayerPrefs.DeleteKey("PendingLoadSlot");
-            PlayerPrefs.Save();
-        }
-        if (pendingLoadSlot < 0) return;
-        int slot = pendingLoadSlot;
-        pendingLoadSlot = -1;
-    }
     public SaveData ReadSlotMeta(int slot)
     {
         if (!SlotExists(slot)) return null;

@@ -9,8 +9,9 @@ public class PauseMenu : MonoBehaviour
 {
     public static PauseMenu Instance { get; private set; }
 
-    [Header("Panel")]
+    [Header("Panels")]
     [SerializeField] private GameObject pausePanel;
+    [SerializeField] private GameObject settingsPanel;
     [Header("Confirmation UI")]
     [SerializeField] private ConfirmationPanel confirmationPanel;
     [Header("Buttons")]
@@ -18,7 +19,7 @@ public class PauseMenu : MonoBehaviour
     [SerializeField] private Button settingsButton;
     [SerializeField] private Button mainMenuButton;
     [SerializeField] private Button quitButton;
-
+    [SerializeField] private MainMenuUI mainMenuUI;
     public bool IsPaused => pausePanel != null && pausePanel.activeSelf;
 
     void Awake()
@@ -64,6 +65,7 @@ public class PauseMenu : MonoBehaviour
     {
         pausePanel.SetActive(false);
         if (confirmationPanel != null) confirmationPanel.gameObject.SetActive(false);
+        if (settingsPanel != null) settingsPanel.SetActive(false);
         TimeScaleManager.Unfreeze(this);
         WeaponHUD.Instance?.Show();
         WeaponHUD.Instance?.RefreshAmmoText();
@@ -71,7 +73,13 @@ public class PauseMenu : MonoBehaviour
 
     private void OnSettings()
     {
-        HUDFeedback.Instance?.ShowInfo("Settings — coming soon.");
+        if (settingsPanel != null)
+        {
+            pausePanel.SetActive(false);
+            settingsPanel.SetActive(true);
+        }
+        else
+            HUDFeedback.Instance?.ShowInfo("Settings — coming soon.");
     }
 
     private void OnMainMenu()
@@ -89,7 +97,8 @@ public class PauseMenu : MonoBehaviour
     private void PerformMainMenu()
     {
         TimeScaleManager.UnfreezeAll();
-        SceneManager.LoadScene("MainMenu");
+        Resume();
+        mainMenuUI.ShowMainMenu();
     }
     private void PerformQuit()
     {
