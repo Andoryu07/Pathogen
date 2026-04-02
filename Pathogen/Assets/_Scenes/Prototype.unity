@@ -29973,7 +29973,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4121035452872699086, guid: 044a7a239b5b67f41b5f769951bbcbb0, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4121035452872699086, guid: 044a7a239b5b67f41b5f769951bbcbb0, type: 3}
       propertyPath: m_TagString
@@ -36768,6 +36768,243 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9cd7e1d7e62838a448fd4aeafc9cc2b7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenuSlotEntry
+--- !u!1 &1819766059
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1819766066}
+  - component: {fileID: 1819766065}
+  - component: {fileID: 1819766064}
+  - component: {fileID: 1819766063}
+  - component: {fileID: 1819766062}
+  - component: {fileID: 1819766061}
+  - component: {fileID: 1819766060}
+  m_Layer: 6
+  m_Name: VolkovBoss
+  m_TagString: Volkov
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1819766060
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1819766059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8baba58de4747f43a2a6459832e4fa7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AnomalyLootTable
+  patheosPrefab: {fileID: 8041273416702311226, guid: cdde057aa791bfa45820df490f243356, type: 3}
+  patheosMin: 500
+  patheosMax: 3000
+  rareDropPrefabs:
+  - {fileID: 747256383279408493, guid: d7c57ac5d5338b540900ba11c3da93dd, type: 3}
+  ammoDropPrefab: {fileID: 747256383279408493, guid: 894c59ec256964d4185d8079b5c0addd, type: 3}
+  ammoDropChance: 1
+  ammoDropMin: 10
+  ammoDropMax: 20
+--- !u!114 &1819766061
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1819766059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5df082c399f361c43bcecfaadd2d4ec0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PersistentEnemy
+  sceneID: Volkov
+--- !u!114 &1819766062
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1819766059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8165a868c7c4de44592304946fa2e49c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VolkovBoss
+  maxHealth: 2000
+  moveSpeed: 0.8
+  detectionRadius: 12
+  swingDamage: 60
+  swingRadius: 1
+  swingAngle: 150
+  swingWindup: 2
+  swingCooldown: 3
+  playerLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  stumpDamage: 45
+  stumpWindup: 2.5
+  stumpCooldown: 4
+  stumpFlashTime: 0.8
+  stumpProjSpeed: 5
+  stumpProjRange: 100
+  stumpProjPrefab: {fileID: 2633242322359893969, guid: 5b604a3050447f940a275763222ebcc3, type: 3}
+  tentacleDamage: 35
+  tentacleWindup: 3
+  tentacleCooldown: 5
+  tentacleSpeed: 7
+  tentacleRange: 12
+  tentacleSpread: 30
+  tentaclePrefab: {fileID: 1713019256063282915, guid: 91fa59ad63b7b4c44b85fa24d5d4e29d, type: 3}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  windupColor: {r: 1, g: 0.3, b: 0.1, a: 1}
+  phase2Color: {r: 1, g: 0.6, b: 0.2, a: 1}
+  phase3Color: {r: 0.8, g: 0.1, b: 0.1, a: 1}
+  deathDelay: 2
+  patheosPrefab: {fileID: 8041273416702311226, guid: cdde057aa791bfa45820df490f243356, type: 3}
+  patheosReward: 5000
+  keyItemDrops: []
+--- !u!58 &1819766063
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1819766059}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_Radius: 0.6
+--- !u!50 &1819766064
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1819766059}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 1
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 4
+--- !u!212 &1819766065
+SpriteRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1819766059}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_Sprite: {fileID: -9095717837082945937, guid: 207ee8102dd4143d288186ef0be518ee, type: 3}
+  m_Color: {r: 0.14320946, g: 1, b: 0, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 1, y: 2}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_MaskInteraction: 0
+  m_SpriteSortPoint: 0
+--- !u!4 &1819766066
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1819766059}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -5.55, y: 2.79, z: 0}
+  m_LocalScale: {x: 2.839055, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1824702872
 GameObject:
   m_ObjectHideFlags: 0
@@ -42540,6 +42777,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SilasNPC
       objectReference: {fileID: 0}
+    - target: {fileID: 3442220936007730223, guid: 0ff93ad8f1b00cc4bb4f2edc88692597, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3895935900538821416, guid: 0ff93ad8f1b00cc4bb4f2edc88692597, type: 3}
       propertyPath: m_Enabled
       value: 0
@@ -42659,3 +42900,4 @@ SceneRoots:
   - {fileID: 975121400}
   - {fileID: 273340218}
   - {fileID: 342960511}
+  - {fileID: 1819766066}

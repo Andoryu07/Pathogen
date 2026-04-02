@@ -9,6 +9,7 @@ TagManager:
   - Infected
   - Leaper
   - Stalker
+  - Volkov
   layers:
   - Default
   - TransparentFX

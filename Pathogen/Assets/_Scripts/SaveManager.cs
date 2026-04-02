@@ -18,6 +18,7 @@ public class SaveManager : MonoBehaviour
     //private int pendingLoadSlot = -1;   // -1 = no pending load
     private string SaveDir => Path.Combine(Application.persistentDataPath, "saves");
     private string SlotPath(int slot) => Path.Combine(SaveDir, $"slot_{slot}.json");
+    private const int NewGameSlot = 3;
 
     void Awake()
     {
@@ -26,7 +27,17 @@ public class SaveManager : MonoBehaviour
 
         Directory.CreateDirectory(SaveDir);
     }
-
+    public void SaveNewGameBaseline()
+    {
+        // Wait one frame so scene has fully initialized
+        StartCoroutine(SaveBaselineNextFrame());
+    }
+    private System.Collections.IEnumerator SaveBaselineNextFrame()
+    {
+        yield return null;
+        Save(NewGameSlot, "NewGameBaseline");
+        Debug.Log("[SaveManager] New game baseline saved.");
+    }
     void Update()
     {
         playtimeAccumulator += Time.deltaTime;

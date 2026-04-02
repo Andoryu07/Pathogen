@@ -28,7 +28,8 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private GameObject pausepanel;
     public static MainMenuUI Instance { get; private set; }
     public bool IsMenuOpen => mainMenuCanvasOrPanel != null && mainMenuCanvasOrPanel.activeSelf;
-    
+    private bool pendingNewGame = false;
+
     void Awake()
     {
         if (Instance == null) Instance = this;
@@ -118,6 +119,15 @@ public class MainMenuUI : MonoBehaviour
         => FindMostRecentSlot() >= 0;
     private void OnNewGame()
     {
+        // If a baseline exists, load it to reset the scene state
+        SaveData baseline = SaveManager.Instance?.ReadSlotMeta(3);
+        if (baseline != null && baseline.saveName == "NewGameBaseline")
+        {
+            mainMenuPanel.SetActive(false);
+            difficultyPanel.SetActive(true);
+            pendingNewGame = true;
+            return;
+        }
         mainMenuPanel.SetActive(false);
         difficultyPanel.SetActive(true);
     }
@@ -131,6 +141,18 @@ public class MainMenuUI : MonoBehaviour
         pausepanel.SetActive(false);
         TimeScaleManager.Unfreeze(this);
         PlayerController.LocalInstance?.SetMovementEnabled(true);
+        AudioManager.Instance?.StopMovement();
+        if (pendingNewGame)
+        {
+            pendingNewGame = false;
+            // Reset all managers then load baseline
+            SaveManager.Instance?.Load(3);
+        }
+        else
+        {
+            // First ever new game — save baseline
+            SaveManager.Instance?.SaveNewGameBaseline();
+        }
     }
 
     private void OnBack()
