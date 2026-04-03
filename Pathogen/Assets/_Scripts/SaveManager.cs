@@ -172,6 +172,8 @@ public class SaveManager : MonoBehaviour
             if (state.isRevealed)  // only save spots that have been interacted with
                 data.searchSpotStates.Add(state);
         }
+        VolkovBoss volkov = FindObjectOfType<VolkovBoss>();
+        data.volkovDefeated = volkov == null || volkov.gameObject == null;
         return data;
     }
 
@@ -262,6 +264,11 @@ public class SaveManager : MonoBehaviour
             data.deadEnemyIDs,
             data.collectedPickupIDs,
             data.unlockedLockIDs);
+        if (data.volkovDefeated)
+        {
+            VolkovBoss volkov = FindObjectOfType<VolkovBoss>();
+            if (volkov != null) volkov.gameObject.SetActive(false);
+        }
         foreach (var savedState in data.searchSpotStates)
         {
             foreach (var spot in FindObjectsOfType<SearchSpot>())

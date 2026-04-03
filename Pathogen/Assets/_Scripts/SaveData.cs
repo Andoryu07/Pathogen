@@ -50,6 +50,7 @@ public class SaveData
     public List<string> collectedPickupIDs = new List<string>();
     public List<string> unlockedLockIDs = new List<string>();
     public List<SavedSearchSpot> searchSpotStates = new List<SavedSearchSpot>();
+    public bool volkovDefeated = false;
 
 }
 

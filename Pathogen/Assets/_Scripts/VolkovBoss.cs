@@ -8,6 +8,7 @@ using System.Collections.Generic;
 [RequireComponent(typeof(Rigidbody2D))]
 public class VolkovBoss : MonoBehaviour, IDamageable
 {
+
     [Header("Stats")]
     [SerializeField] private float maxHealth = 2000f;
     [SerializeField] private float moveSpeed = 0.8f;
@@ -41,11 +42,13 @@ public class VolkovBoss : MonoBehaviour, IDamageable
     [SerializeField] private Color phase2Color = new Color(1f, 0.6f, 0.2f, 1f);
     [SerializeField] private Color phase3Color = new Color(0.8f, 0.1f, 0.1f, 1f);
     [SerializeField] private float deathDelay = 2.0f;
+
+    private VolkovAttackVisualizer visualizer;
+
     [Header("Loot")]
     [SerializeField] private GameObject patheosPrefab;
     [SerializeField] private int patheosReward = 5000;
     [SerializeField] private List<GameObject> keyItemDrops = new List<GameObject>();
-
     private const float Phase2Threshold = 0.66f;
     private const float Phase3Threshold = 0.33f;
     private enum State { Idle, Chase, Attacking, Dead }
@@ -78,6 +81,7 @@ public class VolkovBoss : MonoBehaviour, IDamageable
             tentacleDamage *= DifficultyManager.Instance.DamageMultiplier;
             currentHealth = maxHealth;
         }
+        visualizer = GetComponent<VolkovAttackVisualizer>();
         GameObject p = GameObject.FindGameObjectWithTag("Player");
         if (p != null) playerTransform = p.transform;
     }
@@ -86,22 +90,24 @@ public class VolkovBoss : MonoBehaviour, IDamageable
     {
         if (state == State.Dead) return;
         if (playerTransform == null) return;
+
         UpdatePhase();
+
         float dist = Vector2.Distance(transform.position, playerTransform.position);
+
         switch (state)
         {
             case State.Idle:
                 if (dist <= detectionRadius)
                 {
                     state = State.Chase;
-                    AudioManager.Instance?.PlayBruteSpot();  // reuse brute spot sound
+                    AudioManager.Instance?.PlayBruteSpot();
                 }
                 break;
 
             case State.Chase:
                 if (!isAttacking)
                 {
-                    MoveToward(playerTransform.position);
                     attackTimer -= Time.deltaTime;
                     if (attackTimer <= 0f)
                         ChooseAttack(dist);
@@ -110,11 +116,18 @@ public class VolkovBoss : MonoBehaviour, IDamageable
         }
     }
 
+    void FixedUpdate()
+    {
+        if (state != State.Chase || isAttacking || playerTransform == null) return;
+        MoveToward(playerTransform.position);
+    }
+
     private void UpdatePhase()
     {
         float ratio = currentHealth / maxHealth;
         Phase newPhase = ratio > Phase2Threshold ? Phase.One :
                          ratio > Phase3Threshold ? Phase.Two : Phase.Three;
+
         if (newPhase != currentPhase)
         {
             currentPhase = newPhase;
@@ -143,7 +156,7 @@ public class VolkovBoss : MonoBehaviour, IDamageable
     private void MoveToward(Vector2 target)
     {
         Vector2 dir = ((Vector2)target - rb.position).normalized;
-        rb.MovePosition(rb.position + dir * moveSpeed * Time.deltaTime);
+        rb.MovePosition(rb.position + dir * moveSpeed * Time.fixedDeltaTime);
     }
 
     private void ChooseAttack(float dist)
@@ -153,11 +166,11 @@ public class VolkovBoss : MonoBehaviour, IDamageable
         available.Add(StartSwing);
         if (currentPhase >= Phase.Two) available.Add(StartStump);
         if (currentPhase >= Phase.Three) available.Add(StartTentacle);
+
         // Pick random
         int idx = Random.Range(0, available.Count);
         available[idx]();
     }
-
     private void StartSwing()
     {
         isAttacking = true;
@@ -170,7 +183,13 @@ public class VolkovBoss : MonoBehaviour, IDamageable
         BlockingSystem.Instance?.NotifyIncomingAttack(swingWindup);
         AudioManager.Instance?.PlayBruteWindup();
         if (sr != null) sr.color = windupColor;
+        if (playerTransform != null)
+        {
+            Vector2 previewDir = ((Vector2)playerTransform.position - rb.position).normalized;
+            visualizer?.ShowSwing(swingRadius, swingAngle, previewDir);
+        }
         yield return new WaitForSeconds(swingWindup);
+        visualizer?.HideAll();
         if (sr != null) sr.color = normalColor;
         // Hit check — arc in player direction
         if (playerTransform != null)
@@ -214,9 +233,10 @@ public class VolkovBoss : MonoBehaviour, IDamageable
         BlockingSystem.Instance?.NotifyIncomingAttack(stumpWindup);
         AudioManager.Instance?.PlayBruteWindup();
         if (sr != null) sr.color = windupColor;
-        // Flash warning lines in + shape
+        visualizer?.ShowStump(stumpProjRange);
         StartCoroutine(FlashStumpWarning());
         yield return new WaitForSeconds(stumpWindup);
+        visualizer?.HideAll();
         if (sr != null) sr.color = normalColor;
         //CameraShake.Instance?.Shake(0.7f);
         AudioManager.Instance?.PlayBruteAttack();
@@ -230,7 +250,6 @@ public class VolkovBoss : MonoBehaviour, IDamageable
         attackTimer = 0f;
         state = State.Chase;
     }
-
     private IEnumerator FlashStumpWarning()
     {
         // Visual warning — pulse color quickly to indicate + shape danger
@@ -244,7 +263,6 @@ public class VolkovBoss : MonoBehaviour, IDamageable
             yield return null;
         }
     }
-
     private void StartTentacle()
     {
         isAttacking = true;
@@ -256,7 +274,13 @@ public class VolkovBoss : MonoBehaviour, IDamageable
         BlockingSystem.Instance?.NotifyIncomingAttack(tentacleWindup);
         AudioManager.Instance?.PlayBruteWindup();
         if (sr != null) sr.color = windupColor;
+        if (playerTransform != null)
+        {
+            Vector2 tentDir = ((Vector2)playerTransform.position - rb.position).normalized;
+            visualizer?.ShowTentacle(tentacleRange, tentDir, tentacleSpread);
+        }
         yield return new WaitForSeconds(tentacleWindup);
+        visualizer?.HideAll();
         if (sr != null) sr.color = normalColor;
         AudioManager.Instance?.PlayBruteAttack();
         // Fire 3 tentacles — center aimed at player, ±spread degrees
@@ -289,7 +313,6 @@ public class VolkovBoss : MonoBehaviour, IDamageable
         else
             Destroy(go);
     }
-
     public void TakeDamage(float damage)
     {
         if (state == State.Dead) return;
@@ -317,7 +340,7 @@ public class VolkovBoss : MonoBehaviour, IDamageable
     {
         state = State.Dead;
         if (attackCoroutine != null) { StopCoroutine(attackCoroutine); attackCoroutine = null; }
-
+        visualizer?.HideAll();
         if (sr != null) sr.color = Color.white;
         //CameraShake.Instance?.Shake(1.0f);
         AudioManager.Instance?.PlayBruteDeath();
@@ -340,6 +363,7 @@ public class VolkovBoss : MonoBehaviour, IDamageable
             PatheosCurrency pc = go.GetComponent<PatheosCurrency>();
             if (pc != null) pc.SetAmount(patheosReward);
         }
+
         // Key item drops — scattered around death position
         for (int i = 0; i < keyItemDrops.Count; i++)
         {
@@ -351,6 +375,7 @@ public class VolkovBoss : MonoBehaviour, IDamageable
             go.SetActive(true);
         }
     }
+
     private static Vector2 RotateVector(Vector2 v, float degrees)
     {
         float rad = degrees * Mathf.Deg2Rad;
