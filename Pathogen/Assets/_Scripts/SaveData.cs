@@ -47,7 +47,7 @@ public class SaveData
     public int talismanCount = 0;
     // World state
     public List<string> deadEnemyIDs = new List<string>();
-    public List<string> collectedPickupIDs = new List<string>();
+    public List<SavedEnemyState> enemyStates = new List<SavedEnemyState>(); public List<string> collectedPickupIDs = new List<string>();
     public List<string> unlockedLockIDs = new List<string>();
     public List<SavedSearchSpot> searchSpotStates = new List<SavedSearchSpot>();
     public bool volkovDefeated = false;
@@ -92,4 +92,11 @@ public class SavedSearchSpot
     public string spotID = "";
     public bool isRevealed = false;
     public List<string> remainingItems = new List<string>();
+}
+
+[Serializable]
+public class SavedEnemyState
+{
+    public string sceneID = "";
+    public float currentHP = 0f;
 }

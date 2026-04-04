@@ -8,6 +8,7 @@ public class PersistentEnemy : MonoBehaviour
     [Tooltip("Unique ID for this enemy. Must be unique across the entire scene.")]
     [SerializeField] private string sceneID = "";
 
+
     void Start()
     {
         if (string.IsNullOrEmpty(sceneID))
@@ -35,4 +36,34 @@ public class PersistentEnemy : MonoBehaviour
     }
 
     public string SceneID => sceneID;
+    ///Returns current HP by reading from the enemy script on this GO
+    public float GetCurrentHP()
+    {
+        var infected = GetComponent<EnemyInfected>();
+        if (infected != null) return infected.CurrentHealth;
+        var stalker = GetComponent<AnomalyStalker>();
+        if (stalker != null) return stalker.CurrentHealth;
+        var leaper = GetComponent<AnomalyLeaper>();
+        if (leaper != null) return leaper.CurrentHealth;
+        var brute = GetComponent<AnomalyBrute>();
+        if (brute != null) return brute.CurrentHealth;
+        var volkov = GetComponent<VolkovBoss>();
+        if (volkov != null) return volkov.CurrentHealth;
+        return 0f;
+    }
+
+    ///Applies saved HP to the enemy script
+    public void ApplyHP(float hp)
+    {
+        var infected = GetComponent<EnemyInfected>();
+        if (infected != null) { infected.SetCurrentHealth(hp); return; }
+        var stalker = GetComponent<AnomalyStalker>();
+        if (stalker != null) { stalker.SetCurrentHealth(hp); return; }
+        var leaper = GetComponent<AnomalyLeaper>();
+        if (leaper != null) { leaper.SetCurrentHealth(hp); return; }
+        var brute = GetComponent<AnomalyBrute>();
+        if (brute != null) { brute.SetCurrentHealth(hp); return; }
+        var volkov = GetComponent<VolkovBoss>();
+        if (volkov != null) { volkov.SetCurrentHealth(hp); return; }
+    }
 }

@@ -43,6 +43,8 @@ public class VolkovBoss : MonoBehaviour, IDamageable
     [SerializeField] private Color phase3Color = new Color(0.8f, 0.1f, 0.1f, 1f);
     [SerializeField] private float deathDelay = 2.0f;
 
+    public float CurrentHealth => currentHealth;
+    public void SetCurrentHealth(float hp) => currentHealth = Mathf.Clamp(hp, 0f, maxHealth);
     private VolkovAttackVisualizer visualizer;
 
     [Header("Loot")]

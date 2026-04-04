@@ -53,6 +53,8 @@ public class EnemyInfected : MonoBehaviour, IDamageable
     private Transform playerTransform;
     private Rigidbody2D rb;
     private SpriteRenderer sr;
+    public float CurrentHealth => currentHealth;
+    public void SetCurrentHealth(float hp) => currentHealth = Mathf.Clamp(hp, 0f, maxHealth);
 
     void Awake()
     {

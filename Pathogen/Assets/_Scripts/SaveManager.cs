@@ -165,6 +165,16 @@ public class SaveManager : MonoBehaviour
             data.collectedPickupIDs = WorldPersistenceManager.Instance.GetCollectedPickupIDs();
             data.unlockedLockIDs = WorldPersistenceManager.Instance.GetUnlockedLockIDs();
         }
+        data.enemyStates.Clear();
+        foreach (var pe in FindObjectsOfType<PersistentEnemy>())
+        {
+            if (string.IsNullOrEmpty(pe.SceneID)) continue;
+            data.enemyStates.Add(new SavedEnemyState
+            {
+                sceneID = pe.SceneID,
+                currentHP = pe.GetCurrentHP()
+            });
+        }
         data.searchSpotStates.Clear();
         foreach (var spot in FindObjectsOfType<SearchSpot>())
         {
@@ -264,11 +274,23 @@ public class SaveManager : MonoBehaviour
             data.deadEnemyIDs,
             data.collectedPickupIDs,
             data.unlockedLockIDs);
+        foreach (var saved in data.enemyStates)
+        {
+            foreach (var pe in FindObjectsOfType<PersistentEnemy>())
+            {
+                if (pe.SceneID == saved.sceneID)
+                {
+                    pe.ApplyHP(saved.currentHP);
+                    break;
+                }
+            }
+        }
         if (data.volkovDefeated)
         {
             VolkovBoss volkov = FindObjectOfType<VolkovBoss>();
             if (volkov != null) volkov.gameObject.SetActive(false);
         }
+
         foreach (var savedState in data.searchSpotStates)
         {
             foreach (var spot in FindObjectsOfType<SearchSpot>())

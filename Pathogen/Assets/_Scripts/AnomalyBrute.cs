@@ -34,7 +34,8 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
     private Rigidbody2D rb;
     private SpriteRenderer sr;
     private AnomalyLootTable lootTable;
-
+    public float CurrentHealth => currentHealth;
+    public void SetCurrentHealth(float hp) => currentHealth = Mathf.Clamp(hp, 0f, maxHealth);
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
