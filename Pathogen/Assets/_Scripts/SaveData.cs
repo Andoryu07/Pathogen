@@ -19,6 +19,7 @@ public class SaveData
     public float playerMaxStamina = 100f;
     public float playerPosX = 0f;
     public float playerPosY = 0f;
+    public string equippedWeaponName = "";
     // Infection
     public int infectionStage = 0;
     public int infectionHits = 0;
@@ -47,7 +48,8 @@ public class SaveData
     public int talismanCount = 0;
     // World state
     public List<string> deadEnemyIDs = new List<string>();
-    public List<SavedEnemyState> enemyStates = new List<SavedEnemyState>(); public List<string> collectedPickupIDs = new List<string>();
+    public List<SavedEnemyState> enemyStates = new List<SavedEnemyState>(); 
+    public List<string> collectedPickupIDs = new List<string>();
     public List<string> unlockedLockIDs = new List<string>();
     public List<SavedSearchSpot> searchSpotStates = new List<SavedSearchSpot>();
     public bool volkovDefeated = false;
@@ -99,4 +101,6 @@ public class SavedEnemyState
 {
     public string sceneID = "";
     public float currentHP = 0f;
+    public float posX = 0f;
+    public float posY = 0f;
 }

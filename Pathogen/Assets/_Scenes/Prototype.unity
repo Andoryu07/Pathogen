@@ -9351,7 +9351,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 253acb0b59f541748a72d4d7e0a9208d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WorldPersistenceManager
-  autoLoadOnAwake: 1
+  autoLoadOnAwake: 0
   autoLoadSlot: 0
 --- !u!114 &481343345
 MonoBehaviour:
@@ -29973,7 +29973,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4121035452872699086, guid: 044a7a239b5b67f41b5f769951bbcbb0, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4121035452872699086, guid: 044a7a239b5b67f41b5f769951bbcbb0, type: 3}
       propertyPath: m_TagString
@@ -42702,6 +42702,10 @@ PrefabInstance:
     - target: {fileID: 6766047963249478745, guid: a5bdf9f709ab22146a0d35258c713c74, type: 3}
       propertyPath: m_Name
       value: VolkovBoss
+      objectReference: {fileID: 0}
+    - target: {fileID: 6766047963249478745, guid: a5bdf9f709ab22146a0d35258c713c74, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -1,22 +1,22 @@
 using UnityEngine;
 using System.Collections;
-/// LEAPER anomaly
+/// LEAPER anomaly — extremely fast, low HP, spider-like movement
 [RequireComponent(typeof(Rigidbody2D))]
 public class AnomalyLeaper : MonoBehaviour, IDamageable
 {
     [Header("Stats")]
-    [SerializeField] private float maxHealth = 45f;   
-    [SerializeField] private float scurrySpeed = 7f;     
+    [SerializeField] private float maxHealth = 45f;    
+    [SerializeField] private float scurrySpeed = 7f;  
     [SerializeField] private float contactDamage = 20f;
-    [SerializeField] private float attackWindup = 0.25f;  
+    [SerializeField] private float attackWindup = 0.25f; 
     [SerializeField] private float attackCooldown = 0.8f;
     [Header("Radii")]
-    [SerializeField] private float detectionRadius = 10f;  
+    [SerializeField] private float detectionRadius = 10f;   
     [SerializeField] private float lungeRadius = 4f;    
     [SerializeField] private float attackRadius = 0.8f;
     [Header("Lunge")]
-    [SerializeField] private float lungeSpeed = 18f;   // burst speed during lunge
-    [SerializeField] private float lungeDuration = 0.25f; // how long the lunge lasts
+    [SerializeField] private float lungeSpeed = 18f;   
+    [SerializeField] private float lungeDuration = 0.25f; 
     [SerializeField] private float lungeCooldown = 2f;
     [Header("Erratic Movement")]
     [SerializeField] private float directionChangeInterval = 0.3f; // seconds between direction shifts
@@ -29,6 +29,7 @@ public class AnomalyLeaper : MonoBehaviour, IDamageable
 
     private enum State { Idle, Scurry, Lunge, Attack, Dead }
     private State state = State.Idle;
+
     private float currentHealth;
     private bool isAttacking = false;
     private bool isWinding = false;
@@ -45,8 +46,6 @@ public class AnomalyLeaper : MonoBehaviour, IDamageable
     private Rigidbody2D rb;
     private SpriteRenderer sr;
     private AnomalyLootTable lootTable;
-    public float CurrentHealth => currentHealth;
-    public void SetCurrentHealth(float hp) => currentHealth = Mathf.Clamp(hp, 0f, maxHealth);
 
     void Awake()
     {
@@ -92,6 +91,7 @@ public class AnomalyLeaper : MonoBehaviour, IDamageable
             case State.Idle:
                 if (dist <= detectionRadius) { AudioManager.Instance?.PlayLeaperSpot(); state = State.Scurry; }
                 break;
+
             case State.Scurry:
                 if (dist > detectionRadius) { state = State.Idle; break; }
 
@@ -104,6 +104,7 @@ public class AnomalyLeaper : MonoBehaviour, IDamageable
                     attackCoroutine = StartCoroutine(AttackRoutine());
                     break;
                 }
+
                 // In lunge range and cooldown ready
                 if (dist <= lungeRadius && dist > attackRadius && lungeCooldownTimer <= 0f && !isLunging)
                 {
@@ -140,7 +141,6 @@ public class AnomalyLeaper : MonoBehaviour, IDamageable
         if (state == State.Scurry && !isLunging)
             rb.MovePosition(rb.position + moveDir * scurrySpeed * Time.fixedDeltaTime);
     }
-
     private IEnumerator LungeRoutine()
     {
         isLunging = true;
@@ -204,6 +204,14 @@ public class AnomalyLeaper : MonoBehaviour, IDamageable
         attackCoroutine = null;
         if (state == State.Attack) state = State.Scurry;
     }
+
+    public float CurrentHealth => currentHealth;
+    public void SetCurrentHealth(float hp)
+    {
+        currentHealth = Mathf.Clamp(hp, 0f, maxHealth);
+    }
+    public void ResetToFullHealth() => currentHealth = maxHealth;
+
     public void TakeDamage(float damage)
     {
         if (state == State.Dead) return;
@@ -220,7 +228,9 @@ public class AnomalyLeaper : MonoBehaviour, IDamageable
         state = State.Dead;
         if (attackCoroutine != null) { StopCoroutine(attackCoroutine); attackCoroutine = null; }
         if (lungeCoroutine != null) { StopCoroutine(lungeCoroutine); lungeCoroutine = null; }
+
         Vector2 lootPos = transform.position;
+
         if (sr != null)
         {
             float elapsed = 0f;
@@ -234,6 +244,7 @@ public class AnomalyLeaper : MonoBehaviour, IDamageable
             }
         }
         else yield return new WaitForSeconds(deathDelay);
+
         QuestManager.Instance?.ReportEnemyKill(gameObject.tag);
         Debug.Log("[" + gameObject.name + "] Reporting kill — tag:" + gameObject.tag);
         QuestManager.Instance?.ReportEnemyKill(gameObject.tag);

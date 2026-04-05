@@ -45,6 +45,7 @@ public class VolkovBoss : MonoBehaviour, IDamageable
 
     public float CurrentHealth => currentHealth;
     public void SetCurrentHealth(float hp) => currentHealth = Mathf.Clamp(hp, 0f, maxHealth);
+    public void ResetToFullHealth() => currentHealth = maxHealth;
     private VolkovAttackVisualizer visualizer;
 
     [Header("Loot")]

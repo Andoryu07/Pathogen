@@ -17,9 +17,9 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
     [SerializeField] private float soundRadius = 5f;     // walk detection radius
     [SerializeField] private float sprintSoundRadius = 10f;    // sprint detection radius
     [SerializeField] private float attackRadius = 1.0f;
-    [SerializeField] private float loseInterestTime = 4f;    
+    [SerializeField] private float loseInterestTime = 4f;     // seconds before returning to patrol
     [Header("Patrol")]
-    [SerializeField] private float patrolRadius = 4f;    
+    [SerializeField] private float patrolRadius = 4f;     // wander area around spawn
     [SerializeField] private float patrolWaitMin = 1f;
     [SerializeField] private float patrolWaitMax = 3f;
     [Header("Visuals")]
@@ -47,8 +47,6 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
     private Rigidbody2D rb;
     private SpriteRenderer sr;
     private AnomalyLootTable lootTable;
-    public float CurrentHealth => currentHealth;
-    public void SetCurrentHealth(float hp) => currentHealth = Mathf.Clamp(hp, 0f, maxHealth);
 
     void Awake()
     {
@@ -91,12 +89,15 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
             if (state == State.Patrol) AudioManager.Instance?.PlayStalkerPassive();
         }
         if (state == State.Dead || playerTransform == null) return;
+
         float dist = Vector2.Distance(transform.position, playerTransform.position);
+
         switch (state)
         {
             case State.Patrol:
                 CheckSoundDetection();
                 break;
+
             case State.Alert:
                 // Moving toward last sound position — check again for sound
                 CheckSoundDetection();
@@ -111,6 +112,7 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
                 if (dist <= attackRadius * 2f)
                     EnterChase();
                 break;
+
             case State.Chase:
                 CheckSoundDetection(); // refresh last known pos
                 if (dist <= attackRadius && !isAttacking)
@@ -153,12 +155,14 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
                 break;
         }
     }
+
     private void CheckSoundDetection()
     {
         if (playerController == null) return;
         if (!PlayerMakesSound()) return;
         float dist = Vector2.Distance(transform.position, playerTransform.position);
         float hearingRange = playerController.IsSprinting ? sprintSoundRadius : soundRadius;
+
         if (dist <= hearingRange)
         {
             lastSoundPos = playerTransform.position;
@@ -246,6 +250,7 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
         yield return new WaitForSeconds(attackWindup);
         if (sr != null) sr.color = chaseColor;
         isWinding = false;
+
         float dist = Vector2.Distance(transform.position, playerTransform.position);
         if (dist <= attackRadius)
         {
@@ -258,19 +263,29 @@ public class AnomalyStalker : MonoBehaviour, IDamageable
                 HUDFeedback.Instance?.ShowWarning($"Stalker hit! -{contactDamage} HP");
             }
         }
+
         yield return new WaitForSeconds(attackCooldown);
         isAttacking = false;
         attackCoroutine = null;
         if (state == State.Attack) state = State.Chase;
     }
 
+    public float CurrentHealth => currentHealth;
+    public void SetCurrentHealth(float hp)
+    {
+        currentHealth = Mathf.Clamp(hp, 0f, maxHealth);
+    }
+    public void ResetToFullHealth() => currentHealth = maxHealth;
+
     public void TakeDamage(float damage)
     {
         if (state == State.Dead) return;
         currentHealth -= damage;
+
         // Taking damage alerts the Stalker regardless of sound
         if (state == State.Patrol || state == State.Alert)
             EnterChase();
+
         if (sr != null) StartCoroutine(DamageFlash());
         if (currentHealth <= 0f && deathCoroutine == null)
             deathCoroutine = StartCoroutine(DieRoutine());

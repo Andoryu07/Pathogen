@@ -119,7 +119,11 @@ public class WorldPersistenceManager : MonoBehaviour
                 pe.gameObject.SetActive(false);
 
         foreach (var pp in FindObjectsOfType<PersistentPickup>())
+        {
+            Debug.Log("[WorldPersist] Checking pickup: " + pp.SceneID +
+                      " collected: " + IsPickupCollected(pp.SceneID));
             if (!string.IsNullOrEmpty(pp.SceneID) && IsPickupCollected(pp.SceneID))
                 pp.gameObject.SetActive(false);
+        }
     }
 }

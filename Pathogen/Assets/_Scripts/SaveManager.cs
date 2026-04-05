@@ -35,8 +35,31 @@ public class SaveManager : MonoBehaviour
     private System.Collections.IEnumerator SaveBaselineNextFrame()
     {
         yield return null;
+        yield return null;
+        yield return null;
+        yield return new WaitForSeconds(0.5f);
+        // Reset all enemies to full HP for the baseline
+        foreach (var pe in FindObjectsOfType<PersistentEnemy>())
+            pe.ResetToFullHealth();
+
         Save(NewGameSlot, "NewGameBaseline");
         Debug.Log("[SaveManager] New game baseline saved.");
+    }
+    private IEnumerator ApplyEnemyStatesNextFrame(SaveData data)
+    {
+        yield return null;
+        foreach (var saved in data.enemyStates)
+        {
+            foreach (var pe in FindObjectsOfType<PersistentEnemy>())
+            {
+                if (pe.SceneID != saved.sceneID) continue;
+                pe.ApplyHP(saved.currentHP);
+                pe.transform.position = new Vector3(saved.posX, saved.posY, 0f);
+                Rigidbody2D rb = pe.GetComponent<Rigidbody2D>();
+                if (rb != null) rb.position = new Vector2(saved.posX, saved.posY);
+                break;
+            }
+        }
     }
     void Update()
     {
@@ -117,6 +140,9 @@ public class SaveManager : MonoBehaviour
             data.playerMaxStamina = player.MaxStamina;
             data.playerPosX = player.transform.position.x;
             data.playerPosY = player.transform.position.y;
+            data.equippedWeaponName = "";
+            if (player?.EquippedWeapon != null)
+                data.equippedWeaponName = player.EquippedWeapon.GetItemName();
         }
         // Infection
         if (InfectionManager.Instance != null)
@@ -172,7 +198,9 @@ public class SaveManager : MonoBehaviour
             data.enemyStates.Add(new SavedEnemyState
             {
                 sceneID = pe.SceneID,
-                currentHP = pe.GetCurrentHP()
+                currentHP = pe.GetCurrentHP(),
+                posX = pe.transform.position.x,
+                posY = pe.transform.position.y
             });
         }
         data.searchSpotStates.Clear();
@@ -243,6 +271,18 @@ public class SaveManager : MonoBehaviour
         InfectionManager.Instance?.LoadState(data.infectionStage, data.infectionHits);
         // Clear and restore inventory
         RestoreInventory(data.inventoryItems);
+        PlayerController.LocalInstance?.EquipWeapon(null);
+        WeaponHUD.Instance?.Refresh(null);
+
+        if (!string.IsNullOrEmpty(data.equippedWeaponName))
+        {
+            Item weapon = InventoryGrid.Instance?.GetItem(data.equippedWeaponName);
+            if (weapon != null)
+            {
+                PlayerController.LocalInstance?.EquipWeapon(weapon);
+                WeaponHUD.Instance?.Refresh(weapon);
+            }
+        }
         // Clear and restore storebox
         RestoreStorebox(data.storeboxItems);
         // Special items
@@ -274,17 +314,7 @@ public class SaveManager : MonoBehaviour
             data.deadEnemyIDs,
             data.collectedPickupIDs,
             data.unlockedLockIDs);
-        foreach (var saved in data.enemyStates)
-        {
-            foreach (var pe in FindObjectsOfType<PersistentEnemy>())
-            {
-                if (pe.SceneID == saved.sceneID)
-                {
-                    pe.ApplyHP(saved.currentHP);
-                    break;
-                }
-            }
-        }
+        StartCoroutine(ApplyEnemyStatesNextFrame(data));
         if (data.volkovDefeated)
         {
             VolkovBoss volkov = FindObjectOfType<VolkovBoss>();

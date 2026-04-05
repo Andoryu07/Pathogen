@@ -15,10 +15,10 @@ public class EnemyInfected : MonoBehaviour, IDamageable
     [SerializeField] private float detectionRadius = 7f;
     [SerializeField] private float attackRadius = 0.9f;
     [Header("Loot")]
-    [SerializeField] private GameObject patheosPrefab;             
+    [SerializeField] private GameObject patheosPrefab;              
     [SerializeField] private int patheosMinAmount = 100;
     [SerializeField] private int patheosMaxAmount = 1500;
-    [SerializeField] private GameObject ammoDropPrefab;             
+    [SerializeField] private GameObject ammoDropPrefab;            
     [SerializeField]
     [Range(0f, 1f)]
     private float ammoDropChance = 0.20f;                        
@@ -36,9 +36,13 @@ public class EnemyInfected : MonoBehaviour, IDamageable
     [SerializeField] private float grabDuration = 3.5f;   // total grab duration
     [SerializeField] private float grabDamageRate = 0.6f;   // seconds between ticks
     [SerializeField] private float grabDamage = 10f;
-    [SerializeField] private int grabEscapeHits = 5;      
+    [SerializeField] private int grabEscapeHits = 5;      // E presses needed to escape
+
     private enum State { Idle, Chase, Attack, Dead }
     private State state = State.Idle;
+
+
+    // Passive ambient sound timer
     private float passiveTimer = 0f;
     private float passiveInterval = 5f;  // seconds between passive sounds
     private float currentHealth;
@@ -53,14 +57,13 @@ public class EnemyInfected : MonoBehaviour, IDamageable
     private Transform playerTransform;
     private Rigidbody2D rb;
     private SpriteRenderer sr;
-    public float CurrentHealth => currentHealth;
-    public void SetCurrentHealth(float hp) => currentHealth = Mathf.Clamp(hp, 0f, maxHealth);
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         sr = GetComponent<SpriteRenderer>();
         currentHealth = maxHealth;
+
         // Kinematic so the enemy moves by velocity but never physically
         // pushes or gets pushed by other rigidbodies (player, projectiles etc.)
         if (rb != null)
@@ -93,7 +96,9 @@ public class EnemyInfected : MonoBehaviour, IDamageable
             if (state == State.Idle) AudioManager.Instance?.PlayInfectedPassive();
         }
         if (state == State.Dead || playerTransform == null) return;
+
         float dist = Vector2.Distance(transform.position, playerTransform.position);
+
         switch (state)
         {
             case State.Idle:
@@ -103,6 +108,7 @@ public class EnemyInfected : MonoBehaviour, IDamageable
                     state = State.Chase;
                 }
                 break;
+
             case State.Chase:
                 if (dist <= attackRadius && !isAttacking)
                 {
@@ -115,6 +121,7 @@ public class EnemyInfected : MonoBehaviour, IDamageable
                     state = State.Idle;
                 }
                 break;
+
             case State.Attack:
                 // AttackRoutine handles this state; return to Chase if player leaves radius
                 if (!isWinding && !isAttacking && dist > attackRadius)
@@ -131,16 +138,21 @@ public class EnemyInfected : MonoBehaviour, IDamageable
             rb.MovePosition(rb.position + dir * moveSpeed * Time.fixedDeltaTime);
         }
     }
+
     private IEnumerator AttackRoutine()
     {
         isWinding = true;
         attackTimer = 0f;
+
         BlockingSystem.Instance?.NotifyIncomingAttack(attackWindup);
         AudioManager.Instance?.PlayInfectedWindup();
         if (sr != null) sr.color = windupColor;
+
         yield return new WaitForSeconds(attackWindup);
+
         if (sr != null) sr.color = normalColor;
         isWinding = false;
+
         // Only deal damage if player is still in range AND not blocking
         if (playerTransform != null &&
             Vector2.Distance(transform.position, playerTransform.position) <= attackRadius)
@@ -174,18 +186,29 @@ public class EnemyInfected : MonoBehaviour, IDamageable
 
         // Cooldown before next attack attempt
         yield return new WaitForSeconds(attackCooldown);
+
         isAttacking = false;
         attackCoroutine = null;
         if (state == State.Attack) state = State.Chase;
     }
 
+    public float CurrentHealth => currentHealth;
+    public void SetCurrentHealth(float hp)
+    {
+        currentHealth = Mathf.Clamp(hp, 0f, maxHealth);
+    }
+    public void ResetToFullHealth() => currentHealth = maxHealth;
+
     public void TakeDamage(float damage)
     {
         if (state == State.Dead) return;
+
         currentHealth -= damage;
         Debug.Log($"[EnemyInfected] Took {damage} dmg — {currentHealth}/{maxHealth} HP remaining.");
+
         // Flash white briefly to show damage received
         if (sr != null) StartCoroutine(DamageFlash());
+
         if (currentHealth <= 0f && deathCoroutine == null)
             deathCoroutine = StartCoroutine(DieRoutine());
     }
@@ -195,17 +218,22 @@ public class EnemyInfected : MonoBehaviour, IDamageable
         state = State.Dead;
         isAttacking = false;
         isWinding = false;
+
         // Stop attack coroutine via stored reference (nameof doesn't work for stored coroutines)
         if (attackCoroutine != null)
         {
             StopCoroutine(attackCoroutine);
             attackCoroutine = null;
         }
+
         // Reset sprite color in case we died mid-windup
         if (sr != null) sr.color = normalColor;
+
         Debug.Log($"[EnemyInfected] Died.");
+
         // Capture position NOW before the GO moves or is affected by anything
         Vector2 lootPosition = transform.position;
+
         // Fade out over deathDelay seconds (animation placeholder)
         if (sr != null)
         {
@@ -223,6 +251,7 @@ public class EnemyInfected : MonoBehaviour, IDamageable
         {
             yield return new WaitForSeconds(deathDelay);
         }
+
         AudioManager.Instance?.PlayInfectedDeath();
         QuestManager.Instance?.ReportEnemyKill(gameObject.tag);
         PersistentEnemy pe = GetComponent<PersistentEnemy>();
@@ -236,10 +265,12 @@ public class EnemyInfected : MonoBehaviour, IDamageable
     private void DropLoot(Vector2 position)
     {
         Vector2 dropPos = position + Random.insideUnitCircle * 0.4f;
+
         Debug.Log($"[EnemyInfected] DropLoot called. " +
                   $"patheosPrefab={(patheosPrefab != null ? patheosPrefab.name : "NULL")}, " +
                   $"ammoDropPrefab={(ammoDropPrefab != null ? ammoDropPrefab.name : "NULL")}, " +
                   $"ammoDropChance={ammoDropChance}");
+
         // Always drop Patheos currency (random amount in range)
         if (patheosPrefab != null)
         {
@@ -291,10 +322,12 @@ public class EnemyInfected : MonoBehaviour, IDamageable
         isGrabbing = true;
         grabEscapeCounter = 0;
         player.SetMovementEnabled(false);
+
         // --- Escape window (no damage yet) ---
         float escapeElapsed = 0f;
         HUDFeedback.Instance?.ShowWarning(
             $"GRABBED! Mash E to escape! ({grabEscapeHits} times)");
+
         while (escapeElapsed < grabEscapeWindow && state != State.Dead)
         {
             escapeElapsed += Time.deltaTime;
@@ -318,10 +351,13 @@ public class EnemyInfected : MonoBehaviour, IDamageable
             }
             yield return null;
         }
-        // --- Damage phase (escape still possible but harder) ---
+
+        //Damage phase (escape still possible but harder
         float elapsed = 0f;
         float nextDamageTick = grabDamageRate;
+
         HUDFeedback.Instance?.ShowWarning("Couldn't escape in time!");
+
         while (elapsed < grabDuration && state != State.Dead)
         {
             elapsed += Time.deltaTime;
@@ -340,6 +376,7 @@ public class EnemyInfected : MonoBehaviour, IDamageable
                     yield break;
                 }
             }
+
             if (nextDamageTick <= 0f)
             {
                 player.TakeDamage(grabDamage);
@@ -349,6 +386,7 @@ public class EnemyInfected : MonoBehaviour, IDamageable
             }
             yield return null;
         }
+
         player.SetMovementEnabled(true);
         isGrabbing = false;
         grabCoroutine = null;

@@ -28,7 +28,6 @@ public class PersistentEnemy : MonoBehaviour
             gameObject.SetActive(false);
     }
 
-    ///Call this from the enemy's DieRoutine just before Destroy
     public void RegisterDeath()
     {
         if (!string.IsNullOrEmpty(sceneID))
@@ -65,5 +64,15 @@ public class PersistentEnemy : MonoBehaviour
         if (brute != null) { brute.SetCurrentHealth(hp); return; }
         var volkov = GetComponent<VolkovBoss>();
         if (volkov != null) { volkov.SetCurrentHealth(hp); return; }
+    }
+
+    ///Resets enemy to full HP — used when starting a new game
+    public void ResetToFullHealth()
+    {
+        GetComponent<EnemyInfected>()?.ResetToFullHealth();
+        GetComponent<AnomalyStalker>()?.ResetToFullHealth();
+        GetComponent<AnomalyLeaper>()?.ResetToFullHealth();
+        GetComponent<AnomalyBrute>()?.ResetToFullHealth();
+        GetComponent<VolkovBoss>()?.ResetToFullHealth();
     }
 }

@@ -59,9 +59,8 @@ public class MainMenuUI : MonoBehaviour
         if (normalButton != null) AddHoverDescription(normalButton, Difficulty.Normal);
         if (hardcoreButton != null) AddHoverDescription(hardcoreButton, Difficulty.Hardcore);
         UpdateDescription(Difficulty.Normal);
-        bool hasSave = HasAnySave();
-        if (continueButton != null) continueButton.gameObject.SetActive(hasSave);
-        if (loadGameButton != null) loadGameButton.gameObject.SetActive(hasSave);
+        ShowMainMenu();
+
     }
     private void OnContinue()
     {
@@ -204,5 +203,9 @@ public class MainMenuUI : MonoBehaviour
         TimeScaleManager.Freeze(this);
         PlayerController.LocalInstance?.SetMovementEnabled(false);
         AudioManager.Instance?.StopMovement();
+        // Refresh save-dependent buttons every time menu opens
+        bool hasSave = HasAnySave();
+        if (continueButton != null) continueButton.gameObject.SetActive(hasSave);
+        if (loadGameButton != null) loadGameButton.gameObject.SetActive(hasSave);
     }
 }

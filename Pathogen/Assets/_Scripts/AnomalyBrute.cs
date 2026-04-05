@@ -1,18 +1,18 @@
 using UnityEngine;
 using System.Collections;
-/// BRUTE anomaly
+/// BRUTE anomaly — slow, massive HP
 [RequireComponent(typeof(Rigidbody2D))]
 public class AnomalyBrute : MonoBehaviour, IDamageable
 {
     [Header("Stats")]
-    [SerializeField] private float maxHealth = 600f;  
-    [SerializeField] private float moveSpeed = 1.2f;  
+    [SerializeField] private float maxHealth = 600f;   
+    [SerializeField] private float moveSpeed = 1.2f;   
     [SerializeField] private float slamDamage = 60f;    
-    [SerializeField] private float slamWindup = 1.8f;   
+    [SerializeField] private float slamWindup = 1.8f;  
     [SerializeField] private float slamCooldown = 2.5f;
     [Header("Radii")]
     [SerializeField] private float detectionRadius = 8f;
-    [SerializeField] private float slamRadius = 1.6f;   
+    [SerializeField] private float slamRadius = 1.6f;   // large attack radius
     [Header("Screen Shake (hook for camera system)")]
     [SerializeField] private float shakeMagnitude = 0.3f;
     [SerializeField] private float shakeDuration = 0.4f;
@@ -21,7 +21,8 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
     [SerializeField] private Color windupColor1 = new Color(0.9f, 0.4f, 0.1f, 1f); // orange pulse
     [SerializeField] private Color windupColor2 = new Color(1.0f, 0.1f, 0.1f, 1f); // red pulse
     [SerializeField] private Color slamColor = Color.white;
-    [SerializeField] private float deathDelay = 2.0f;   
+    [SerializeField] private float deathDelay = 2.0f;   // longer dramatic death
+
     private enum State { Idle, Chase, WindUp, Dead }
     private State state = State.Idle;
     private float currentHealth;
@@ -34,8 +35,7 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
     private Rigidbody2D rb;
     private SpriteRenderer sr;
     private AnomalyLootTable lootTable;
-    public float CurrentHealth => currentHealth;
-    public void SetCurrentHealth(float hp) => currentHealth = Mathf.Clamp(hp, 0f, maxHealth);
+
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -73,7 +73,9 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
             if (state == State.Idle) AudioManager.Instance?.PlayBrutePassive();
         }
         if (state == State.Dead || playerTransform == null) return;
+
         float dist = Vector2.Distance(transform.position, playerTransform.position);
+
         switch (state)
         {
             case State.Idle:
@@ -84,6 +86,7 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
                     HUDFeedback.Instance?.ShowWarning("A Brute is approaching...");
                 }
                 break;
+
             case State.Chase:
                 if (dist <= slamRadius && !isAttacking)
                 {
@@ -132,6 +135,8 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
             }
             yield return null;
         }
+
+        // SLAM
         if (sr != null) sr.color = slamColor;
 
         float dist = Vector2.Distance(transform.position, playerTransform.position);
@@ -160,12 +165,19 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
         attackCoroutine = null;
         if (state == State.WindUp) state = State.Chase;
     }
-
     private void TriggerScreenShake()
     {
         CameraShake.Instance?.Shake(shakeMagnitude, shakeDuration);
         Debug.Log($"[Brute] Screen shake triggered — magnitude:{shakeMagnitude} duration:{shakeDuration}");
     }
+
+    public float CurrentHealth => currentHealth;
+    public void SetCurrentHealth(float hp)
+    {
+        currentHealth = Mathf.Clamp(hp, 0f, maxHealth);
+    }
+    public void ResetToFullHealth() => currentHealth = maxHealth;
+
     public void TakeDamage(float damage)
     {
         if (state == State.Dead) return;
@@ -181,6 +193,7 @@ public class AnomalyBrute : MonoBehaviour, IDamageable
         if (currentHealth <= 0f && deathCoroutine == null)
             deathCoroutine = StartCoroutine(DieRoutine());
     }
+
     private IEnumerator DieRoutine()
     {
         state = State.Dead;
