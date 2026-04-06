@@ -77,32 +77,43 @@ public class Lock : InteractableBase
 
     private void TryKeyItemUnlock()
     {
+        if (!isLocked) return;
         if (string.IsNullOrEmpty(requiredItemName))
         {
-            Debug.LogError("No item set for this key !");
+            Debug.LogError("No item set for this key!");
             return;
         }
+
         bool hasReadable = ReadableManager.Instance.HasReadable(requiredItemName);
         bool hasItem = InventoryGrid.Instance.HasItem(requiredItemName);
+        bool playerHas = hasReadable || hasItem;
 
-        if (hasReadable || hasItem)
+        if (KeyItemConfirmPanel.Instance == null)
         {
-            Debug.Log($"Unlocked using: {requiredItemName}");
-
-            if (consumeItem && hasItem)
-            {
-
-                Item item = InventoryGrid.Instance.GetItem(requiredItemName);
-                InventoryGrid.Instance.RemoveItem(item);
-            }
-
-            isLocked = false;
-            Unlock();
+            // Fallback — no panel in scene, use old behaviour
+            if (playerHas) PerformKeyItemUnlock(hasItem);
+            else HUDFeedback.Instance?.ShowWarning("You need: " + requiredItemName);
+            return;
         }
-        else
+
+        KeyItemConfirmPanel.Instance.Open(
+            requiredItemName,
+            playerHas,
+            consumeItem,
+            () => PerformKeyItemUnlock(hasItem)
+        );
+    }
+
+    private void PerformKeyItemUnlock(bool hasItem)
+    {
+        isLocked = false;
+        if (consumeItem && hasItem)
         {
-            Debug.Log($"You need: {requiredItemName}");
+            Item item = InventoryGrid.Instance.GetItem(requiredItemName);
+            InventoryGrid.Instance.RemoveItem(item);
+            InventoryUIManager.Instance?.RefreshInventoryGrid();
         }
+        Unlock();
     }
     ///Returns true if the code is correct and unlocks the lock
     public bool TryCodeUnlock(string enteredCode)
