@@ -12,6 +12,7 @@ public class SaveData
     public string timestamp = "";
     public float totalPlaytime = 0f;
     public int saveCount = 0;
+    public int deathCount = 0;
     // Player
     public float playerHP = 100f;
     public float playerMaxHP = 100f;

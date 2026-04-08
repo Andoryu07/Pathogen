@@ -130,6 +130,7 @@ public class SaveManager : MonoBehaviour
         data.totalPlaytime = (existing?.totalPlaytime ?? 0f) + playtimeAccumulator;
         data.saveCount = (existing?.saveCount ?? 0) + 1;
         playtimeAccumulator = 0f;
+        data.deathCount = RunStatsManager.Instance?.GetDeathCount() ?? 0;
         // Player
         PlayerController player = PlayerController.LocalInstance;
         if (player != null)
@@ -337,6 +338,7 @@ public class SaveManager : MonoBehaviour
         DifficultyManager.Instance?.SetDifficulty((Difficulty)data.difficulty);
         // Playtime
         playtimeAccumulator = 0f;
+        RunStatsManager.Instance?.LoadDeathCount(data.deathCount);
         // Refresh all UI
         InventoryUIManager.Instance?.RefreshInventoryGrid();
         InventoryUIManager.Instance?.RefreshWalletDisplay();

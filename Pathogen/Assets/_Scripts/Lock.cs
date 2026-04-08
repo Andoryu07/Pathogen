@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 public enum LockType
 {
@@ -22,6 +23,8 @@ public class Lock : InteractableBase
     [Header("Target")]
     [SerializeField] private GameObject targetObject;
     [SerializeField] private bool deactivateTargetOnUnlock = true;
+    [Header("Events")]
+    public UnityEvent OnUnlockedEvent;
 
     void Start()
     {
@@ -142,6 +145,7 @@ public class Lock : InteractableBase
     {
         Debug.Log("Unlocked!");
         isLocked = false;
+        OnUnlockedEvent?.Invoke();
         //Checks if its a searchspot
         if (GetComponent<SearchSpot>() != null)
         {

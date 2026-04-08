@@ -151,6 +151,8 @@ public class MainMenuUI : MonoBehaviour
         {
             // First ever new game — save baseline
             SaveManager.Instance?.SaveNewGameBaseline();
+            RunStatsManager.Instance?.ResetForNewGame();
+
         }
     }
 
