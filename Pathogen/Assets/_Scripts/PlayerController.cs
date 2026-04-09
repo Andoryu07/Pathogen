@@ -295,6 +295,8 @@ public class PlayerController : MonoBehaviour
         Debug.Log("[Player] Died.");
         RunStatsManager.Instance?.RegisterDeath();
         SetMovementEnabled(false);
+        // Immediately update the current save file with new death count
+        SaveManager.Instance?.SaveDeathCount(RunStatsManager.Instance.DeathCount);
         GameOverPanel.Instance?.Show();
     }
 }

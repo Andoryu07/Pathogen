@@ -133,7 +133,7 @@ public class CraftingRecipeUI : MonoBehaviour,
     void Update()
     {
         if (!isHolding) return;
-        holdTimer += Time.deltaTime;
+        holdTimer += Time.unscaledDeltaTime;
         if (progressBar != null)
             progressBar.fillAmount = Mathf.Clamp01(holdTimer / holdDuration);
         if (holdTimer >= holdDuration)

@@ -404,4 +404,37 @@ public class SaveManager : MonoBehaviour
             StoreboxManager.Instance.LoadItem(itemComp, saved.stackCount);
         }
     }
+    /// Updates only the death count in the most recently used save slot
+    /// Called immediately on player death so it persists even without a manual save
+    public void SaveDeathCount(int deathCount)
+    {
+        // Find the most recent slot that exists
+        System.DateTime newest = System.DateTime.MinValue;
+        int bestSlot = -1;
+        for (int i = 0; i < maxSlots; i++)
+        {
+            SaveData data = ReadSlotMeta(i);
+            if (data == null) continue;
+            if (System.DateTime.TryParse(data.timestamp, out System.DateTime t) && t > newest)
+            {
+                newest = t;
+                bestSlot = i;
+            }
+        }
+        if (bestSlot < 0) return;  // no save exists yet
+        // Read, update death count, write back
+        try
+        {
+            string path = SlotPath(bestSlot);
+            string json = File.ReadAllText(path);
+            SaveData data = JsonUtility.FromJson<SaveData>(json);
+            data.deathCount = deathCount;
+            File.WriteAllText(path, JsonUtility.ToJson(data, prettyPrint: true));
+            Debug.Log("[SaveManager] Death count updated to " + deathCount + " in slot " + bestSlot);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogWarning("[SaveManager] Failed to update death count: " + e.Message);
+        }
+    }
 }
