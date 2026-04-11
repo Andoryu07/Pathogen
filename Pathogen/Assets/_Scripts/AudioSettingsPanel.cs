@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-
+using System.Collections;
 /// Audio settings panel — Music and SFX volume sliders
 /// Detects unsaved changes and warns before closing
 public class AudioSettingsPanel : MonoBehaviour
@@ -17,7 +17,7 @@ public class AudioSettingsPanel : MonoBehaviour
     [Header("References")]
     [SerializeField] private GameObject settingsPanel;        // parent settings panel to return to
     [SerializeField] private UnsavedChangesPanel unsavedPanel;
-   
+ 
     private float savedMusicVolume;
     private float savedSFXVolume;
     private bool hasUnsavedChanges = false;
@@ -27,11 +27,8 @@ public class AudioSettingsPanel : MonoBehaviour
 
     void Start()
     {
-        gameObject.SetActive(false);
-
         if (saveButton != null) saveButton.onClick.AddListener(OnSave);
         if (backButton != null) backButton.onClick.AddListener(OnBack);
-
         if (musicSlider != null) musicSlider.onValueChanged.AddListener(OnMusicChanged);
         if (sfxSlider != null) sfxSlider.onValueChanged.AddListener(OnSFXChanged);
     }
@@ -41,15 +38,26 @@ public class AudioSettingsPanel : MonoBehaviour
         LoadCurrentSettings();
         hasUnsavedChanges = false;
         RefreshSaveButton();
+        Canvas.ForceUpdateCanvases();
+    }
+
+    void Update()
+    {
+        if (gameObject.activeSelf && Input.GetKeyDown(KeyCode.Escape))
+            OnBack();
     }
 
     private void LoadCurrentSettings()
     {
         savedMusicVolume = PlayerPrefs.GetFloat(KeyMusic, 1f);
         savedSFXVolume = PlayerPrefs.GetFloat(KeySFX, 1f);
-
         if (musicSlider != null) musicSlider.SetValueWithoutNotify(savedMusicVolume);
         if (sfxSlider != null) sfxSlider.SetValueWithoutNotify(savedSFXVolume);
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.SetMusicVolume(savedMusicVolume);
+            AudioManager.Instance.SetSFXVolume(savedSFXVolume);
+        }
 
         UpdateValueTexts();
     }
@@ -131,13 +139,19 @@ public class AudioSettingsPanel : MonoBehaviour
 
     private void GoBack()
     {
-        // Revert live preview if not saved
         if (hasUnsavedChanges)
         {
             AudioManager.Instance?.SetMusicVolume(savedMusicVolume);
             AudioManager.Instance?.SetSFXVolume(savedSFXVolume);
         }
+        StartCoroutine(ShowSettings());
+    }
+
+    private IEnumerator ShowSettings()
+    {
+        if (settingsPanel != null) settingsPanel.SetActive(true);
+        Canvas.ForceUpdateCanvases();
+        yield return null;
         gameObject.SetActive(false);
-        settingsPanel.SetActive(true);
     }
 }

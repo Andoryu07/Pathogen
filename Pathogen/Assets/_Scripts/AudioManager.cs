@@ -1,6 +1,7 @@
 using UnityEngine;
-
 /// Central audio manager. Handles SFX and music
+/// Stackable = multiple instances overlap 
+/// Non-stackable = stops previous instance before playing 
 public class AudioManager : MonoBehaviour
 {
     public static AudioManager Instance { get; private set; }
@@ -34,13 +35,20 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioSource movementSource;
     [SerializeField] private AudioSource nonStackSource;   // for non-stackable one-shots
     [SerializeField] private AudioSource[] sfxPool;          // stackable pool
+    [SerializeField] private AudioSource musicSource;
+
 
     private enum MovementState { None, Walk, Crouch, Sprint }
     private MovementState currentMovement = MovementState.None;
+    private float currentMovementBaseVolume = 0f;
 
     void Awake()
     {
-        if (Instance == null) { Instance = this; DontDestroyOnLoad(gameObject); }
+        if (Instance == null) { 
+            Instance = this; 
+            DontDestroyOnLoad(gameObject);
+            ApplySavedVolumes();
+        }
         else { Destroy(gameObject); return; }
     }
 
@@ -54,22 +62,20 @@ public class AudioManager : MonoBehaviour
         if (currentMovement == state) return;
         currentMovement = state;
         if (movementSource == null) return;
-
-        if (state == MovementState.None) { movementSource.Stop(); return; }
-
-        AudioClip clip = state == MovementState.Walk ? walkClip :
-                           state == MovementState.Crouch ? crouchClip : sprintClip;
-        float volume = state == MovementState.Walk ? walkVolume :
-                           state == MovementState.Crouch ? crouchVolume : sprintVolume;
-
+        if (state == MovementState.None)
+        {
+            movementSource.Stop();
+            currentMovementBaseVolume = 0f;
+            return;
+        }
+        AudioClip clip = state == MovementState.Walk ? walkClip : state == MovementState.Crouch ? crouchClip : sprintClip;
+        currentMovementBaseVolume = state == MovementState.Walk ? walkVolume : state == MovementState.Crouch ? crouchVolume : sprintVolume;
         if (clip == null) { movementSource.Stop(); return; }
-
         movementSource.clip = clip;
-        movementSource.volume = volume;
+        movementSource.volume = currentMovementBaseVolume * sfxVolumeMultiplier;
         movementSource.loop = true;
         movementSource.Play();
     }
-
     public void PlayPistolFire() => PlayStackable(pistolFireClip, pistolFireVolume);
     public void PlayPistolReload() => PlayNonStack(pistolReloadClip, pistolReloadVolume);
     public void PlayCrowbarSwing() => PlayStackable(crowbarSwingClip, crowbarSwingVolume);
@@ -79,7 +85,6 @@ public class AudioManager : MonoBehaviour
     public void PlayItemEquip() => PlayNonStack(itemEquipClip, itemVolume);
     public void PlayItemUse() => PlayNonStack(itemUseClip, itemVolume);
     public void PlayItemPickup() => PlayStackable(itemPickupClip, itemVolume);
-
     [Header("Enemy - Infected")]
     [SerializeField] private AudioClip infectedPassiveClip;
     [SerializeField] private AudioClip infectedSpotClip;
@@ -140,44 +145,53 @@ public class AudioManager : MonoBehaviour
     private float musicVolumeMultiplier = 1f;
     private float sfxVolumeMultiplier = 1f;
 
-    public void SetMusicVolume(float value)
+    public void SetMusicVolume(float volume)
     {
-        musicVolumeMultiplier = Mathf.Clamp01(value);
-        // Apply to music source if you add one later
-        // For now stores the value for use when music is implemented
+        musicVolumeMultiplier = volume;
+        if (musicSource != null)
+        {
+            musicSource.volume = musicVolumeMultiplier;
+        }
     }
 
     public void SetSFXVolume(float value)
     {
         sfxVolumeMultiplier = Mathf.Clamp01(value);
-        // Apply to all sfx sources
-        if (nonStackSource != null) nonStackSource.volume = sfxVolumeMultiplier;
-        foreach (var src in sfxPool)
-            if (src != null) src.volume = sfxVolumeMultiplier;
-        if (movementSource != null) movementSource.volume = sfxVolumeMultiplier;
+        if (movementSource != null)
+        {
+            movementSource.volume = currentMovementBaseVolume * sfxVolumeMultiplier;
+        }
+        if (nonStackSource != null && nonStackSource.isPlaying)
+        {
+            nonStackSource.volume = sfxVolumeMultiplier;
+        }
     }
 
-    /// Apply saved volume settings from PlayerPrefs on startup
+    ///Apply all saved settings from PlayerPrefs on startup
     public void ApplySavedVolumes()
     {
         SetMusicVolume(PlayerPrefs.GetFloat("Settings_MusicVolume", 1f));
         SetSFXVolume(PlayerPrefs.GetFloat("Settings_SFXVolume", 1f));
+        // Apply saved video settings
+        int savedFPS = PlayerPrefs.GetInt("Settings_Framerate", 60);
+        Application.targetFrameRate = Mathf.Clamp(savedFPS, 30, 240);
+        bool savedFullscreen = PlayerPrefs.GetInt("Settings_Fullscreen", 0) == 1;
+        Screen.fullScreen = savedFullscreen;
     }
-
     private void PlayStackable(AudioClip clip, float volume)
     {
         if (clip == null) return;
+        float finalVol = volume * sfxVolumeMultiplier;
         foreach (var src in sfxPool)
         {
             if (src != null && !src.isPlaying)
             {
-                src.PlayOneShot(clip, volume);
+                src.PlayOneShot(clip, finalVol);
                 return;
             }
         }
-        // Pool exhausted — use first slot
         if (sfxPool.Length > 0 && sfxPool[0] != null)
-            sfxPool[0].PlayOneShot(clip, volume);
+            sfxPool[0].PlayOneShot(clip, finalVol);
     }
 
     private void PlayNonStack(AudioClip clip, float volume)
@@ -185,7 +199,7 @@ public class AudioManager : MonoBehaviour
         if (clip == null || nonStackSource == null) return;
         nonStackSource.Stop();
         nonStackSource.clip = clip;
-        nonStackSource.volume = volume;
+        nonStackSource.volume = volume * sfxVolumeMultiplier;
         nonStackSource.loop = false;
         nonStackSource.Play();
     }

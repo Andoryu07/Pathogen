@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-
+using System.Collections;
 /// Video settings panel — display mode and max framerate
 public class VideoSettingsPanel : MonoBehaviour
 {
@@ -32,7 +32,6 @@ public class VideoSettingsPanel : MonoBehaviour
 
     void Start()
     {
-        gameObject.SetActive(false);
 
         if (framerateSlider != null)
         {
@@ -52,18 +51,28 @@ public class VideoSettingsPanel : MonoBehaviour
         LoadCurrentSettings();
         hasUnsavedChanges = false;
         RefreshSaveButton();
+        Canvas.ForceUpdateCanvases();
+    }
+
+    void Update()
+    {
+        if (gameObject.activeSelf && Input.GetKeyDown(KeyCode.Escape))
+            OnBack();
     }
 
     private void LoadCurrentSettings()
     {
         savedFullscreen = PlayerPrefs.GetInt(KeyFullscreen, Screen.fullScreen ? 1 : 0) == 1;
-        savedFramerate = PlayerPrefs.GetInt(KeyFramerate, Application.targetFrameRate > 0 ? Application.targetFrameRate : 60);
+        savedFramerate = PlayerPrefs.GetInt(KeyFramerate, Application.targetFrameRate > 0
+                                                              ? Application.targetFrameRate : 60);
         savedFramerate = Mathf.Clamp(savedFramerate, MinFPS, MaxFPS);
+
         currentFullscreen = savedFullscreen;
         currentFramerate = savedFramerate;
 
         if (framerateSlider != null)
             framerateSlider.SetValueWithoutNotify(currentFramerate);
+
         UpdateDisplayButtons();
         UpdateFramerateText();
     }
@@ -119,21 +128,17 @@ public class VideoSettingsPanel : MonoBehaviour
         if (saveButton != null)
             saveButton.interactable = hasUnsavedChanges;
     }
-
     private void OnSave() => SaveSettings();
 
     public void SaveSettings()
     {
         savedFullscreen = currentFullscreen;
         savedFramerate = currentFramerate;
-
         Screen.fullScreen = savedFullscreen;
         Application.targetFrameRate = savedFramerate;
-
         PlayerPrefs.SetInt(KeyFullscreen, savedFullscreen ? 1 : 0);
         PlayerPrefs.SetInt(KeyFramerate, savedFramerate);
         PlayerPrefs.Save();
-
         hasUnsavedChanges = false;
         RefreshSaveButton();
         HUDFeedback.Instance?.ShowInfo("Video settings saved.");
@@ -153,7 +158,14 @@ public class VideoSettingsPanel : MonoBehaviour
 
     private void GoBack()
     {
+        StartCoroutine(ShowSettings());
+    }
+
+    private IEnumerator ShowSettings()
+    {
+        if (settingsPanel != null) settingsPanel.SetActive(true);
+        Canvas.ForceUpdateCanvases();
+        yield return null;
         gameObject.SetActive(false);
-        settingsPanel.SetActive(true);
     }
 }

@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
-
+using System.Collections;
 /// Controller for the Settings panel
 public class SettingsPanel : MonoBehaviour
 {
@@ -25,24 +25,40 @@ public class SettingsPanel : MonoBehaviour
         if (backButton != null) backButton.onClick.AddListener(OnBack);
     }
 
-    public void OnAudio()
+    void Update()
     {
-        gameObject.SetActive(false);
-        if (audioSettingsPanel != null) audioSettingsPanel.SetActive(true);
+        if (gameObject.activeSelf && Input.GetKeyDown(KeyCode.Escape))
+            OnBack();
     }
 
-    public void OnVideo()
+    private void OnAudio()
     {
-        gameObject.SetActive(false);
-        if (videoSettingsPanel != null) videoSettingsPanel.SetActive(true);
+        if (audioSettingsPanel != null)
+            StartCoroutine(ShowPanel(audioSettingsPanel));
+        else Debug.LogWarning("[SettingsPanel] audioSettingsPanel not wired!");
     }
 
-    public void OnBindings()
+    private void OnVideo()
+    {
+        if (videoSettingsPanel != null)
+            StartCoroutine(ShowPanel(videoSettingsPanel));
+        else Debug.LogWarning("[SettingsPanel] videoSettingsPanel not wired!");
+    }
+
+    private IEnumerator ShowPanel(GameObject target)
+    {
+        target.SetActive(true);
+        Canvas.ForceUpdateCanvases();
+        yield return null;  // one frame for layout rebuild
+        gameObject.SetActive(false);
+    }
+
+    private void OnBindings()
     {
         HUDFeedback.Instance?.ShowInfo("Key bindings — coming soon.");
     }
 
-    public void OnBack()
+    private void OnBack()
     {
         gameObject.SetActive(false);
         if (returnPanel != null) returnPanel.SetActive(true);
