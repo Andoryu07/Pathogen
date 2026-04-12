@@ -177,6 +177,14 @@ public class AudioManager : MonoBehaviour
         Application.targetFrameRate = Mathf.Clamp(savedFPS, 30, 240);
         bool savedFullscreen = PlayerPrefs.GetInt("Settings_Fullscreen", 0) == 1;
         Screen.fullScreen = savedFullscreen;
+        // Restore display mode
+        int savedDisplayMode = PlayerPrefs.GetInt("Settings_DisplayMode", 0);
+        Screen.fullScreenMode = savedDisplayMode == 1 ? FullScreenMode.ExclusiveFullScreen :
+                                savedDisplayMode == 2 ? FullScreenMode.FullScreenWindow :
+                                                        FullScreenMode.Windowed;
+
+        // Restore VSync
+        QualitySettings.vSyncCount = PlayerPrefs.GetInt("Settings_VSync", 0);
     }
     private void PlayStackable(AudioClip clip, float volume)
     {
