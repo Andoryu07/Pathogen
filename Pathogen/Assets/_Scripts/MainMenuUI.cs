@@ -19,6 +19,10 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private Button hardcoreButton;
     [SerializeField] private TextMeshProUGUI descriptionText;
     [SerializeField] private Button backButton;
+    [Header("Sub-Panels for Blocking Check")]
+    [SerializeField] private GameObject audioSettingsPanel;
+    [SerializeField] private GameObject videoSettingsPanel;
+    [SerializeField] private UnsavedChangesPanel unsavedChangesPanel;
     [Header("Scene")]
     [SerializeField] private GameObject mainMenuCanvasOrPanel;  // the main menu UI root to hide
     [SerializeField] private GameObject gameUIPanel;
@@ -58,9 +62,29 @@ public class MainMenuUI : MonoBehaviour
         if (casualButton != null) AddHoverDescription(casualButton, Difficulty.Casual);
         if (normalButton != null) AddHoverDescription(normalButton, Difficulty.Normal);
         if (hardcoreButton != null) AddHoverDescription(hardcoreButton, Difficulty.Hardcore);
+        if (audioSettingsPanel != null) audioSettingsPanel.SetActive(false);
+        if (videoSettingsPanel != null) videoSettingsPanel.SetActive(false);
+        if (unsavedChangesPanel != null) unsavedChangesPanel.gameObject.SetActive(false);
         UpdateDescription(Difficulty.Normal);
         ShowMainMenu();
 
+    }
+
+    void Update()
+    {
+        if (!IsMenuOpen) return;
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (difficultyPanel.activeSelf)
+            {
+                OnBack();
+            }
+            else if (settingsPanel != null && settingsPanel.activeSelf && !IsAnyBlockingUIOpen())
+            {
+                OnSettingsBack();
+            }
+        }
     }
     private void OnContinue()
     {
@@ -93,11 +117,28 @@ public class MainMenuUI : MonoBehaviour
         AudioManager.Instance?.StopMovement();
         SaveManager.Instance?.Load(slot);
     }
+
     private void OnSettings()
     {
         mainMenuPanel.SetActive(false);
         if (settingsPanel != null) settingsPanel.SetActive(true);
     }
+
+    public void OnSettingsBack()
+    {
+        if (settingsPanel != null) settingsPanel.SetActive(false);
+        mainMenuPanel.SetActive(true);
+    }
+
+    private bool IsAnyBlockingUIOpen()
+    {
+        if (unsavedChangesPanel != null && unsavedChangesPanel.gameObject.activeInHierarchy) return true;
+        if (audioSettingsPanel != null && audioSettingsPanel.activeInHierarchy) return true;
+        if (videoSettingsPanel != null && videoSettingsPanel.activeInHierarchy) return true;
+        if (loadGameUI != null && loadGameUI.gameObject.activeInHierarchy) return true;
+        return false;
+    }
+
     private int FindMostRecentSlot()
     {
         if (SaveManager.Instance == null) return -1;
@@ -201,6 +242,9 @@ public class MainMenuUI : MonoBehaviour
         mainMenuPanel.SetActive(true);
         difficultyPanel.SetActive(false);
         if (settingsPanel != null) settingsPanel.SetActive(false);
+        if (audioSettingsPanel != null) audioSettingsPanel.SetActive(false);
+        if (videoSettingsPanel != null) videoSettingsPanel.SetActive(false);
+        if (loadGameUI != null) loadGameUI.gameObject.SetActive(false);
         gameUIPanel.SetActive(false);
         TimeScaleManager.Freeze(this);
         PlayerController.LocalInstance?.SetMovementEnabled(false);

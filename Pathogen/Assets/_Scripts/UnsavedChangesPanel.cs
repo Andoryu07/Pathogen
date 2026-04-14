@@ -14,9 +14,14 @@ public class UnsavedChangesPanel : MonoBehaviour
     private System.Action onSaveAndProceed;
     private System.Action onProceedWithout;
 
+    void Awake()
+    {
+        // Hide the panel immediately when the game loads,
+        if (panel != null) panel.SetActive(false);
+    }
+
     void Start()
     {
-        panel.SetActive(false);
         if (yesButton != null) yesButton.onClick.AddListener(OnYes);
         if (noButton != null) noButton.onClick.AddListener(OnNo);
     }
