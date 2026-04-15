@@ -12,7 +12,7 @@ public class SettingsPanel : MonoBehaviour
     [Header("Sub-panels")]
     [SerializeField] private GameObject audioSettingsPanel;
     [SerializeField] private GameObject videoSettingsPanel;
-    [SerializeField] private GameObject bindingsSettingsPanel;  // placeholder for now
+    [SerializeField] private GameObject bindingsSettingsPanel;  
     [Header("Return target")]
     [Tooltip("Panel to show when Back is pressed — wire to MainMenuPanel or PauseMenuPanel.")]
     [SerializeField] private GameObject returnPanel;
@@ -55,7 +55,15 @@ public class SettingsPanel : MonoBehaviour
 
     private void OnBindings()
     {
-        HUDFeedback.Instance?.ShowInfo("Key bindings — coming soon.");
+        if (bindingsSettingsPanel != null)
+        {
+            StartCoroutine(ShowPanel(bindingsSettingsPanel));
+        }
+        else
+        {
+            Debug.LogWarning("[SettingsPanel] bindingsSettingsPanel not wired in Inspector!");
+            HUDFeedback.Instance?.ShowInfo("Key bindings panel is missing.");
+        }
     }
 
     private void OnBack()

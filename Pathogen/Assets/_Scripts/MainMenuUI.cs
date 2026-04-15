@@ -22,6 +22,7 @@ public class MainMenuUI : MonoBehaviour
     [Header("Sub-Panels for Blocking Check")]
     [SerializeField] private GameObject audioSettingsPanel;
     [SerializeField] private GameObject videoSettingsPanel;
+    [SerializeField] private GameObject keybindSettingsPanel;
     [SerializeField] private UnsavedChangesPanel unsavedChangesPanel;
     [Header("Scene")]
     [SerializeField] private GameObject mainMenuCanvasOrPanel;  // the main menu UI root to hide
@@ -135,6 +136,7 @@ public class MainMenuUI : MonoBehaviour
         if (unsavedChangesPanel != null && unsavedChangesPanel.gameObject.activeInHierarchy) return true;
         if (audioSettingsPanel != null && audioSettingsPanel.activeInHierarchy) return true;
         if (videoSettingsPanel != null && videoSettingsPanel.activeInHierarchy) return true;
+        if (keybindSettingsPanel != null && keybindSettingsPanel.activeInHierarchy) return true;
         if (loadGameUI != null && loadGameUI.gameObject.activeInHierarchy) return true;
         return false;
     }

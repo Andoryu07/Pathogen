@@ -17,6 +17,7 @@ public class PauseMenu : MonoBehaviour
     [Header("Sub-Panels for Blocking Check")]
     [SerializeField] private GameObject audioSettingsPanel;
     [SerializeField] private GameObject videoSettingsPanel;
+    [SerializeField] private GameObject keybindSettingsPanel;
     [SerializeField] private UnsavedChangesPanel unsavedChangesPanel;
     [Header("Buttons")]
     [SerializeField] private Button continueButton;
@@ -118,6 +119,7 @@ public class PauseMenu : MonoBehaviour
         if (Instance.settingsPanel != null && Instance.settingsPanel.activeInHierarchy) return true;
         if (Instance.audioSettingsPanel != null && Instance.audioSettingsPanel.activeInHierarchy) return true;
         if (Instance.videoSettingsPanel != null && Instance.videoSettingsPanel.activeInHierarchy) return true; if (InventoryUIManager.Instance != null && InventoryUIManager.Instance.IsOpen) return true;
+        if (Instance.keybindSettingsPanel != null && Instance.keybindSettingsPanel.activeInHierarchy) return true;
         if (Instance.unsavedChangesPanel != null && Instance.unsavedChangesPanel.gameObject.activeInHierarchy) return true;
         if (StoreboxUIManager.Instance != null && StoreboxUIManager.Instance.IsOpen) return true;
         if (CodePadUI.Instance != null && CodePadUI.Instance.IsOpen) return true;

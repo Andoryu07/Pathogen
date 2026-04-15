@@ -77,7 +77,7 @@ public class PlayerController : MonoBehaviour
             moveInput = moveInput.normalized;
         }
 
-        bool wantsToSprint = Input.GetKey(KeyCode.LeftShift);
+        bool wantsToSprint = InputManager.Instance.GetKey("Sprint");
 
         if (wantsToSprint && !isExhausted && currentStamina > 0 && !isCrouching)
         {
@@ -88,7 +88,7 @@ public class PlayerController : MonoBehaviour
             isSprinting = false;
         }
 
-        isCrouching = Input.GetKey(KeyCode.LeftControl);
+        isCrouching = InputManager.Instance.GetKey("Crouch");
     }
 
     private void HandleStamina()
