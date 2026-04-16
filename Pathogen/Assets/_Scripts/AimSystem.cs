@@ -19,7 +19,6 @@ public class AimSystem : MonoBehaviour
     private float fireCooldown = 0f;
     private WeaponItem equippedWeapon = null;
     private bool warnedOutOfRange = false; 
-
     public bool IsAiming => isAiming;
     public bool CursorInRange => cursorInRange;
 

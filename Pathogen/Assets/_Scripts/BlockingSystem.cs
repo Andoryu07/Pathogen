@@ -23,7 +23,7 @@ public class BlockingSystem : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (InputManager.Instance.GetKey("Blocking"))
             TryBlock();
 
         // Count down the block window

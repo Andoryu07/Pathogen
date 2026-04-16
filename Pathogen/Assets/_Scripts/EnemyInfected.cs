@@ -143,13 +143,10 @@ public class EnemyInfected : MonoBehaviour, IDamageable
     {
         isWinding = true;
         attackTimer = 0f;
-
         BlockingSystem.Instance?.NotifyIncomingAttack(attackWindup);
         AudioManager.Instance?.PlayInfectedWindup();
         if (sr != null) sr.color = windupColor;
-
         yield return new WaitForSeconds(attackWindup);
-
         if (sr != null) sr.color = normalColor;
         isWinding = false;
 
@@ -183,10 +180,8 @@ public class EnemyInfected : MonoBehaviour, IDamageable
                 }
             }
         }
-
         // Cooldown before next attack attempt
         yield return new WaitForSeconds(attackCooldown);
-
         isAttacking = false;
         attackCoroutine = null;
         if (state == State.Attack) state = State.Chase;
@@ -202,13 +197,10 @@ public class EnemyInfected : MonoBehaviour, IDamageable
     public void TakeDamage(float damage)
     {
         if (state == State.Dead) return;
-
         currentHealth -= damage;
         Debug.Log($"[EnemyInfected] Took {damage} dmg — {currentHealth}/{maxHealth} HP remaining.");
-
         // Flash white briefly to show damage received
         if (sr != null) StartCoroutine(DamageFlash());
-
         if (currentHealth <= 0f && deathCoroutine == null)
             deathCoroutine = StartCoroutine(DieRoutine());
     }

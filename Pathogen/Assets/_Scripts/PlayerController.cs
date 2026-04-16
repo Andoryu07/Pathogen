@@ -71,7 +71,13 @@ public class PlayerController : MonoBehaviour
     private void ReadInput()
     {
         if (!movementEnabled) { moveInput = Vector2.zero; isSprinting = false; return; }
-        moveInput = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+        float x = 0;
+        float y = 0;
+        if (InputManager.Instance.GetKey("MoveUp")) y += 1;
+        if (InputManager.Instance.GetKey("MoveDown")) y -= 1;
+        if (InputManager.Instance.GetKey("MoveLeft")) x -= 1;
+        if (InputManager.Instance.GetKey("MoveRight")) x += 1;
+        moveInput = new Vector2(x, y);
         if (moveInput.magnitude > 1f)
         {
             moveInput = moveInput.normalized;

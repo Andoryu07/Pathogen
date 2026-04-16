@@ -17,3 +17,13 @@ MonoBehaviour:
     defaultKey: 304
   - actionName: Crouch
     defaultKey: 306
+  - actionName: MoveUp
+    defaultKey: 119
+  - actionName: MoveDown
+    defaultKey: 115
+  - actionName: MoveLeft
+    defaultKey: 97
+  - actionName: MoveRight
+    defaultKey: 100
+  - actionName: Blocking
+    defaultKey: 32
