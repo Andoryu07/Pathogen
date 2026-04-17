@@ -71,11 +71,9 @@ public class InfectionManager : MonoBehaviour
     {
         infectionHits++;
         int oldStage = infectionStage;
-
         if (infectionHits >= HitsForStage3) infectionStage = 3;
         else if (infectionHits >= HitsForStage2) infectionStage = 2;
         else if (infectionHits >= HitsForStage1) infectionStage = 1;
-
         if (infectionStage > oldStage)
             OnStageAdvanced(infectionStage);
         else

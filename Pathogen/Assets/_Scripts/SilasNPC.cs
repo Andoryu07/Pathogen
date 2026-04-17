@@ -7,7 +7,7 @@ public class SilasNPC : InteractableBase
 
     void Awake()
     {
-        promptMessage = "E - Talk to Silas";
+        promptMessage = $"Talk to Silas";
     }
 
     public override void Interact()

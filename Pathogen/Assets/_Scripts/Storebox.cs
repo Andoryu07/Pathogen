@@ -3,7 +3,7 @@ public class Storebox : InteractableBase
 {
     void Awake()
     {
-        promptMessage = "E - Open storage box";
+        promptMessage = $"Open storage box";
     }
 
     public override void Interact()

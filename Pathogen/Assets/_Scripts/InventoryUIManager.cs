@@ -119,8 +119,8 @@ public class InventoryUIManager : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Tab)) ToggleInventory();
-        if (Input.GetKeyDown(KeyCode.LeftAlt) && IsOpen) TriggerAutoSort();
+        if (InputManager.Instance.GetKey("Inventory")) ToggleInventory();
+        if (InputManager.Instance.GetKey("AutoSort") && IsOpen) TriggerAutoSort();
         if (isDragging)
         {
             UpdateDragGhostPosition();

@@ -5,10 +5,11 @@ public class HazardMaskPickup : InteractableBase
 {
     [Header("World Sprite")]
     [SerializeField] private float worldScale = 0.3f;
+    string interactKey = InputManager.Instance.GetKeyForAction("Interact").ToString();
 
     void Awake()
     {
-        promptMessage = "E - Pick up Hazard Mask";
+        promptMessage = $"{interactKey} - Pick up Hazard Mask";
         var sr = GetComponent<SpriteRenderer>();
         if (sr != null) transform.localScale = new Vector3(worldScale, worldScale, 1f);
     }

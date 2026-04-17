@@ -28,10 +28,11 @@ public class SearchSpot : InteractableBase
     private bool isRevealed = false;
     private bool isOpen = false;
     private Lock lockComponent;
+    string interactKey = InputManager.Instance.GetKeyForAction("Interact").ToString();
 
     void Awake()
     {
-        promptMessage = "E - Search " + spotName;
+        promptMessage = $"{interactKey} - Search " + spotName;
         lockComponent = GetComponent<Lock>();
     }
 
@@ -59,7 +60,7 @@ public class SearchSpot : InteractableBase
             lockComponent.Interact();
             if (!lockComponent.isLocked)
             {
-                promptMessage = "E - Search " + spotName;
+                promptMessage = $"{interactKey} - Search " + spotName;
             }
             else
             {
@@ -145,17 +146,13 @@ public class SearchSpot : InteractableBase
     {
         if (spawnedItems.Count == 0) { Close(); return; }
         currentIndex = Mathf.Clamp(currentIndex, 0, spawnedItems.Count - 1);
-
         Item item = spawnedItems[currentIndex];
-
         // Check inventory space
         if (!InventoryGrid.Instance.HasSpaceForItem(item))
         {
-            HUDFeedback.Instance?.ShowWarning(
-                "Not enough inventory space — reorganise first.");
+            HUDFeedback.Instance?.ShowWarning("Not enough inventory space — reorganise first.");
             return;
         }
-
         // Add to inventory
         bool added = InventoryGrid.Instance.TryAddItem(item);
         if (added)

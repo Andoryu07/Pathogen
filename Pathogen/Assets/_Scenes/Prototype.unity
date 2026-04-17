@@ -4839,6 +4839,7 @@ GameObject:
   m_Component:
   - component: {fileID: 190681981}
   - component: {fileID: 190681982}
+  - component: {fileID: 190681983}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -4891,6 +4892,20 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &190681983
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 190681980}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
+  m_HorizontalFit: 0
+  m_VerticalFit: 2
 --- !u!1 &194791833
 GameObject:
   m_ObjectHideFlags: 0
@@ -8984,6 +8999,7 @@ GameObject:
   m_Component:
   - component: {fileID: 344243419}
   - component: {fileID: 344243420}
+  - component: {fileID: 344243421}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -9008,7 +9024,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0.00022904751}
-  m_SizeDelta: {x: 0, y: 300}
+  m_SizeDelta: {x: 0, y: 1080}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &344243420
 MonoBehaviour:
@@ -9036,6 +9052,20 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &344243421
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 344243418}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ContentSizeFitter
+  m_HorizontalFit: 0
+  m_VerticalFit: 2
 --- !u!1 &346430012
 GameObject:
   m_ObjectHideFlags: 0
@@ -13334,6 +13364,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2b8b7e067e616b46881b9547851baa1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SpecialItemManager
+  interactKey: H
 --- !u!114 &481343342
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14940,8 +14971,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -456}
-  m_SizeDelta: {x: 700, y: 100}
+  m_AnchoredPosition: {x: -668, y: -463}
+  m_SizeDelta: {x: 554.6041, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &530064050
 MonoBehaviour:
@@ -18180,7 +18211,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -17, y: -17}
+  m_SizeDelta: {x: 0.0001, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &633045984
 MonoBehaviour:
@@ -62217,8 +62248,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -456}
-  m_SizeDelta: {x: 700, y: 100}
+  m_AnchoredPosition: {x: -668, y: -463}
+  m_SizeDelta: {x: 554.6041, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2111100439
 GameObject:

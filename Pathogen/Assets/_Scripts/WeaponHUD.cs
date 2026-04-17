@@ -22,7 +22,6 @@ public class WeaponHUD : MonoBehaviour
     private static readonly Color ColEmpty = new Color(0.90f, 0.20f, 0.20f, 1f);  // red
     private WeaponItem equippedWeaponItem = null;
     private bool isReloading = false;
-    private bool inventoryOpen = false;  // don't fire while inventory is open
 
     void Awake()
     {
@@ -33,13 +32,14 @@ public class WeaponHUD : MonoBehaviour
     void Start() => Refresh(null);
 
     void Update()
-    {
+    {   
         // Input is handled by AimSystem — WeaponHUD only manages display and logic.
         // R key reload still works outside of aim mode (quality of life)
         if (equippedWeaponItem == null || equippedWeaponItem.IsMelee) return;
         if (IsAnyUIOpen()) return;
         if (AimSystem.Instance != null && AimSystem.Instance.IsAiming) return;
-        if (Input.GetKeyDown(KeyCode.R)) TryReload();
+        string interactKey = InputManager.Instance.GetKeyForAction("Reload").ToString();
+        if (InputManager.Instance.GetKey("Reload")) TryReload();
     }
     public void Hide() => hudPanel.SetActive(false);
     public void Show()

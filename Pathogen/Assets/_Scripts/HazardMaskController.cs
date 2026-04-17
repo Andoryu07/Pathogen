@@ -38,7 +38,7 @@ public class HazardMaskController : MonoBehaviour
     void Update()
     {
         // Toggle mask with H — only if owned and in hazard zone
-        if (Input.GetKeyDown(KeyCode.H))
+        if (InputManager.Instance.GetKey("HazardMask"))
         {
             if (!SpecialItemManager.Instance.HasHazardMask)
             {

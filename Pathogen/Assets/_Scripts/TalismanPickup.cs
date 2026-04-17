@@ -7,7 +7,7 @@ public class TalismanPickup : InteractableBase
 
     void Awake()
     {
-        promptMessage = "E - Smash Talisman";
+        promptMessage = $"Smash Talisman";
         var sr = GetComponent<SpriteRenderer>();
         if (sr != null)
             transform.localScale = new Vector3(worldScale, worldScale, 1f);

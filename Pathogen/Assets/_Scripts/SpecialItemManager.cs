@@ -11,6 +11,7 @@ public class SpecialItemManager : MonoBehaviour
     public bool HasLighter => hasLighter;
     public bool HasHazardMask => hasHazardMask;
     public int HipPouchCount => hipPouchCount;
+    public string interactKey = InputManager.Instance.GetKeyForAction("HazardMask").ToString();
 
     void Awake()
     {
@@ -31,7 +32,7 @@ public class SpecialItemManager : MonoBehaviour
     {
         if (hasHazardMask) return;
         hasHazardMask = true;
-        HUDFeedback.Instance?.ShowInfo("Hazard Mask obtained — press H to equip.");
+        HUDFeedback.Instance?.ShowInfo($"Hazard Mask obtained — press {interactKey} to equip.");
         Debug.Log("[SpecialItems] Hazard Mask picked up.");
     }
 

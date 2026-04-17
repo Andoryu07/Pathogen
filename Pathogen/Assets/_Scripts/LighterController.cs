@@ -44,7 +44,7 @@ public class LighterController : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.L))
+        if (InputManager.Instance.GetKey("Lighter"))
         {
             if (!SpecialItemManager.Instance.HasLighter) return;
             lighterOn = !lighterOn;

@@ -27,3 +27,17 @@ MonoBehaviour:
     defaultKey: 100
   - actionName: Blocking
     defaultKey: 32
+  - actionName: Inventory
+    defaultKey: 9
+  - actionName: AutoSort
+    defaultKey: 308
+  - actionName: Interact
+    defaultKey: 101
+  - actionName: Lighter
+    defaultKey: 108
+  - actionName: HazardMask
+    defaultKey: 104
+  - actionName: Attack
+    defaultKey: 323
+  - actionName: Reload
+    defaultKey: 114

@@ -28,7 +28,6 @@ public class ShopItemEntry : MonoBehaviour,
     private bool isLocked = false;   // required item not owned
     private bool canAfford = false;
     private bool hasSpace = false;
-
     private bool isHolding = false;
     private float holdTimer = 0f;
 
@@ -49,7 +48,6 @@ public class ShopItemEntry : MonoBehaviour,
         }
         // Unlock check
         isLocked = !string.IsNullOrEmpty(shopData.requiredItemName) && !InventoryGrid.Instance.HasItem(shopData.requiredItemName);
-
         if (isLocked)
         {
             // Show locked state — hide contents, show requirement
@@ -80,7 +78,6 @@ public class ShopItemEntry : MonoBehaviour,
     public void RefreshAffordability()
     {
         if (isLocked || data == null) return;
-
         canAfford = WalletManager.Instance != null && WalletManager.Instance.Balance >= data.price;
         // Check if inventory has space for this item right now
         hasSpace = data.itemPrefab != null && InventoryGrid.Instance != null && InventoryGrid.Instance.HasSpaceForItem(data.itemPrefab.GetComponent<Item>());
@@ -98,7 +95,6 @@ public class ShopItemEntry : MonoBehaviour,
     {
         if (eventData.button != PointerEventData.InputButton.Left) return;
         if (isLocked || !canAfford || !hasSpace) return;
-
         isHolding = true;
         holdTimer = 0f;
         if (progressBar != null)

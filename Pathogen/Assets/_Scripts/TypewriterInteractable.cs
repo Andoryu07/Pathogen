@@ -4,10 +4,11 @@ public class TypewriterInteractable : InteractableBase
 {
     [Header("References")]
     [SerializeField] private SaveUIManager saveUI;
+    string interactKey = InputManager.Instance.GetKeyForAction("Interact").ToString();
 
     void Awake()
     {
-        promptMessage = "E - Save Game";
+        promptMessage = $"{interactKey} - Save Game";
     }
 
     public override void Interact()
