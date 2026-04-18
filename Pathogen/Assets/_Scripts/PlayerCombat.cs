@@ -26,7 +26,7 @@ public class PlayerCombat : MonoBehaviour
     {
         Item equipped = playerController.EquippedWeapon;
 
-        if (InputManager.Instance.GetKey("Attack"))
+        if (InputManager.Instance.GetKeyDown("Attack"))
         {
             if (equipped == null) { Debug.Log("[PlayerCombat] No weapon equipped."); return; }
             WeaponItem wi = equipped.GetComponent<WeaponItem>() ?? equipped.GetComponentInChildren<WeaponItem>() ?? equipped.GetComponentInParent<WeaponItem>();

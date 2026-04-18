@@ -5,15 +5,12 @@ public class WeaponData : ScriptableObject
 {
     [Header("Identity")]
     public string weaponName = "Weapon";
-
     [Header("Magazine")]
     [Tooltip("Maximum rounds in one magazine. Set to 0 for melee weapons.")]
     public int magSize = 15;
-
     [Header("Ammo")]
     [Tooltip("Must match Item.GetItemName() exactly for the ammo prefab.")]
     public string ammoItemName = "Pistol Rounds";
-
     [Header("Combat")]
     [Tooltip("Maximum range in world units. Bullet does nothing beyond this distance.")]
     public float range = 15f;

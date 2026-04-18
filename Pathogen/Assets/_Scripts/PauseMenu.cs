@@ -113,7 +113,7 @@ public class PauseMenu : MonoBehaviour
         UnityEditor.EditorApplication.isPlaying = false;
 #endif
     }
-    private static bool IsAnyBlockingUIOpen()
+    public bool IsAnyBlockingUIOpen()
     {
         if (Instance != null && Instance.confirmationPanel != null && Instance.confirmationPanel.gameObject.activeSelf) return true;
         if (Instance.settingsPanel != null && Instance.settingsPanel.activeInHierarchy) return true;

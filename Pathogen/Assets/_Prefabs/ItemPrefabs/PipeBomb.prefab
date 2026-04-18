@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 8234824942987186895}
   - component: {fileID: 6337907319172128858}
   - component: {fileID: -1509196294969823386}
+  - component: {fileID: 4461169857146760614}
+  - component: {fileID: 3163406720405027693}
   m_Layer: 0
   m_Name: PipeBomb
   m_TagString: Untagged
@@ -154,3 +156,39 @@ SpriteRenderer:
   m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &4461169857146760614
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 747256383279408493}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe5b0e6f5b90d694783212de763bd8f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponItem
+  data: {fileID: 11400000, guid: 3db51065a0b66a74b90ea53b77017af4, type: 2}
+--- !u!114 &3163406720405027693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 747256383279408493}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d3e346f55a17514481baaff6c2ff580, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ThrowableItem
+  throwableType: 0
+  throwSpeed: 6
+  throwRange: 8
+  fuseDelay: 0.3
+  splashRadius: 2.5
+  explosionDamage: 120
+  fireDamagePerSec: 20
+  fireDuration: 5
+  projectilePrefab: {fileID: 8299950130606887364, guid: 123ac7f2d49f035489040dfa71d0120f, type: 3}
+  fireZonePrefab: {fileID: 0}
+  explosionEffectPrefab: {fileID: 0}

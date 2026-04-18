@@ -15,10 +15,10 @@ public class AimSystem : MonoBehaviour
     [SerializeField] private Color rangeCircleColor = new Color(1f, 1f, 1f, 0.06f);
 
     private bool isAiming = false;
-    private bool cursorInRange = false;   
+    private bool cursorInRange = false;
     private float fireCooldown = 0f;
     private WeaponItem equippedWeapon = null;
-    private bool warnedOutOfRange = false; 
+    private bool warnedOutOfRange = false;
     public bool IsAiming => isAiming;
     public bool CursorInRange => cursorInRange;
 
@@ -52,8 +52,15 @@ public class AimSystem : MonoBehaviour
         // Sync equipped weapon reference from PlayerController
         PlayerController player = PlayerController.LocalInstance;
         equippedWeapon = player?.EquippedWeapon?.GetComponent<WeaponItem>();
-        // No weapon or melee — no aiming
+        // No weapon, melee, or throwable — no aiming (ThrowSystem handles throwables)
         if (equippedWeapon == null || equippedWeapon.IsMelee)
+        {
+            if (isAiming) ExitAim();
+            return;
+        }
+        // Let ThrowSystem handle throwable items
+        ThrowableItem throwable = player?.EquippedWeapon?.GetComponent<ThrowableItem>();
+        if (throwable != null)
         {
             if (isAiming) ExitAim();
             return;

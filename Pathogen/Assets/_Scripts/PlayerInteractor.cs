@@ -28,7 +28,7 @@ public class PlayerInteractor : MonoBehaviour
     {
         FindClosestInteractable();
         UpdateUIPrompt();
-        if (InputManager.Instance.GetKey("Interact") && closestInteractable != null)
+        if (InputManager.Instance.GetKeyDown("Interact") && closestInteractable != null)
         {
             closestInteractable.Interact();
         }

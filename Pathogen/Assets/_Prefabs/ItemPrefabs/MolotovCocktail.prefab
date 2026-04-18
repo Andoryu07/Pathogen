@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 8234824942987186895}
   - component: {fileID: 3923340430086254754}
   - component: {fileID: -8067376444861582932}
+  - component: {fileID: -4894507430900208493}
+  - component: {fileID: -3107095248271998859}
   m_Layer: 0
   m_Name: MolotovCocktail
   m_TagString: Untagged
@@ -49,7 +51,7 @@ MonoBehaviour:
   promptMessage: Interact
   itemName: Molotov Cocktail
   itemDescription: No description.
-  itemType: 1
+  itemType: 2
   itemIcon: {fileID: 1786533441002686769, guid: 089282c8df7cd824bb9663c296117388, type: 3}
   size:
     width: 1
@@ -154,3 +156,39 @@ SpriteRenderer:
   m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &-4894507430900208493
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 747256383279408493}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d3e346f55a17514481baaff6c2ff580, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ThrowableItem
+  throwableType: 1
+  throwSpeed: 6
+  throwRange: 8
+  fuseDelay: 0.3
+  splashRadius: 2.5
+  explosionDamage: 120
+  fireDamagePerSec: 20
+  fireDuration: 5
+  projectilePrefab: {fileID: 3024968772181169180, guid: 73213dca580396d4290f06a0b9e7e520, type: 3}
+  fireZonePrefab: {fileID: 742497876991775905, guid: 1ec7ef0fd39d6bf4a8b440f8d784f91b, type: 3}
+  explosionEffectPrefab: {fileID: 0}
+--- !u!114 &-3107095248271998859
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 747256383279408493}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe5b0e6f5b90d694783212de763bd8f2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeaponItem
+  data: {fileID: 11400000, guid: 6bafbd82815c0c241bad10fc16bbb1d8, type: 2}

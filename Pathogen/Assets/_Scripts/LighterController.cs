@@ -44,7 +44,11 @@ public class LighterController : MonoBehaviour
 
     void Update()
     {
-        if (InputManager.Instance.GetKey("Lighter"))
+        bool isPauseMenuBlocking = PauseMenu.Instance != null && PauseMenu.Instance.IsAnyBlockingUIOpen();
+        bool isMainMenuBlocking = MainMenuUI.Instance != null && MainMenuUI.Instance.IsAnyBlockingUIOpen();
+        if (isPauseMenuBlocking || isMainMenuBlocking)
+            return;
+        if (InputManager.Instance.GetKeyDown("Lighter"))
         {
             if (!SpecialItemManager.Instance.HasLighter) return;
             lighterOn = !lighterOn;

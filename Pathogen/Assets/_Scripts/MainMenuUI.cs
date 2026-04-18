@@ -131,7 +131,7 @@ public class MainMenuUI : MonoBehaviour
         mainMenuPanel.SetActive(true);
     }
 
-    private bool IsAnyBlockingUIOpen()
+    public bool IsAnyBlockingUIOpen()
     {
         if (unsavedChangesPanel != null && unsavedChangesPanel.gameObject.activeInHierarchy) return true;
         if (audioSettingsPanel != null && audioSettingsPanel.activeInHierarchy) return true;

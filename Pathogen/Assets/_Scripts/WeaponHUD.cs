@@ -32,14 +32,14 @@ public class WeaponHUD : MonoBehaviour
     void Start() => Refresh(null);
 
     void Update()
-    {   
+    {
         // Input is handled by AimSystem — WeaponHUD only manages display and logic.
         // R key reload still works outside of aim mode (quality of life)
         if (equippedWeaponItem == null || equippedWeaponItem.IsMelee) return;
         if (IsAnyUIOpen()) return;
         if (AimSystem.Instance != null && AimSystem.Instance.IsAiming) return;
         string interactKey = InputManager.Instance.GetKeyForAction("Reload").ToString();
-        if (InputManager.Instance.GetKey("Reload")) TryReload();
+        if (InputManager.Instance.GetKeyDown("Reload")) TryReload();
     }
     public void Hide() => hudPanel.SetActive(false);
     public void Show()
@@ -83,9 +83,23 @@ public class WeaponHUD : MonoBehaviour
     public void RefreshAmmoText()
     {
         if (ammoText == null) return;
+        // Hide ammo for melee and throwables (throwables show count via inventory)
         if (equippedWeaponItem == null || equippedWeaponItem.IsMelee)
         {
             ammoText.enabled = false;
+            return;
+        }
+        // Check if this is a throwable item
+        ThrowableItem throwable = equippedWeaponItem.GetComponent<ThrowableItem>();
+        if (throwable != null)
+        {
+            // Show how many of this throwable the player has
+            int count = InventoryGrid.Instance != null
+                ? InventoryGrid.Instance.CountItem(equippedWeaponItem.GetComponent<Item>()?.GetItemName() ?? "")
+                : 0;
+            ammoText.enabled = true;
+            ammoText.text = "x" + count;
+            ammoText.color = count <= 1 ? ColLow : ColNormal;
             return;
         }
         int mag = equippedWeaponItem.CurrentMag;

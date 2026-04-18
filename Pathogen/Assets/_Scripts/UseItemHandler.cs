@@ -41,7 +41,7 @@ public class UseItemHandler : MonoBehaviour
         float maxHP = playerController.MaxHealth;
         switch (item.GetItemName())
         {
-            case "Bandage":               
+            case "Bandage":
                 playerController.Heal(maxHP * 0.20f);
                 ShowHealFeedback("Bandage  +20% HP");
                 return true;
@@ -82,9 +82,17 @@ public class UseItemHandler : MonoBehaviour
                 ShowFeedback($"{item.GetItemName()} is a weapon — use Equip.");
                 return false;
             case "Molotov Cocktail":
+                // Equip as throwable weapon — ThrowSystem handles the actual throw
+                PlayerController.LocalInstance?.EquipWeapon(item);
+                WeaponHUD.Instance?.Refresh(item);
+                ShowFeedback($"{item.GetItemName()} equipped — right-click to aim, left-click to throw.");
+                return true;
             case "Pipe Bomb":
-                ShowFeedback($"{item.GetItemName()} — throw system not implemented yet.");
-                return false;
+                // Equip as throwable weapon — ThrowSystem handles the actual throw
+                PlayerController.LocalInstance?.EquipWeapon(item);
+                WeaponHUD.Instance?.Refresh(item);
+                ShowFeedback($"{item.GetItemName()} equipped — right-click to aim, left-click to throw.");
+                return true;
             default:
                 ShowFeedback($"Cannot use {item.GetItemName()} right now.");
                 return false;
