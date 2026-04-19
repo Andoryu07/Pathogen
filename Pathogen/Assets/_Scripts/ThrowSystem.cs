@@ -151,29 +151,25 @@ public class ThrowSystem : MonoBehaviour
 
     private void Throw()
     {
-        if (currentThrowable == null || currentItem == null) return;
-        if (currentThrowable.projectilePrefab == null)
-        {
-            Debug.LogWarning("[ThrowSystem] No projectile prefab assigned on " +
-                             currentItem.GetItemName());
-            return;
-        }
-
-        // Spawn projectile
-        GameObject go = Instantiate(currentThrowable.projectilePrefab,
-                                       transform.position, Quaternion.identity);
+        if (currentItem == null || currentThrowable == null) return;
+        GameObject go = Instantiate(currentThrowable.projectilePrefab, transform.position, Quaternion.identity);
         ThrowableProjectile proj = go.GetComponent<ThrowableProjectile>();
-        if (proj == null) { Destroy(go); return; }
-
-        proj.Launch(currentThrowable, transform.position, landingPoint);
-
-        // Remove one item from inventory
+        if (proj != null) proj.Launch(currentThrowable, transform.position, landingPoint);
+        string itemName = currentItem.GetItemName();
         InventoryGrid.Instance.RemoveItem(currentItem);
         InventoryUIManager.Instance?.RefreshInventoryGrid();
-
-        // Unequip if none left
-        if (!InventoryGrid.Instance.HasItem(currentItem.GetItemName()))
+        Item nextInstance = InventoryGrid.Instance.GetFirstItemByName(itemName);
+        if (nextInstance != null)
         {
+            currentItem = nextInstance;
+            currentThrowable = nextInstance.GetComponent<ThrowableItem>();
+            PlayerController.LocalInstance?.EquipWeapon(nextInstance);
+            WeaponHUD.Instance?.Refresh(nextInstance);
+        }
+        else
+        {
+            currentItem = null;
+            currentThrowable = null;
             PlayerController.LocalInstance?.EquipWeapon(null);
             WeaponHUD.Instance?.Refresh(null);
         }

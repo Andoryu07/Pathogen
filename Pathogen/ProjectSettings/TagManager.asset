@@ -22,8 +22,8 @@ TagManager:
   - Player
   - Wall
   - SafeRoom
-  - 
-  - 
+  - ThrowableLayer
+  - FireZone
   - 
   - 
   - 

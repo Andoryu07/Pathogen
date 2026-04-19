@@ -29964,7 +29964,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 5
   m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -56749,10 +56749,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CraftingTestSpawner
   testItems:
+  - itemPrefab: {fileID: 8234824942987186895, guid: 66e568d3569f47145ba278b52854b781, type: 3}
+    amount: 1
+  - itemPrefab: {fileID: 8234824942987186895, guid: e7aec6063d3d58c4fade0f2afd96dcbf, type: 3}
+    amount: 1
+  - itemPrefab: {fileID: 8234824942987186895, guid: 94b408b217ba2f046a69e7464e2b16af, type: 3}
+    amount: 1
   - itemPrefab: {fileID: 8234824942987186895, guid: 1820820eb2742e249a956a3d0d567a6b, type: 3}
-    amount: 10
+    amount: 1
   - itemPrefab: {fileID: 8234824942987186895, guid: 23fb5c9f92aa12d4da76779290d62b64, type: 3}
-    amount: 2
+    amount: 1
   spawnKey: 286
   clearKey: 287
   showOnScreen: 1
@@ -63317,7 +63323,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6766047963249478745, guid: a5bdf9f709ab22146a0d35258c713c74, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

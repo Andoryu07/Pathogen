@@ -31,6 +31,12 @@ public class CameraShake : MonoBehaviour
         shakeCoroutine = StartCoroutine(ShakeRoutine(magnitude, duration));
     }
 
+    public void Stop()
+    {
+        StopAllCoroutines();
+        transform.localPosition = Vector3.zero;
+    }
+
     private IEnumerator ShakeRoutine(float magnitude, float duration)
     {
         float elapsed = 0f;

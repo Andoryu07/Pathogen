@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 367232582507642816}
   - component: {fileID: 1425423545663058116}
   - component: {fileID: 6737674737455565878}
-  m_Layer: 5
+  m_Layer: 11
   m_Name: PipeBombProjectile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -86,15 +86,15 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 341035750468073345, guid: 36f2ce8fdf92d0d469e2e16729db6845, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 3.69, y: 4.6}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!50 &367232582507642816
@@ -140,7 +140,7 @@ CircleCollider2D:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 256
   m_LayerOverridePriority: 0
   m_ForceSendLayers:
     serializedVersion: 2
@@ -173,3 +173,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ThrowableProjectile
   arcHeight: 1.5
+  damageLayer:
+    serializedVersion: 2
+    m_Bits: 320

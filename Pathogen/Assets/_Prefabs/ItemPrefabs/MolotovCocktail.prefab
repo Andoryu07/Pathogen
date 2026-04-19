@@ -51,7 +51,7 @@ MonoBehaviour:
   promptMessage: Interact
   itemName: Molotov Cocktail
   itemDescription: No description.
-  itemType: 2
+  itemType: 1
   itemIcon: {fileID: 1786533441002686769, guid: 089282c8df7cd824bb9663c296117388, type: 3}
   size:
     width: 1

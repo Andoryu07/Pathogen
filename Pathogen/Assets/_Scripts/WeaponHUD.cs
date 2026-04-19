@@ -22,6 +22,7 @@ public class WeaponHUD : MonoBehaviour
     private static readonly Color ColEmpty = new Color(0.90f, 0.20f, 0.20f, 1f);  // red
     private WeaponItem equippedWeaponItem = null;
     private bool isReloading = false;
+    private Item currentItem = null;
 
     void Awake()
     {
@@ -57,6 +58,7 @@ public class WeaponHUD : MonoBehaviour
     ///Call whenever the equipped weapon changes
     public void Refresh(Item weapon)
     {
+        currentItem = weapon;
         // Find WeaponItem component on the weapon prefab
         equippedWeaponItem = weapon != null ? weapon.GetComponent<WeaponItem>() : null;
         if (weapon == null)
@@ -82,24 +84,22 @@ public class WeaponHUD : MonoBehaviour
     ///Call after any inventory ammo change to keep reserve count current
     public void RefreshAmmoText()
     {
-        if (ammoText == null) return;
+        if (currentItem == null || ammoText == null) return;
+
+        ThrowableItem throwable = currentItem.GetComponent<ThrowableItem>();
+        if (throwable != null)
+        {
+            // Always get the LATEST total count from the inventory
+            int count = InventoryGrid.Instance.CountItem(currentItem.GetItemName());
+            ammoText.enabled = true;
+            ammoText.text = "x" + count.ToString();
+            ammoText.color = (count > 0) ? ColNormal : ColEmpty;
+            return;
+        }
         // Hide ammo for melee and throwables (throwables show count via inventory)
         if (equippedWeaponItem == null || equippedWeaponItem.IsMelee)
         {
             ammoText.enabled = false;
-            return;
-        }
-        // Check if this is a throwable item
-        ThrowableItem throwable = equippedWeaponItem.GetComponent<ThrowableItem>();
-        if (throwable != null)
-        {
-            // Show how many of this throwable the player has
-            int count = InventoryGrid.Instance != null
-                ? InventoryGrid.Instance.CountItem(equippedWeaponItem.GetComponent<Item>()?.GetItemName() ?? "")
-                : 0;
-            ammoText.enabled = true;
-            ammoText.text = "x" + count;
-            ammoText.color = count <= 1 ? ColLow : ColNormal;
             return;
         }
         int mag = equippedWeaponItem.CurrentMag;

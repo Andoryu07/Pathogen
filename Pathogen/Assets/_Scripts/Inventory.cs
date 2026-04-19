@@ -378,4 +378,23 @@ public class InventoryGrid : MonoBehaviour
         gridWidth = newWidth;
         Debug.Log("[Inventory] Grid expanded to " + gridWidth + "x" + gridHeight);
     }
+
+    public Item FindItemByName(string name)
+    {
+        foreach (Item item in items)
+        {
+            if (item.GetItemName() == name) return item;
+        }
+        return null;
+    }
+
+    public Item GetFirstItemByName(string name)
+    {
+        foreach (Item item in items)
+        {
+            if (item != null && item.GetItemName() == name)
+                return item;
+        }
+        return null;
+    }
 }

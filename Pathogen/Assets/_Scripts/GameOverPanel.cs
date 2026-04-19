@@ -40,6 +40,8 @@ public class GameOverPanel : MonoBehaviour
 
     public void Show(string cause = "")
     {
+        CameraShake.Instance?.Stop();
+        if (CameraShake.Instance != null) CameraShake.Instance.transform.localPosition = Vector3.zero;
         panel.SetActive(true);
         TimeScaleManager.Freeze(this);
         if (retryButton != null)

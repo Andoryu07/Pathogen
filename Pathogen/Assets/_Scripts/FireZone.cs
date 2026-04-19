@@ -2,7 +2,6 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-/// Placed by a Molotov on landing. Deals periodic damage to all IDamageable objects that enter or stay inside the radius. Destroys itself after duration
 public class FireZone : MonoBehaviour
 {
     [Header("Visuals")]
@@ -12,26 +11,47 @@ public class FireZone : MonoBehaviour
     private float duration;
     private float radius;
     private HashSet<IDamageable> targets = new HashSet<IDamageable>();
-    private HashSet<PlayerController> playerInFire = new HashSet<PlayerController>();
+    private PlayerController playerInFire;
 
     public void Initialise(float r, float dps, float dur)
     {
         radius = r;
         damagePerSec = dps;
         duration = dur;
-        // Scale collider and sprite to match radius
+
         CircleCollider2D col = GetComponent<CircleCollider2D>();
-        if (col != null) col.radius = radius;
+        if (col != null) col.radius = 0.5f;
+
         SpriteRenderer sr = GetComponent<SpriteRenderer>();
-        if (sr != null)
-        {
-            sr.color = fireColor;
-            sr.sortingOrder = 1;
-        }
+        if (sr == null) sr = gameObject.AddComponent<SpriteRenderer>();
+
+        // Generate circle sprite if none assigned
+        if (sr.sprite == null) sr.sprite = BuildCircleSprite(64);
+
+        sr.color = fireColor;
+        sr.sortingOrder = 10;  // render above ground and items
+
         float diameter = radius * 2f;
         transform.localScale = new Vector3(diameter, diameter, 1f);
-
         StartCoroutine(BurnRoutine());
+    }
+
+    private static Sprite BuildCircleSprite(int resolution)
+    {
+        var tex = new Texture2D(resolution, resolution, TextureFormat.RGBA32, false);
+        tex.filterMode = FilterMode.Bilinear;
+        float center = resolution * 0.5f;
+        float rSq = center * center;
+        for (int x = 0; x < resolution; x++)
+            for (int y = 0; y < resolution; y++)
+            {
+                float dx = x - center + 0.5f;
+                float dy = y - center + 0.5f;
+                tex.SetPixel(x, y, (dx * dx + dy * dy) <= rSq ? Color.white : Color.clear);
+            }
+        tex.Apply();
+        return Sprite.Create(tex, new Rect(0, 0, resolution, resolution),
+                             new Vector2(0.5f, 0.5f), resolution);
     }
 
     private IEnumerator BurnRoutine()
@@ -41,17 +61,27 @@ public class FireZone : MonoBehaviour
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
+            List<IDamageable> toRemove = new List<IDamageable>();
 
-            // Damage all current targets
-            foreach (var t in new List<IDamageable>(targets))
-                t?.TakeDamage(damagePerSec * Time.deltaTime);
+            foreach (var t in targets)
+            {
+                if (t == null || t.Equals(null))
+                {
+                    toRemove.Add(t);
+                }
+                else
+                {
+                    t.TakeDamage(damagePerSec * Time.deltaTime);
+                }
+            }
 
-            // Player warning
-            foreach (var p in new List<PlayerController>(playerInFire))
-                if (p != null)
-                    HUDFeedback.Instance?.ShowWarning(
-                        $"Fire damage! -{Mathf.RoundToInt(damagePerSec * Time.deltaTime)} HP!");
+            foreach (var deadTarget in toRemove)
+                targets.Remove(deadTarget);
 
+            if (playerInFire != null && playerInFire.CurrentHealth > 0f)
+            {
+                playerInFire.TakeDamage(damagePerSec * Time.deltaTime);
+            }
             yield return null;
         }
 
@@ -61,18 +91,18 @@ public class FireZone : MonoBehaviour
     void OnTriggerEnter2D(Collider2D other)
     {
         IDamageable dmg = other.GetComponent<IDamageable>();
-        PlayerController pl = other.GetComponent<PlayerController>();
+        if (dmg != null) { targets.Add(dmg); return; }
 
-        if (dmg != null) targets.Add(dmg);
-        if (pl != null) playerInFire.Add(pl);
+        PlayerController pl = other.GetComponent<PlayerController>();
+        if (pl != null) playerInFire = pl;
     }
 
     void OnTriggerExit2D(Collider2D other)
     {
         IDamageable dmg = other.GetComponent<IDamageable>();
-        PlayerController pl = other.GetComponent<PlayerController>();
+        if (dmg != null) { targets.Remove(dmg); return; }
 
-        if (dmg != null) targets.Remove(dmg);
-        if (pl != null) playerInFire.Remove(pl);
+        PlayerController pl = other.GetComponent<PlayerController>();
+        if (pl != null) playerInFire = null;
     }
 }
