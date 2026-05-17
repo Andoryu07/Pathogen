@@ -70,6 +70,22 @@ public class PlayerInteractor : MonoBehaviour
         }
     }
 
+    ///Show a prompt from an external non-InteractableBase source
+    public void ShowExternalPrompt(string message)
+    {
+        if (promptText != null)
+        {
+            promptText.text = message;
+            promptText.gameObject.SetActive(true);
+        }
+    }
+
+    public void HideExternalPrompt()
+    {
+        if (promptText != null)
+            promptText.gameObject.SetActive(false);
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         IInteractable interactable = other.GetComponent<IInteractable>();

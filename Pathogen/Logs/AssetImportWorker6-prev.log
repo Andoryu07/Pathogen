@@ -1,9 +1,9 @@
 [Licensing::Module] Trying to connect to existing licensing client channel...
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-Andoryu" at "2026-05-16T10:26:38.300497Z"
 Built from '6000.2/staging' branch; Version is '6000.2.2f1 (ea398eefe1c2) revision 15350158'; Using compiler version '194234433'; Build Type 'Release'
-[Licensing::IpcConnector] Successfully connected to: "LicenseClient-Andoryu" at "2026-04-16T15:04:42.3568779Z"
 OS: 'Windows 11  (10.0.26200) 64bit Core' Language: 'en' Physical Memory: 32597 MB
 BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1
-Date: 2026-04-16T15:04:42Z
+Date: 2026-05-16T10:26:38Z
 
 COMMAND LINE ARGUMENTS:
 C:\Program Files\Unity\Hub\Editor\6000.2.2f1\Editor\Unity.exe
@@ -17,7 +17,7 @@ C:/Users/Andoryu/Downloads/Pathogen
 -logFile
 Logs/AssetImportWorker6.log
 -srvPort
-65519
+61090
 -licensingIpc
 LicenseClient-Andoryu
 -job-worker-count
@@ -65,29 +65,29 @@ C:/Users/Andoryu/Downloads/Pathogen
     "memorysetup-temp-allocator-size-gi-baking-worker=262144"
     "memorysetup-temp-allocator-size-gi-baking-worker=262144"
     "memorysetup-temp-allocator-size-gfx=262144"
-Player connection [22764]  Target information:
+Player connection [29468]  Target information:
 
-Player connection [22764]  * "[IP] 192.168.10.101 [Port] 0 [Flags] 2 [Guid] 1054864231 [EditorId] 1054864231 [Version] 1048832 [Id] WindowsEditor(7,DESKTOP-KVJ1GLR) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+Player connection [29468]  * "[IP] 192.168.10.101 [Port] 0 [Flags] 2 [Guid] 4270604860 [EditorId] 4270604860 [Version] 1048832 [Id] WindowsEditor(7,DESKTOP-KVJ1GLR) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
 
-Player connection [22764]  * "[IP] 192.168.56.1 [Port] 0 [Flags] 2 [Guid] 1054864231 [EditorId] 1054864231 [Version] 1048832 [Id] WindowsEditor(7,DESKTOP-KVJ1GLR) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+Player connection [29468]  * "[IP] 192.168.56.1 [Port] 0 [Flags] 2 [Guid] 4270604860 [EditorId] 4270604860 [Version] 1048832 [Id] WindowsEditor(7,DESKTOP-KVJ1GLR) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
 
-Player connection [22764] Host joined multi-casting on [225.0.0.222:54997]...
-Player connection [22764] Host joined alternative multi-casting on [225.0.0.222:34997]...
+Player connection [29468] Host joined multi-casting on [225.0.0.222:54997]...
+Player connection [29468] Host joined alternative multi-casting on [225.0.0.222:34997]...
 JobSystem: Creating JobQueue using job-worker-count value 9
-Input System module state changed to: Initialized.
-[Physics::Module] Initialized fallback backend.
-[Physics::Module] Id: 0xdecafbad
-[Licensing::Client] Code 10 while verifying Licensing Client signature (process Id: 2024, path: "C:/Program Files/Unity Hub/UnityLicensingClient_V1/Unity.Licensing.Client.exe")
+[Licensing::Client] Code 10 while verifying Licensing Client signature (process Id: 28624, path: "C:/Program Files/Unity Hub/UnityLicensingClient_V1/Unity.Licensing.Client.exe")
 [Licensing::Module] LicensingClient has failed validation; ignoring
 [Licensing::Client] Handshaking with LicensingClient:
   Version:                 1.17.4+4293ba1
-  Session Id:              1d9574fbf99f4d95bddad105f96440a9
-  Correlation Id:          01b03c9b7e33cc8447cd154556ec23d5
-  External correlation Id: 521213918042258353
+  Session Id:              db4e7de973d945e9bbe4b25a31903dc3
+  Correlation Id:          62d6af0b9a54ee8e35f11f810c0033bc
+  External correlation Id: 3382721228843532878
   Machine Id:              +mu8gkDPb3WxqDjXcxKG51FKN7A=
-[Licensing::Module] Successfully connected to LicensingClient on channel: "LicenseClient-Andoryu" (connect: 0.00s, validation: 0.00s, handshake: 0.04s)
-[Licensing::IpcConnector] Successfully connected to: "LicenseClient-Andoryu-notifications" at "2026-04-16T15:04:42.4017597Z"
-[Licensing::Module] Licensing Background thread has ended after 0.05s
+[Licensing::Module] Successfully connected to LicensingClient on channel: "LicenseClient-Andoryu" (connect: 0.00s, validation: 0.00s, handshake: 0.03s)
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-Andoryu-notifications" at "2026-05-16T10:26:38.3343167Z"
+[Licensing::Module] Licensing Background thread has ended after 0.03s
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
 Library Redirect Path: Library/
 [Physics::Module] Selected backend.
 [Physics::Module] Name: PhysX
@@ -95,7 +95,7 @@ Library Redirect Path: Library/
 [Physics::Module] SDK Version: 4.1.2
 [Physics::Module] Integration Version: 1.0.0
 [Physics::Module] Threading Mode: Multi-Threaded
-Refreshing native plugins compatible for Editor in 2.16 ms, found 4 plugins.
+Refreshing native plugins compatible for Editor in 3.89 ms, found 4 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 Initialize engine version: 6000.2.2f1 (ea398eefe1c2)
 [Subsystems] Discovering subsystems at path C:/Program Files/Unity/Hub/Editor/6000.2.2f1/Editor/Data/Resources/UnitySubsystems
@@ -113,52 +113,55 @@ Initialize mono
 Mono path[0] = 'C:/Program Files/Unity/Hub/Editor/6000.2.2f1/Editor/Data/Managed'
 Mono path[1] = 'C:/Program Files/Unity/Hub/Editor/6000.2.2f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit-win32'
 Mono config path = 'C:/Program Files/Unity/Hub/Editor/6000.2.2f1/Editor/Data/MonoBleedingEdge/etc'
-Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56528
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56836
 Begin MonoManager ReloadAssembly
 Registering precompiled unity dll's ...
 Register platform support module: C:/Program Files/Unity/Hub/Editor/6000.2.2f1/Editor/Data/PlaybackEngines/WebGLSupport/UnityEditor.WebGL.Extensions.dll
 Register platform support module: C:/Program Files/Unity/Hub/Editor/6000.2.2f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
-Registered in 0.001460 seconds.
-- Loaded All Assemblies, in  0.252 seconds
+Registered in 0.001102 seconds.
+- Loaded All Assemblies, in  0.288 seconds
 Native extension for WindowsStandalone target not found
 Native extension for WebGL target not found
 Mono: successfully reloaded assembly
-- Finished resetting the current domain, in  0.212 seconds
-Domain Reload Profiling: 462ms
-	BeginReloadAssembly (82ms)
+- Finished resetting the current domain, in  0.219 seconds
+Domain Reload Profiling: 507ms
+	BeginReloadAssembly (104ms)
 		ExecutionOrderSort (0ms)
 		DisableScriptedObjects (0ms)
 		BackupInstance (0ms)
 		ReleaseScriptingObjects (0ms)
-		CreateAndSetChildDomain (0ms)
-	RebuildCommonClasses (24ms)
-	RebuildNativeTypeToScriptingClass (8ms)
-	initialDomainReloadingComplete (33ms)
+		CreateAndSetChildDomain (1ms)
+	RebuildCommonClasses (33ms)
+	RebuildNativeTypeToScriptingClass (9ms)
+	initialDomainReloadingComplete (38ms)
 	LoadAllAssembliesAndSetupDomain (104ms)
-		LoadAssemblies (81ms)
+		LoadAssemblies (102ms)
 		RebuildTransferFunctionScriptingTraits (0ms)
-		AnalyzeDomain (102ms)
-			TypeCache.Refresh (101ms)
-				TypeCache.ScanAssembly (92ms)
+		AnalyzeDomain (101ms)
+			TypeCache.Refresh (100ms)
+				TypeCache.ScanAssembly (91ms)
 			BuildScriptInfoCaches (0ms)
 			ResolveRequiredComponents (0ms)
-	FinalizeReload (212ms)
+	FinalizeReload (220ms)
 		ReleaseScriptCaches (0ms)
 		RebuildScriptCaches (0ms)
-		SetupLoadedEditorAssemblies (184ms)
+		SetupLoadedEditorAssemblies (191ms)
 			LogAssemblyErrors (0ms)
 			InitializePlatformSupportModulesInManaged (33ms)
 			SetLoadedEditorAssemblies (2ms)
-			BeforeProcessingInitializeOnLoad (38ms)
-			ProcessInitializeOnLoadAttributes (80ms)
-			ProcessInitializeOnLoadMethodAttributes (30ms)
+			BeforeProcessingInitializeOnLoad (40ms)
+			ProcessInitializeOnLoadAttributes (84ms)
+			ProcessInitializeOnLoadMethodAttributes (32ms)
 			AfterProcessingInitializeOnLoad (0ms)
 			EditorAssembliesLoaded (0ms)
 		ExecutionOrderSort2 (0ms)
 		AwakeInstancesAfterBackupRestoration (0ms)
+Assembly reference Packages/com.unity.cinemachine/Editor/Samples/ExposeHDRPInternals/HDRP-Editor-ref.asmref has no target assembly definition
 ========================================================================
 Worker process is ready to serve import requests
 Import Worker Mode flag is 0x00
+Assembly reference Packages/com.unity.cinemachine/Editor/Samples/ExposeHDRPInternals/HDRP-Editor-ref.asmref has no target assembly definition
+Assembly reference Packages/com.unity.cinemachine/Editor/Samples/ExposeHDRPInternals/HDRP-Editor-ref.asmref has no target assembly definition
 Begin MonoManager ReloadAssembly
 [Licensing::Client] Successfully resolved entitlement details
 [Licensing::Module] License group:
@@ -171,18 +174,25 @@ Begin MonoManager ReloadAssembly
   Product: Unity Personal
   Type: Assigned
   Expiration: Unlimited
-- Loaded All Assemblies, in  0.506 seconds
-Refreshing native plugins compatible for Editor in 0.77 ms, found 4 plugins.
+- Loaded All Assemblies, in  0.538 seconds
+Assembly reference Packages/com.unity.cinemachine/Editor/Samples/ExposeHDRPInternals/HDRP-Editor-ref.asmref has no target assembly definition
+'Packages/com.unity.cinemachine/Editor/Obsolete/CinemachineVirtualCameraBaseEditor.cs' contains partial class of Unity.Object, exactly 1 of the partial classes needs to be in a file with the same filename. This is to know the one that can be referenced from ie. GameObjects
+'Packages/com.unity.cinemachine/Editor/Editors/CinemachineVirtualCameraBaseEditor.cs' contains partial class of Unity.Object, exactly 1 of the partial classes needs to be in a file with the same filename. This is to know the one that can be referenced from ie. GameObjects
+Refreshing native plugins compatible for Editor in 0.80 ms, found 4 plugins.
 Native extension for WindowsStandalone target not found
 Native extension for WebGL target not found
+Assembly reference Packages/com.unity.cinemachine/Editor/Samples/ExposeHDRPInternals/HDRP-Editor-ref.asmref has no target assembly definition
 Package Manager log level set to [2]
 [Package Manager] Failed to launch server process. Reason: Unity was launched with the -noUpm command-line argument
 [Package Manager] Unable to send message (not connected to server process).
 [Package Manager] Cannot connect to Unity Package Manager local server
+[Package Manager] Failed to launch server process. Reason: Unity was launched with the -noUpm command-line argument
+[Package Manager] Unable to send message (not connected to server process).
+[Package Manager] Cannot connect to Unity Package Manager local server
 Mono: successfully reloaded assembly
-- Finished resetting the current domain, in  0.485 seconds
-Domain Reload Profiling: 988ms
-	BeginReloadAssembly (112ms)
+- Finished resetting the current domain, in  0.499 seconds
+Domain Reload Profiling: 1035ms
+	BeginReloadAssembly (110ms)
 		ExecutionOrderSort (0ms)
 		DisableScriptedObjects (4ms)
 		BackupInstance (0ms)
@@ -190,36 +200,532 @@ Domain Reload Profiling: 988ms
 		CreateAndSetChildDomain (19ms)
 	RebuildCommonClasses (22ms)
 	RebuildNativeTypeToScriptingClass (7ms)
-	initialDomainReloadingComplete (24ms)
-	LoadAllAssembliesAndSetupDomain (339ms)
-		LoadAssemblies (232ms)
+	initialDomainReloadingComplete (25ms)
+	LoadAllAssembliesAndSetupDomain (371ms)
+		LoadAssemblies (241ms)
 		RebuildTransferFunctionScriptingTraits (0ms)
-		AnalyzeDomain (170ms)
-			TypeCache.Refresh (123ms)
-				TypeCache.ScanAssembly (111ms)
-			BuildScriptInfoCaches (35ms)
+		AnalyzeDomain (191ms)
+			TypeCache.Refresh (141ms)
+				TypeCache.ScanAssembly (129ms)
+			BuildScriptInfoCaches (38ms)
 			ResolveRequiredComponents (8ms)
-	FinalizeReload (485ms)
+	FinalizeReload (499ms)
 		ReleaseScriptCaches (0ms)
 		RebuildScriptCaches (0ms)
-		SetupLoadedEditorAssemblies (397ms)
+		SetupLoadedEditorAssemblies (405ms)
 			LogAssemblyErrors (0ms)
 			InitializePlatformSupportModulesInManaged (2ms)
-			SetLoadedEditorAssemblies (2ms)
-			BeforeProcessingInitializeOnLoad (76ms)
-			ProcessInitializeOnLoadAttributes (252ms)
-			ProcessInitializeOnLoadMethodAttributes (63ms)
-			AfterProcessingInitializeOnLoad (2ms)
+			SetLoadedEditorAssemblies (4ms)
+			BeforeProcessingInitializeOnLoad (77ms)
+			ProcessInitializeOnLoadAttributes (255ms)
+			ProcessInitializeOnLoadMethodAttributes (64ms)
+			AfterProcessingInitializeOnLoad (4ms)
 			EditorAssembliesLoaded (0ms)
 		ExecutionOrderSort2 (0ms)
 		AwakeInstancesAfterBackupRestoration (4ms)
 Launched and connected shader compiler UnityShaderCompiler.exe after 0.01 seconds
-Refreshing native plugins compatible for Editor in 0.68 ms, found 4 plugins.
+Refreshing native plugins compatible for Editor in 0.80 ms, found 4 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
-Unloading 13 Unused Serialized files (Serialized files now loaded: 0)
-Unloading 6895 unused Assets / (4.2 MB). Loaded Objects now: 7624.
-Memory consumption went from 150.4 MB to 146.2 MB.
-Total: 5.952500 ms (FindLiveObjects: 0.494600 ms CreateObjectMapping: 0.288200 ms MarkObjects: 3.378700 ms  DeleteObjects: 1.790400 ms)
+Unloading 14 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 7294 unused Assets / (4.6 MB). Loaded Objects now: 8023.
+Memory consumption went from 152.8 MB to 148.2 MB.
+Total: 5.387300 ms (FindLiveObjects: 0.452800 ms CreateObjectMapping: 0.277500 ms MarkObjects: 3.295300 ms  DeleteObjects: 1.360300 ms)
+
+========================================================================
+Received Import Request.
+  Time since last request: 136231.290479 seconds.
+  path: Assets/_WeaponData/WD_MolotovCocktail.asset
+  artifactKey: Guid(6bafbd82815c0c241bad10fc16bbb1d8) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/_WeaponData/WD_MolotovCocktail.asset using Guid(6bafbd82815c0c241bad10fc16bbb1d8) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '7bf50cd0cf757c587426a7fb3b1ff1bb') in 0.0248688 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 1
+
+========================================================================
+Received Import Request.
+  Time since last request: 1.810714 seconds.
+  path: Assets/_WeaponUpgradeData/PistolUpgradeData.asset
+  artifactKey: Guid(58ecd5cbcd773264cbdcab79298829d9) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/_WeaponUpgradeData/PistolUpgradeData.asset using Guid(58ecd5cbcd773264cbdcab79298829d9) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '1b889034b28708fba0ee97a9eb668556') in 0.0031125 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 2
+
+========================================================================
+Received Import Request.
+  Time since last request: 2.350129 seconds.
+  path: Assets/MapAssets/48c1rviilc481.png
+  artifactKey: Guid(112be771b7543c944b95c2cddca02800) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/48c1rviilc481.png using Guid(112be771b7543c944b95c2cddca02800) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '7b054e37f30c70a051d79cde6c482167') in 0.1470003 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 7
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000020 seconds.
+  path: Assets/MapAssets/cabinets_LRK_2.asset
+  artifactKey: Guid(14d78b1dc3c4c9d40b1ba760a65aa92c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/cabinets_LRK_2.asset using Guid(14d78b1dc3c4c9d40b1ba760a65aa92c) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'd88489d47e11f2524541946f3e37b824') in 0.0188211 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000040 seconds.
+  path: Assets/MapAssets/cabinets_LRK_43.asset
+  artifactKey: Guid(bcdb63be67357734a93a9656dff1da77) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/cabinets_LRK_43.asset using Guid(bcdb63be67357734a93a9656dff1da77) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '81fc6904fe18094b1b2dfd1f151d210c') in 0.008664 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000014 seconds.
+  path: Assets/MapAssets/cabinets_LRK_34.asset
+  artifactKey: Guid(0e66ac929ace2a849b692d87e4e4a54e) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/cabinets_LRK_34.asset using Guid(0e66ac929ace2a849b692d87e4e4a54e) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '54991ca3b689dd4df2edf980724771c8') in 0.0203499 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000016 seconds.
+  path: Assets/MapAssets/cabinets_LRK_36.asset
+  artifactKey: Guid(3237ecdbc1f95af42b450482061010ab) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/cabinets_LRK_36.asset using Guid(3237ecdbc1f95af42b450482061010ab) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '2dacdcbe2bc6d3174af3a9fd3e619e21') in 0.0244669 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000016 seconds.
+  path: Assets/MapAssets/barrel-pixel-art_505135-31-removebg-preview.png
+  artifactKey: Guid(0e8ed9744696fa441a8fc9964582fc6a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/barrel-pixel-art_505135-31-removebg-preview.png using Guid(0e8ed9744696fa441a8fc9964582fc6a) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '27904f64c9cb877f9e1f318177b2d137') in 0.0138411 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000014 seconds.
+  path: Assets/MapAssets/doorswindowsstairs_LRK_5.asset
+  artifactKey: Guid(daebcd92624eb1042bc856e442534acd) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/doorswindowsstairs_LRK_5.asset using Guid(daebcd92624eb1042bc856e442534acd) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '4419a779dd3802230264c2a19e7118bb') in 0.0065274 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000012 seconds.
+  path: Assets/MapAssets/cabinets_LRK_57.asset
+  artifactKey: Guid(42889de9f031ef0428ee5b7a4fc570dc) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/cabinets_LRK_57.asset using Guid(42889de9f031ef0428ee5b7a4fc570dc) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '75a61a74c3b9c2f4340ff16f863a7c12') in 0.006001 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000025 seconds.
+  path: Assets/MapAssets/cabinets_LRK_8.asset
+  artifactKey: Guid(e04426260ae2e6d409bc7460735745a1) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/cabinets_LRK_8.asset using Guid(e04426260ae2e6d409bc7460735745a1) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'ff52106a9cf80529037226b727760c5a') in 0.0057245 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000043 seconds.
+  path: Assets/MapAssets/doorswindowsstairs_LRK_10.asset
+  artifactKey: Guid(14183598c28f9074b9407f8dfd14e898) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/doorswindowsstairs_LRK_10.asset using Guid(14183598c28f9074b9407f8dfd14e898) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '146b7b202b136197ddbc42ec8b7b9eee') in 0.0050742 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000018 seconds.
+  path: Assets/MapAssets/cabinets_LRK_20.asset
+  artifactKey: Guid(64446a52825291445b6bf34fb395d448) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/cabinets_LRK_20.asset using Guid(64446a52825291445b6bf34fb395d448) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'f53f16c66ab3385927ca7d90d96749a5') in 0.0051143 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000019 seconds.
+  path: Assets/MapAssets/doorswindowsstairs_LRK_1.asset
+  artifactKey: Guid(0aafc66dbad6b674a9b02a0daf1ce248) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/doorswindowsstairs_LRK_1.asset using Guid(0aafc66dbad6b674a9b02a0daf1ce248) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '13bf1005ee42a7e1133e3472aef56e1e') in 0.0047308 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000023 seconds.
+  path: Assets/MapAssets/doorswindowsstairs_LRK_13.asset
+  artifactKey: Guid(80e23864035f2d249ac6a34894b363dd) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/doorswindowsstairs_LRK_13.asset using Guid(80e23864035f2d249ac6a34894b363dd) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'daa5f087ecbc9df3fcd2e46c0888bac1') in 0.0043405 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000019 seconds.
+  path: Assets/MapAssets/doorswindowsstairs_LRK_19.asset
+  artifactKey: Guid(9737e3d8d52a14d49a119a9ddc26ff02) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/doorswindowsstairs_LRK_19.asset using Guid(9737e3d8d52a14d49a119a9ddc26ff02) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '84edf26cdfaafa4c4c9a86dce359be59') in 0.0051024 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000015 seconds.
+  path: Assets/MapAssets/doorswindowsstairs_LRK.png
+  artifactKey: Guid(12dfe090434625c4aaa2714d664c50a8) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/doorswindowsstairs_LRK.png using Guid(12dfe090434625c4aaa2714d664c50a8) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '07e8e05737fbdb12945ef47d90827a2c') in 0.0922082 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 44
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000020 seconds.
+  path: Assets/MapAssets/cabinets_LRK_38.asset
+  artifactKey: Guid(97b70a54c77adb44aa9bd37fcaf9cac1) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/cabinets_LRK_38.asset using Guid(97b70a54c77adb44aa9bd37fcaf9cac1) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'a49be98e48838a4f2176adc97f1e0a68') in 0.005839 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000030 seconds.
+  path: Assets/MapAssets/cabinets_LRK_24.asset
+  artifactKey: Guid(9a8bc0dd62eca2748ac8efd80a707a7e) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/cabinets_LRK_24.asset using Guid(9a8bc0dd62eca2748ac8efd80a707a7e) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '0899d53cde97a0fcfa6981256966e69d') in 0.0063008 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000013 seconds.
+  path: Assets/MapAssets/cabinets_LRK_31.asset
+  artifactKey: Guid(2ad9b74032e2ba2458c005c7aad34b3f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/cabinets_LRK_31.asset using Guid(2ad9b74032e2ba2458c005c7aad34b3f) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'df74b93130c50d8dd3fb8a0c2af00a7e') in 0.0050676 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000016 seconds.
+  path: Assets/MapAssets/doorswindowsstairs_LRK_26.asset
+  artifactKey: Guid(96d4f6148b59667498c2a96f9bf001b6) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/doorswindowsstairs_LRK_26.asset using Guid(96d4f6148b59667498c2a96f9bf001b6) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '96cf91c8b2494f6ccc27189f39232159') in 0.0044169 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000017 seconds.
+  path: Assets/MapAssets/beds_BR_0.asset
+  artifactKey: Guid(bb7644ed2861a7f44b8f869efc7f7355) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/beds_BR_0.asset using Guid(bb7644ed2861a7f44b8f869efc7f7355) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '677068a31dc4aee6b0acf2aeb25bfd95') in 0.006346 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000019 seconds.
+  path: Assets/MapAssets/cabinets_LRK_17.asset
+  artifactKey: Guid(de2906921f127b04bbed7569ff205b94) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/cabinets_LRK_17.asset using Guid(de2906921f127b04bbed7569ff205b94) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '1f6d04ec09f1f7f5b176c7a6b4279587') in 0.0056203 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000026 seconds.
+  path: Assets/MapAssets/cabinets_LRK_61.asset
+  artifactKey: Guid(86dfbc5fa2f568c4795670237a1eba08) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/cabinets_LRK_61.asset using Guid(86dfbc5fa2f568c4795670237a1eba08) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '9532ecbaa298edb7c26b6fbb20272076') in 0.0056357 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000020 seconds.
+  path: Assets/MapAssets/cabinets_BA_0.asset
+  artifactKey: Guid(fb9101cadac6fbb499dbb6eba2c828a7) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/cabinets_BA_0.asset using Guid(fb9101cadac6fbb499dbb6eba2c828a7) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '6656c297fc6c1316fd589a5feb9c6253') in 0.005031 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000013 seconds.
+  path: Assets/MapAssets/cabinets_LRK_45.asset
+  artifactKey: Guid(429d5100c0f03f746bb6ff8817d1fd51) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/cabinets_LRK_45.asset using Guid(429d5100c0f03f746bb6ff8817d1fd51) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '9670c883afa6aa486431904d74f9c111') in 0.0057798 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000020 seconds.
+  path: Assets/MapAssets/cabinets_LRK_39.asset
+  artifactKey: Guid(58981aa014bb8fd469b95382e4f920e2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/cabinets_LRK_39.asset using Guid(58981aa014bb8fd469b95382e4f920e2) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '9f69dc697b0a0d3f34f00cf7de248f84') in 0.0064126 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000025 seconds.
+  path: Assets/MapAssets/cabinets_LRK_15.asset
+  artifactKey: Guid(b02c0ddaefc2b76418b6670b9af8fb85) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/cabinets_LRK_15.asset using Guid(b02c0ddaefc2b76418b6670b9af8fb85) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'fdde4b6da5c07b4ae0b6d26798d7b775') in 0.0049151 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000019 seconds.
+  path: Assets/MapAssets/cabinets_LRK_4.asset
+  artifactKey: Guid(ba865b6c09662724a9aaa75eabee741a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/cabinets_LRK_4.asset using Guid(ba865b6c09662724a9aaa75eabee741a) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'ba1976b793a054a817833252bde7cd75') in 0.0075218 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.075399 seconds.
+  path: Assets/MapAssets/doorswindowsstairs_LRK_36.asset
+  artifactKey: Guid(26d5ac8c92d7ddd4483648a082679357) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/doorswindowsstairs_LRK_36.asset using Guid(26d5ac8c92d7ddd4483648a082679357) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '404466b034613b3d358678f02495158c') in 0.017481 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000031 seconds.
+  path: Assets/MapAssets/generator.png
+  artifactKey: Guid(3471a174bbcb7854796d0d69791031d2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/generator.png using Guid(3471a174bbcb7854796d0d69791031d2) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '6697211799afedde454cb44a4867c89e') in 0.0115381 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000017 seconds.
+  path: Assets/MapAssets/kitchen_LRK_8.asset
+  artifactKey: Guid(c10957a67ce3d5d43843964ac8f43e83) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/kitchen_LRK_8.asset using Guid(c10957a67ce3d5d43843964ac8f43e83) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'a4578e4dd9cd224bfe1bf48ef0ec8735') in 0.0059011 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000019 seconds.
+  path: Assets/MapAssets/kitchen_LRK_22.asset
+  artifactKey: Guid(90d7867ce5e4a8a4bb0e8a3d8fc8f189) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/kitchen_LRK_22.asset using Guid(90d7867ce5e4a8a4bb0e8a3d8fc8f189) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'c4dbaefe6cde5240b671ac66ba3099ea') in 0.0063623 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000013 seconds.
+  path: Assets/MapAssets/livingroom_LRK.png
+  artifactKey: Guid(7ff9b2efa21f11b4eaf7f4ac6a92a5be) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/livingroom_LRK.png using Guid(7ff9b2efa21f11b4eaf7f4ac6a92a5be) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '7287983f167b15f6c0052bdc71c5027c') in 0.175292 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 84
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000017 seconds.
+  path: Assets/MapAssets/jonathan-dodd-mdz2-large-warehouse-port-export1-removebg-preview_0.asset
+  artifactKey: Guid(150e8df85c35ac94fb1d2aa26828d867) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/jonathan-dodd-mdz2-large-warehouse-port-export1-removebg-preview_0.asset using Guid(150e8df85c35ac94fb1d2aa26828d867) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'a242e8376f4b67dc6fc67735c8cf003a') in 0.0081729 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000021 seconds.
+  path: Assets/MapAssets/livingroom_LRK_25.asset
+  artifactKey: Guid(86599d4e525293640911d3fc79c5a260) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/livingroom_LRK_25.asset using Guid(86599d4e525293640911d3fc79c5a260) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'ccbebd97a397a1241d65f0521574accb') in 0.0057337 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000013 seconds.
+  path: Assets/MapAssets/livingroom_LRK_15.asset
+  artifactKey: Guid(d4b1c7a097cc1df4cae8f08549d6921a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/livingroom_LRK_15.asset using Guid(d4b1c7a097cc1df4cae8f08549d6921a) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '3c02835d2dbe5e190b2e53bce86daa62') in 0.0054551 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000016 seconds.
+  path: Assets/MapAssets/livingroom_LRK_46.asset
+  artifactKey: Guid(b2bb69a00fb04654fab2d44f2edb4208) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/livingroom_LRK_46.asset using Guid(b2bb69a00fb04654fab2d44f2edb4208) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '24e13640ca1af43ab4c2ebd0fda5b961') in 0.0049576 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000023 seconds.
+  path: Assets/MapAssets/livingroom_LRK_52.asset
+  artifactKey: Guid(4e9fcd83a1c0bb74f9d31afc0f1616a0) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/livingroom_LRK_52.asset using Guid(4e9fcd83a1c0bb74f9d31afc0f1616a0) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'a88cfbc1b875348a2b8ed03a5d5494f3') in 0.0048793 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000016 seconds.
+  path: Assets/MapAssets/livingroom_LRK_47.asset
+  artifactKey: Guid(0a8e21871d9fa924887cad5f2439ad26) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/livingroom_LRK_47.asset using Guid(0a8e21871d9fa924887cad5f2439ad26) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '56d75948e3580e7c8583a067771aa277') in 0.004831 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000016 seconds.
+  path: Assets/MapAssets/livingroom_LRK_50.asset
+  artifactKey: Guid(7ab83112e28e07a4caf596ac46560ab0) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/livingroom_LRK_50.asset using Guid(7ab83112e28e07a4caf596ac46560ab0) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '5382a51b8e2ac198d14b96c1769dc177') in 0.0047244 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000016 seconds.
+  path: Assets/MapAssets/livingroom_LRK_56.asset
+  artifactKey: Guid(51ceea83523aa1140a4f07e6612558ed) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/livingroom_LRK_56.asset using Guid(51ceea83523aa1140a4f07e6612558ed) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'a74b8cd237bfa10c03c565fada78511a') in 0.0042682 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000030 seconds.
+  path: Assets/MapAssets/livingroom_LRK_43.asset
+  artifactKey: Guid(d04ec7e44c3a5b54984a30dce6b03bdf) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/livingroom_LRK_43.asset using Guid(d04ec7e44c3a5b54984a30dce6b03bdf) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '1a1461a471eb31b0fded9721e4492594') in 0.0053057 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000017 seconds.
+  path: Assets/MapAssets/Main-Characters-Home-Free-Top-Down-Pixel-Art3-720x480-removebg-preview_2.asset
+  artifactKey: Guid(0e8105510b044294c82ac3e238c08bf8) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/Main-Characters-Home-Free-Top-Down-Pixel-Art3-720x480-removebg-preview_2.asset using Guid(0e8105510b044294c82ac3e238c08bf8) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '1787651f3f65bda65fbba745706e3872') in 0.0068376 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000015 seconds.
+  path: Assets/MapAssets/livingroom_LRK_45.asset
+  artifactKey: Guid(aa3f6cfb94ada8b45877ccd54073da8d) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/livingroom_LRK_45.asset using Guid(aa3f6cfb94ada8b45877ccd54073da8d) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '0205f84c4c016bbb7bbb539050b1e63e') in 0.0054147 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000021 seconds.
+  path: Assets/MapAssets/livingroom_LRK_14.asset
+  artifactKey: Guid(df7e81a251e77e443b4df9f3794a80e7) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/livingroom_LRK_14.asset using Guid(df7e81a251e77e443b4df9f3794a80e7) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '641e0a3f45f35d7c313dae82dfe06158') in 0.0055433 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000017 seconds.
+  path: Assets/MapAssets/livingroom_LRK_48.asset
+  artifactKey: Guid(8235f351b903f844d867be53fae75b29) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/livingroom_LRK_48.asset using Guid(8235f351b903f844d867be53fae75b29) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '8bb02f2b6870ed89e790f86eb930b4ad') in 0.0053024 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000020 seconds.
+  path: Assets/MapAssets/livingroom_LRK_30.asset
+  artifactKey: Guid(a4943462c8a86964abe22e51dc94321e) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/livingroom_LRK_30.asset using Guid(a4943462c8a86964abe22e51dc94321e) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'bcb331737faf44e6dc65996623b06a6d') in 0.0055628 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000013 seconds.
+  path: Assets/MapAssets/kitchen_LRK_25.asset
+  artifactKey: Guid(47be0d3a4b4dcce4ca0591b40e3bd137) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/kitchen_LRK_25.asset using Guid(47be0d3a4b4dcce4ca0591b40e3bd137) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'e9454f1225ad0e74037f7840b146d958') in 0.0073094 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000012 seconds.
+  path: Assets/MapAssets/Main-Characters-Home-Free-Top-Down-Pixel-Art3-720x480-removebg-preview_6.asset
+  artifactKey: Guid(53698301b4e103a4ca9c27891cae80a8) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/Main-Characters-Home-Free-Top-Down-Pixel-Art3-720x480-removebg-preview_6.asset using Guid(53698301b4e103a4ca9c27891cae80a8) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'dafc39e8bd5f5ba7bfdbf685bb1d8df3') in 0.0063263 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000013 seconds.
+  path: Assets/MapAssets/kitchen_LRK_13.asset
+  artifactKey: Guid(cf5ae525ba7749345b9db9b7f7f35695) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/kitchen_LRK_13.asset using Guid(cf5ae525ba7749345b9db9b7f7f35695) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'd41838e2c794b0b446653bb3dcc65c0a') in 0.0053012 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000012 seconds.
+  path: Assets/MapAssets/kitchen_LRK_6.asset
+  artifactKey: Guid(0a9db0a87aac09b4e9c69bd513ad2a1a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/kitchen_LRK_6.asset using Guid(0a9db0a87aac09b4e9c69bd513ad2a1a) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'e2953b9bdea4fc80a8bf610a97583a2b') in 0.0059751 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000018 seconds.
+  path: Assets/MapAssets/livingroom_LRK_26.asset
+  artifactKey: Guid(7d5aec6993566c5488c448805e716482) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/livingroom_LRK_26.asset using Guid(7d5aec6993566c5488c448805e716482) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '7fcec5bccaeb2e42491f9ecc97d104ef') in 0.0059596 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000016 seconds.
+  path: Assets/MapAssets/kitchen_LRK_29.asset
+  artifactKey: Guid(4444aa9e82c8d96438909eda6de21569) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/kitchen_LRK_29.asset using Guid(4444aa9e82c8d96438909eda6de21569) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '86e6e53c8108690b9a9881db3bfa3663') in 0.0050346 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000024 seconds.
+  path: Assets/MapAssets/livingroom_LRK_32.asset
+  artifactKey: Guid(37f07c6a95695b742a8c3903e1b69f0a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/livingroom_LRK_32.asset using Guid(37f07c6a95695b742a8c3903e1b69f0a) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '4e92eeead779dc4b491dc2afb0dece88') in 0.0046721 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000014 seconds.
+  path: Assets/MapAssets/kitchen_LRK_30.asset
+  artifactKey: Guid(7a500c2a28fe7054896f2853e60a31a1) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/kitchen_LRK_30.asset using Guid(7a500c2a28fe7054896f2853e60a31a1) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '406a239e8519e82f021dd03c84c5ea7a') in 0.0064878 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000015 seconds.
+  path: Assets/MapAssets/kitchen_LRK_24.asset
+  artifactKey: Guid(ea734653e07a8ce4a8e9ae1525a289c9) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/kitchen_LRK_24.asset using Guid(ea734653e07a8ce4a8e9ae1525a289c9) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '1cf41e77103336e0c2cd113dccbd925d') in 0.0054147 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000013 seconds.
+  path: Assets/MapAssets/livingroom_LRK_9.asset
+  artifactKey: Guid(24881a33cb49bbe4a9df009ef5bce1e3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/livingroom_LRK_9.asset using Guid(24881a33cb49bbe4a9df009ef5bce1e3) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'c7e36de527496f6a1f08560eeea75f28') in 0.0055956 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000022 seconds.
+  path: Assets/MapAssets/livingroom_LRK_35.asset
+  artifactKey: Guid(90bdab234e37bc64faf8805466e68792) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/livingroom_LRK_35.asset using Guid(90bdab234e37bc64faf8805466e68792) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'd64376916a752bf9de8fdc5b1cf8b15c') in 0.0056448 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.545950 seconds.
+  path: Assets/Settings/UniversalRP.asset
+  artifactKey: Guid(681886c5eb7344803b6206f758bf0b1c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Settings/UniversalRP.asset using Guid(681886c5eb7344803b6206f758bf0b1c) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '910a3316ce45b604f98c2ad003aa3cfb') in 0.0007356 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Import Request.
+  Time since last request: 26.176562 seconds.
+  path: Assets/_DifficultyData/Difficulty_Normal.asset
+  artifactKey: Guid(3abda461a488df54584dc29167b75290) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/_DifficultyData/Difficulty_Normal.asset using Guid(3abda461a488df54584dc29167b75290) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '83674705d666e367cbd2648e6a52e9aa') in 0.0009034 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 1
+
+========================================================================
+Received Import Request.
+  Time since last request: 1.501391 seconds.
+  path: Assets/_Audio/Walking.wav
+  artifactKey: Guid(ae79bfd5ee521404a832c2b957f6894a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/_Audio/Walking.wav using Guid(ae79bfd5ee521404a832c2b957f6894a) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '96c4134a9c287f7eb35501043dfa4224') in 0.097029 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 2
 
 Editor requested this worker to shutdown with reason: Scaling down because of idle timeout
 AssetImportWorker is now disconnected from the server

@@ -29,6 +29,8 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private GameObject gameUIPanel;
     [SerializeField] private GameObject settingsPanel;
     [SerializeField] private MainMenuLoadUI loadGameUI;
+    [Header("Player Start Spawn")]
+    [SerializeField] private SpawnPoint newGameSpawn;
 
     [SerializeField] private GameObject pausepanel;
     public static MainMenuUI Instance { get; private set; }
@@ -182,13 +184,25 @@ public class MainMenuUI : MonoBehaviour
         gameUIPanel.SetActive(true);
         pausepanel.SetActive(false);
         TimeScaleManager.Unfreeze(this);
+        // Teleport player to start spawn on new game
+        if (newGameSpawn != null)
+        {
+            PlayerController player = PlayerController.LocalInstance;
+            Rigidbody2D rb = player?.GetComponent<Rigidbody2D>();
+            newGameSpawn.TeleportPlayer(player?.transform, rb);
+            newGameSpawn.FinishTeleport(rb);
+
+            // Activate the starting floor's bounds and camera
+            if (newGameSpawn.AssociatedFloorBounds != null)
+                newGameSpawn.AssociatedFloorBounds.Activate();
+        }
         PlayerController.LocalInstance?.SetMovementEnabled(true);
         AudioManager.Instance?.StopMovement();
         if (pendingNewGame)
         {
             pendingNewGame = false;
             // Reset all managers then load baseline
-            SaveManager.Instance?.Load(3);
+            SaveManager.Instance?.Load(3, skipPosition: true);
         }
         else
         {

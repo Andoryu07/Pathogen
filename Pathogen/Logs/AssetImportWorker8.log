@@ -1,9 +1,9 @@
 [Licensing::Module] Trying to connect to existing licensing client channel...
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-Andoryu" at "2026-05-16T12:24:01.1786527Z"
 Built from '6000.2/staging' branch; Version is '6000.2.2f1 (ea398eefe1c2) revision 15350158'; Using compiler version '194234433'; Build Type 'Release'
-[Licensing::IpcConnector] Successfully connected to: "LicenseClient-Andoryu" at "2026-04-18T10:38:06.7502971Z"
 OS: 'Windows 11  (10.0.26200) 64bit Core' Language: 'en' Physical Memory: 32597 MB
 BatchMode: 1, IsHumanControllingUs: 0, StartBugReporterOnCrash: 0, Is64bit: 1
-Date: 2026-04-18T10:38:06Z
+Date: 2026-05-16T12:24:01Z
 
 COMMAND LINE ARGUMENTS:
 C:\Program Files\Unity\Hub\Editor\6000.2.2f1\Editor\Unity.exe
@@ -17,7 +17,7 @@ C:/Users/Andoryu/Downloads/Pathogen
 -logFile
 Logs/AssetImportWorker8.log
 -srvPort
-59257
+61090
 -licensingIpc
 LicenseClient-Andoryu
 -job-worker-count
@@ -65,29 +65,29 @@ C:/Users/Andoryu/Downloads/Pathogen
     "memorysetup-temp-allocator-size-gi-baking-worker=262144"
     "memorysetup-temp-allocator-size-gi-baking-worker=262144"
     "memorysetup-temp-allocator-size-gfx=262144"
-Player connection [19216]  Target information:
+[Licensing::Client] Code 10 while verifying Licensing Client signature (process Id: 28624, path: "C:/Program Files/Unity Hub/UnityLicensingClient_V1/Unity.Licensing.Client.exe")
+[Licensing::Module] LicensingClient has failed validation; ignoring
+Player connection [4372]  Target information:
 
-Player connection [19216]  * "[IP] 192.168.10.101 [Port] 0 [Flags] 2 [Guid] 1265811784 [EditorId] 1265811784 [Version] 1048832 [Id] WindowsEditor(7,DESKTOP-KVJ1GLR) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+Player connection [4372]  * "[IP] 192.168.10.101 [Port] 0 [Flags] 2 [Guid] 2581992809 [EditorId] 2581992809 [Version] 1048832 [Id] WindowsEditor(7,DESKTOP-KVJ1GLR) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
 
-Player connection [19216]  * "[IP] 192.168.56.1 [Port] 0 [Flags] 2 [Guid] 1265811784 [EditorId] 1265811784 [Version] 1048832 [Id] WindowsEditor(7,DESKTOP-KVJ1GLR) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
+Player connection [4372]  * "[IP] 192.168.56.1 [Port] 0 [Flags] 2 [Guid] 2581992809 [EditorId] 2581992809 [Version] 1048832 [Id] WindowsEditor(7,DESKTOP-KVJ1GLR) [Debug] 1 [PackageName] WindowsEditor [ProjectName] Editor" 
 
-Player connection [19216] Host joined multi-casting on [225.0.0.222:54997]...
-Player connection [19216] Host joined alternative multi-casting on [225.0.0.222:34997]...
+[Licensing::Client] Handshaking with LicensingClient:
+  Version:                 1.17.4+4293ba1
+  Session Id:              1d5c5d88271b4ea79726e702a11fd304
+  Correlation Id:          62d6af0b9a54ee8e35f11f810c0033bc
+  External correlation Id: 986006261905846682
+  Machine Id:              +mu8gkDPb3WxqDjXcxKG51FKN7A=
+[Licensing::Module] Successfully connected to LicensingClient on channel: "LicenseClient-Andoryu" (connect: 0.00s, validation: 0.00s, handshake: 0.03s)
+[Licensing::IpcConnector] Successfully connected to: "LicenseClient-Andoryu-notifications" at "2026-05-16T12:24:01.2066496Z"
+[Licensing::Module] Licensing Background thread has ended after 0.03s
+Player connection [4372] Host joined multi-casting on [225.0.0.222:54997]...
+Player connection [4372] Host joined alternative multi-casting on [225.0.0.222:34997]...
 JobSystem: Creating JobQueue using job-worker-count value 9
 Input System module state changed to: Initialized.
 [Physics::Module] Initialized fallback backend.
 [Physics::Module] Id: 0xdecafbad
-[Licensing::Client] Code 10 while verifying Licensing Client signature (process Id: 20576, path: "C:/Program Files/Unity Hub/UnityLicensingClient_V1/Unity.Licensing.Client.exe")
-[Licensing::Module] LicensingClient has failed validation; ignoring
-[Licensing::Client] Handshaking with LicensingClient:
-  Version:                 1.17.4+4293ba1
-  Session Id:              3def471865974dfeb62f8bb277c20359
-  Correlation Id:          724d48e8d095988e562f2b22033a23eb
-  External correlation Id: 462133297150044777
-  Machine Id:              +mu8gkDPb3WxqDjXcxKG51FKN7A=
-[Licensing::Module] Successfully connected to LicensingClient on channel: "LicenseClient-Andoryu" (connect: 0.00s, validation: 0.00s, handshake: 0.03s)
-[Licensing::IpcConnector] Successfully connected to: "LicenseClient-Andoryu-notifications" at "2026-04-18T10:38:06.7862098Z"
-[Licensing::Module] Licensing Background thread has ended after 0.04s
 Library Redirect Path: Library/
 [Physics::Module] Selected backend.
 [Physics::Module] Name: PhysX
@@ -95,7 +95,7 @@ Library Redirect Path: Library/
 [Physics::Module] SDK Version: 4.1.2
 [Physics::Module] Integration Version: 1.0.0
 [Physics::Module] Threading Mode: Multi-Threaded
-Refreshing native plugins compatible for Editor in 1.82 ms, found 4 plugins.
+Refreshing native plugins compatible for Editor in 3.16 ms, found 4 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
 Initialize engine version: 6000.2.2f1 (ea398eefe1c2)
 [Subsystems] Discovering subsystems at path C:/Program Files/Unity/Hub/Editor/6000.2.2f1/Editor/Data/Resources/UnitySubsystems
@@ -113,52 +113,55 @@ Initialize mono
 Mono path[0] = 'C:/Program Files/Unity/Hub/Editor/6000.2.2f1/Editor/Data/Managed'
 Mono path[1] = 'C:/Program Files/Unity/Hub/Editor/6000.2.2f1/Editor/Data/MonoBleedingEdge/lib/mono/unityjit-win32'
 Mono config path = 'C:/Program Files/Unity/Hub/Editor/6000.2.2f1/Editor/Data/MonoBleedingEdge/etc'
-Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56868
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56276
 Begin MonoManager ReloadAssembly
 Registering precompiled unity dll's ...
 Register platform support module: C:/Program Files/Unity/Hub/Editor/6000.2.2f1/Editor/Data/PlaybackEngines/WebGLSupport/UnityEditor.WebGL.Extensions.dll
 Register platform support module: C:/Program Files/Unity/Hub/Editor/6000.2.2f1/Editor/Data/PlaybackEngines/WindowsStandaloneSupport/UnityEditor.WindowsStandalone.Extensions.dll
-Registered in 0.001151 seconds.
-- Loaded All Assemblies, in  0.267 seconds
+Registered in 0.001148 seconds.
+- Loaded All Assemblies, in  1.536 seconds
 Native extension for WindowsStandalone target not found
 Native extension for WebGL target not found
 Mono: successfully reloaded assembly
-- Finished resetting the current domain, in  0.215 seconds
-Domain Reload Profiling: 481ms
-	BeginReloadAssembly (86ms)
+- Finished resetting the current domain, in  0.222 seconds
+Domain Reload Profiling: 1758ms
+	BeginReloadAssembly (79ms)
 		ExecutionOrderSort (0ms)
 		DisableScriptedObjects (0ms)
 		BackupInstance (0ms)
 		ReleaseScriptingObjects (0ms)
-		CreateAndSetChildDomain (1ms)
-	RebuildCommonClasses (25ms)
+		CreateAndSetChildDomain (0ms)
+	RebuildCommonClasses (173ms)
 	RebuildNativeTypeToScriptingClass (7ms)
-	initialDomainReloadingComplete (35ms)
-	LoadAllAssembliesAndSetupDomain (112ms)
-		LoadAssemblies (85ms)
+	initialDomainReloadingComplete (32ms)
+	LoadAllAssembliesAndSetupDomain (1243ms)
+		LoadAssemblies (78ms)
 		RebuildTransferFunctionScriptingTraits (0ms)
-		AnalyzeDomain (109ms)
-			TypeCache.Refresh (108ms)
-				TypeCache.ScanAssembly (98ms)
+		AnalyzeDomain (1241ms)
+			TypeCache.Refresh (1240ms)
+				TypeCache.ScanAssembly (1002ms)
 			BuildScriptInfoCaches (0ms)
 			ResolveRequiredComponents (0ms)
-	FinalizeReload (215ms)
+	FinalizeReload (223ms)
 		ReleaseScriptCaches (0ms)
 		RebuildScriptCaches (0ms)
-		SetupLoadedEditorAssemblies (188ms)
+		SetupLoadedEditorAssemblies (192ms)
 			LogAssemblyErrors (0ms)
 			InitializePlatformSupportModulesInManaged (34ms)
 			SetLoadedEditorAssemblies (2ms)
-			BeforeProcessingInitializeOnLoad (41ms)
-			ProcessInitializeOnLoadAttributes (78ms)
-			ProcessInitializeOnLoadMethodAttributes (31ms)
+			BeforeProcessingInitializeOnLoad (40ms)
+			ProcessInitializeOnLoadAttributes (81ms)
+			ProcessInitializeOnLoadMethodAttributes (35ms)
 			AfterProcessingInitializeOnLoad (0ms)
 			EditorAssembliesLoaded (0ms)
 		ExecutionOrderSort2 (0ms)
 		AwakeInstancesAfterBackupRestoration (0ms)
+Assembly reference Packages/com.unity.cinemachine/Editor/Samples/ExposeHDRPInternals/HDRP-Editor-ref.asmref has no target assembly definition
 ========================================================================
 Worker process is ready to serve import requests
 Import Worker Mode flag is 0x00
+Assembly reference Packages/com.unity.cinemachine/Editor/Samples/ExposeHDRPInternals/HDRP-Editor-ref.asmref has no target assembly definition
+Assembly reference Packages/com.unity.cinemachine/Editor/Samples/ExposeHDRPInternals/HDRP-Editor-ref.asmref has no target assembly definition
 Begin MonoManager ReloadAssembly
 [Licensing::Client] Successfully resolved entitlement details
 [Licensing::Module] License group:
@@ -171,55 +174,606 @@ Begin MonoManager ReloadAssembly
   Product: Unity Personal
   Type: Assigned
   Expiration: Unlimited
-- Loaded All Assemblies, in  0.494 seconds
-Refreshing native plugins compatible for Editor in 0.71 ms, found 4 plugins.
+- Loaded All Assemblies, in  0.520 seconds
+Assembly reference Packages/com.unity.cinemachine/Editor/Samples/ExposeHDRPInternals/HDRP-Editor-ref.asmref has no target assembly definition
+'Packages/com.unity.cinemachine/Editor/Obsolete/CinemachineVirtualCameraBaseEditor.cs' contains partial class of Unity.Object, exactly 1 of the partial classes needs to be in a file with the same filename. This is to know the one that can be referenced from ie. GameObjects
+'Packages/com.unity.cinemachine/Editor/Editors/CinemachineVirtualCameraBaseEditor.cs' contains partial class of Unity.Object, exactly 1 of the partial classes needs to be in a file with the same filename. This is to know the one that can be referenced from ie. GameObjects
+Refreshing native plugins compatible for Editor in 0.81 ms, found 4 plugins.
 Native extension for WindowsStandalone target not found
 Native extension for WebGL target not found
+Assembly reference Packages/com.unity.cinemachine/Editor/Samples/ExposeHDRPInternals/HDRP-Editor-ref.asmref has no target assembly definition
 Package Manager log level set to [2]
 [Package Manager] Failed to launch server process. Reason: Unity was launched with the -noUpm command-line argument
 [Package Manager] Unable to send message (not connected to server process).
 [Package Manager] Cannot connect to Unity Package Manager local server
+[Package Manager] Failed to launch server process. Reason: Unity was launched with the -noUpm command-line argument
+[Package Manager] Unable to send message (not connected to server process).
+[Package Manager] Cannot connect to Unity Package Manager local server
 Mono: successfully reloaded assembly
-- Finished resetting the current domain, in  0.573 seconds
-Domain Reload Profiling: 1065ms
-	BeginReloadAssembly (113ms)
+- Finished resetting the current domain, in  0.504 seconds
+Domain Reload Profiling: 1021ms
+	BeginReloadAssembly (118ms)
 		ExecutionOrderSort (0ms)
-		DisableScriptedObjects (4ms)
+		DisableScriptedObjects (6ms)
 		BackupInstance (0ms)
 		ReleaseScriptingObjects (0ms)
 		CreateAndSetChildDomain (22ms)
-	RebuildCommonClasses (22ms)
-	RebuildNativeTypeToScriptingClass (7ms)
-	initialDomainReloadingComplete (23ms)
-	LoadAllAssembliesAndSetupDomain (326ms)
-		LoadAssemblies (220ms)
+	RebuildCommonClasses (23ms)
+	RebuildNativeTypeToScriptingClass (8ms)
+	initialDomainReloadingComplete (25ms)
+	LoadAllAssembliesAndSetupDomain (343ms)
+		LoadAssemblies (231ms)
 		RebuildTransferFunctionScriptingTraits (0ms)
-		AnalyzeDomain (165ms)
-			TypeCache.Refresh (119ms)
-				TypeCache.ScanAssembly (109ms)
-			BuildScriptInfoCaches (35ms)
+		AnalyzeDomain (173ms)
+			TypeCache.Refresh (125ms)
+				TypeCache.ScanAssembly (114ms)
+			BuildScriptInfoCaches (37ms)
 			ResolveRequiredComponents (8ms)
-	FinalizeReload (573ms)
+	FinalizeReload (504ms)
 		ReleaseScriptCaches (0ms)
 		RebuildScriptCaches (0ms)
-		SetupLoadedEditorAssemblies (481ms)
+		SetupLoadedEditorAssemblies (415ms)
 			LogAssemblyErrors (0ms)
 			InitializePlatformSupportModulesInManaged (1ms)
-			SetLoadedEditorAssemblies (2ms)
-			BeforeProcessingInitializeOnLoad (93ms)
-			ProcessInitializeOnLoadAttributes (305ms)
-			ProcessInitializeOnLoadMethodAttributes (76ms)
+			SetLoadedEditorAssemblies (3ms)
+			BeforeProcessingInitializeOnLoad (82ms)
+			ProcessInitializeOnLoadAttributes (257ms)
+			ProcessInitializeOnLoadMethodAttributes (68ms)
 			AfterProcessingInitializeOnLoad (3ms)
 			EditorAssembliesLoaded (0ms)
 		ExecutionOrderSort2 (0ms)
-		AwakeInstancesAfterBackupRestoration (5ms)
+		AwakeInstancesAfterBackupRestoration (4ms)
 Launched and connected shader compiler UnityShaderCompiler.exe after 0.01 seconds
-Refreshing native plugins compatible for Editor in 0.87 ms, found 4 plugins.
+Refreshing native plugins compatible for Editor in 0.79 ms, found 4 plugins.
 Preloading 0 native plugins for Editor in 0.00 ms.
-Unloading 13 Unused Serialized files (Serialized files now loaded: 0)
-Unloading 6898 unused Assets / (4.0 MB). Loaded Objects now: 7629.
-Memory consumption went from 146.5 MB to 142.5 MB.
-Total: 5.381100 ms (FindLiveObjects: 0.479700 ms CreateObjectMapping: 0.270900 ms MarkObjects: 3.188000 ms  DeleteObjects: 1.441900 ms)
+Unloading 14 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 7295 unused Assets / (4.4 MB). Loaded Objects now: 8024.
+Memory consumption went from 151.1 MB to 146.7 MB.
+Total: 5.499400 ms (FindLiveObjects: 0.460900 ms CreateObjectMapping: 0.316600 ms MarkObjects: 3.193500 ms  DeleteObjects: 1.527400 ms)
+
+========================================================================
+Received Prepare
+Assembly reference Packages/com.unity.cinemachine/Editor/Samples/ExposeHDRPInternals/HDRP-Editor-ref.asmref has no target assembly definition
+Assembly reference Packages/com.unity.cinemachine/Editor/Samples/ExposeHDRPInternals/HDRP-Editor-ref.asmref has no target assembly definition
+Begin MonoManager ReloadAssembly
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] License group:
+  Id: F4-573P-GNTK-FFXR-578J-XXXX
+  Product: Unity Personal
+  Type: ULF
+  Expiration: Unlimited
+[Licensing::Module] License group:
+  Id: 1375858316803-UnityPersXXXX
+  Product: Unity Personal
+  Type: Assigned
+  Expiration: Unlimited
+- Loaded All Assemblies, in  0.500 seconds
+Assembly reference Packages/com.unity.cinemachine/Editor/Samples/ExposeHDRPInternals/HDRP-Editor-ref.asmref has no target assembly definition
+'Packages/com.unity.cinemachine/Editor/Obsolete/CinemachineVirtualCameraBaseEditor.cs' contains partial class of Unity.Object, exactly 1 of the partial classes needs to be in a file with the same filename. This is to know the one that can be referenced from ie. GameObjects
+'Packages/com.unity.cinemachine/Editor/Editors/CinemachineVirtualCameraBaseEditor.cs' contains partial class of Unity.Object, exactly 1 of the partial classes needs to be in a file with the same filename. This is to know the one that can be referenced from ie. GameObjects
+Refreshing native plugins compatible for Editor in 0.69 ms, found 4 plugins.
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+Assembly reference Packages/com.unity.cinemachine/Editor/Samples/ExposeHDRPInternals/HDRP-Editor-ref.asmref has no target assembly definition
+[Package Manager] Failed to launch server process. Reason: Unity was launched with the -noUpm command-line argument
+[Package Manager] Unable to send message (not connected to server process).
+[Package Manager] Cannot connect to Unity Package Manager local server
+[Package Manager] Failed to launch server process. Reason: Unity was launched with the -noUpm command-line argument
+[Package Manager] Unable to send message (not connected to server process).
+[Package Manager] Cannot connect to Unity Package Manager local server
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.458 seconds
+Domain Reload Profiling: 959ms
+	BeginReloadAssembly (149ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (9ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (35ms)
+	RebuildCommonClasses (23ms)
+	RebuildNativeTypeToScriptingClass (8ms)
+	initialDomainReloadingComplete (19ms)
+	LoadAllAssembliesAndSetupDomain (302ms)
+		LoadAssemblies (233ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (131ms)
+			TypeCache.Refresh (6ms)
+				TypeCache.ScanAssembly (0ms)
+			BuildScriptInfoCaches (112ms)
+			ResolveRequiredComponents (8ms)
+	FinalizeReload (459ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (360ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (2ms)
+			SetLoadedEditorAssemblies (4ms)
+			BeforeProcessingInitializeOnLoad (79ms)
+			ProcessInitializeOnLoadAttributes (239ms)
+			ProcessInitializeOnLoadMethodAttributes (33ms)
+			AfterProcessingInitializeOnLoad (3ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (9ms)
+Refreshing native plugins compatible for Editor in 0.74 ms, found 4 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 14 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 7293 unused Assets / (4.1 MB). Loaded Objects now: 8028.
+Memory consumption went from 155.6 MB to 151.5 MB.
+Total: 6.637100 ms (FindLiveObjects: 0.577100 ms CreateObjectMapping: 0.502300 ms MarkObjects: 3.812800 ms  DeleteObjects: 1.743800 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Prepare
+Assembly reference Packages/com.unity.cinemachine/Editor/Samples/ExposeHDRPInternals/HDRP-Editor-ref.asmref has no target assembly definition
+Assembly reference Packages/com.unity.cinemachine/Editor/Samples/ExposeHDRPInternals/HDRP-Editor-ref.asmref has no target assembly definition
+Begin MonoManager ReloadAssembly
+[Licensing::Client] Successfully resolved entitlement details
+[Licensing::Module] License group:
+  Id: F4-573P-GNTK-FFXR-578J-XXXX
+  Product: Unity Personal
+  Type: ULF
+  Expiration: Unlimited
+[Licensing::Module] License group:
+  Id: 1375858316803-UnityPersXXXX
+  Product: Unity Personal
+  Type: Assigned
+  Expiration: Unlimited
+- Loaded All Assemblies, in  0.515 seconds
+Assembly reference Packages/com.unity.cinemachine/Editor/Samples/ExposeHDRPInternals/HDRP-Editor-ref.asmref has no target assembly definition
+'Packages/com.unity.cinemachine/Editor/Obsolete/CinemachineVirtualCameraBaseEditor.cs' contains partial class of Unity.Object, exactly 1 of the partial classes needs to be in a file with the same filename. This is to know the one that can be referenced from ie. GameObjects
+'Packages/com.unity.cinemachine/Editor/Editors/CinemachineVirtualCameraBaseEditor.cs' contains partial class of Unity.Object, exactly 1 of the partial classes needs to be in a file with the same filename. This is to know the one that can be referenced from ie. GameObjects
+Refreshing native plugins compatible for Editor in 1.00 ms, found 4 plugins.
+Native extension for WindowsStandalone target not found
+Native extension for WebGL target not found
+Assembly reference Packages/com.unity.cinemachine/Editor/Samples/ExposeHDRPInternals/HDRP-Editor-ref.asmref has no target assembly definition
+[Package Manager] Failed to launch server process. Reason: Unity was launched with the -noUpm command-line argument
+[Package Manager] Unable to send message (not connected to server process).
+[Package Manager] Cannot connect to Unity Package Manager local server
+[Package Manager] Failed to launch server process. Reason: Unity was launched with the -noUpm command-line argument
+[Package Manager] Unable to send message (not connected to server process).
+[Package Manager] Cannot connect to Unity Package Manager local server
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.462 seconds
+Domain Reload Profiling: 979ms
+	BeginReloadAssembly (153ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (10ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (37ms)
+	RebuildCommonClasses (23ms)
+	RebuildNativeTypeToScriptingClass (8ms)
+	initialDomainReloadingComplete (19ms)
+	LoadAllAssembliesAndSetupDomain (313ms)
+		LoadAssemblies (238ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (137ms)
+			TypeCache.Refresh (6ms)
+				TypeCache.ScanAssembly (0ms)
+			BuildScriptInfoCaches (118ms)
+			ResolveRequiredComponents (9ms)
+	FinalizeReload (463ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (360ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (2ms)
+			SetLoadedEditorAssemblies (4ms)
+			BeforeProcessingInitializeOnLoad (79ms)
+			ProcessInitializeOnLoadAttributes (239ms)
+			ProcessInitializeOnLoadMethodAttributes (33ms)
+			AfterProcessingInitializeOnLoad (3ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (9ms)
+Refreshing native plugins compatible for Editor in 0.93 ms, found 4 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 14 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 7293 unused Assets / (4.1 MB). Loaded Objects now: 8031.
+Memory consumption went from 157.8 MB to 153.7 MB.
+Total: 5.548800 ms (FindLiveObjects: 0.497500 ms CreateObjectMapping: 0.320300 ms MarkObjects: 3.197300 ms  DeleteObjects: 1.533100 ms)
+
+Prepare: number of updated asset objects reloaded= 0
+========================================================================
+Received Import Request.
+  Time since last request: 143523.650369 seconds.
+  path: Assets/MapAssets/Environment/Structures/Stations/Workbench/Workbench.png
+  artifactKey: Guid(c676ff6fb78996243a292af4eefd0c69) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/Environment/Structures/Stations/Workbench/Workbench.png using Guid(c676ff6fb78996243a292af4eefd0c69) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'd70d16eea1fbcc5562988d2db531a8fb') in 0.2399024 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 20
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.822011 seconds.
+  path: Assets/MapAssets/wardrobes_BR.png
+  artifactKey: Guid(c03af66320e59ea48b7707de17350201) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/wardrobes_BR.png using Guid(c03af66320e59ea48b7707de17350201) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '825da1d82753904ca6247f49ed6d7fc0') in 0.3204454 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 40
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000017 seconds.
+  path: Assets/MapAssets/Environment/Structures/Stations/Cooking Station/Grill/Grill_02.aseprite
+  artifactKey: Guid(3baae96f37ff1314f995010da4224b4a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/Environment/Structures/Stations/Cooking Station/Grill/Grill_02.aseprite using Guid(3baae96f37ff1314f995010da4224b4a) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '0cf40b8fb6f6dd700f6bac462de2d2f9') in 0.3728123 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 15
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000042 seconds.
+  path: Assets/MapAssets/Environment/Structures/Stations/Bonfire/Fire_02.aseprite
+  artifactKey: Guid(5c3618b3d1ca9b74183f2f13e6fdf566) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/Environment/Structures/Stations/Bonfire/Fire_02.aseprite using Guid(5c3618b3d1ca9b74183f2f13e6fdf566) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'dcd95080d1569e21e07b5c06a5759ca4') in 0.0595776 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 15
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000025 seconds.
+  path: Assets/MapAssets/Environment/Structures/Stations/Anvil/Anvil_02-Sheet.png
+  artifactKey: Guid(0284e10ab6dfdfd489a2adc27420d60c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/Environment/Structures/Stations/Anvil/Anvil_02-Sheet.png using Guid(0284e10ab6dfdfd489a2adc27420d60c) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'f9e4b548628ac6cf596f2a076e076850') in 0.1674523 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 46
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000053 seconds.
+  path: Assets/MapAssets/Environment/Structures/Stations/Alchemy/Alchemy_Table_01-Sheet.png
+  artifactKey: Guid(f9cb92e6113d79d4fb28c05a5bcc3092) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/Environment/Structures/Stations/Alchemy/Alchemy_Table_01-Sheet.png using Guid(f9cb92e6113d79d4fb28c05a5bcc3092) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '15281e77fe3705a9f88e04cee54f94e5') in 0.0675141 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 20
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000032 seconds.
+  path: Assets/MapAssets/Environment/Structures/Stations/Cooking Station/Grill/Grill_01.aseprite
+  artifactKey: Guid(e4c9f65fce96ded4090b5589806a4278) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/Environment/Structures/Stations/Cooking Station/Grill/Grill_01.aseprite using Guid(e4c9f65fce96ded4090b5589806a4278) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'f587be8e07d3ec0499d14ab758519762') in 0.0223678 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 15
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000031 seconds.
+  path: Assets/MapAssets/Environment/Structures/Stations/Workbench/Workbench.aseprite
+  artifactKey: Guid(d6deda23f670b8643bc2fbcd046ece09) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/Environment/Structures/Stations/Workbench/Workbench.aseprite using Guid(d6deda23f670b8643bc2fbcd046ece09) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '1373ecee7f0053bc2544d36293199dbe') in 0.0271552 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 7
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000027 seconds.
+  path: Assets/MapAssets/Environment/Tilesets/Water_tiles.png
+  artifactKey: Guid(b53ff12eaf12f494b807226268a67ae5) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/Environment/Tilesets/Water_tiles.png using Guid(b53ff12eaf12f494b807226268a67ae5) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '37cee6da9a2b22712f55353bfb3d7ea7') in 0.0283024 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000029 seconds.
+  path: Assets/MapAssets/VEk+v_-removebg-preview3.png
+  artifactKey: Guid(9d4d073c60578d44b92c9ef49fc3db48) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/VEk+v_-removebg-preview3.png using Guid(9d4d073c60578d44b92c9ef49fc3db48) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '4623729fb56dc8101b2f9e99c77fb297') in 0.0397835 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000048 seconds.
+  path: Assets/MapAssets/Environment/Tilesets/Water.aseprite
+  artifactKey: Guid(b134aab61d44d654b9982799a6409bb1) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/Environment/Tilesets/Water.aseprite using Guid(b134aab61d44d654b9982799a6409bb1) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '2fa1c8a9c75443e77d02a2d29cf2b0a5') in 0.0237606 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 15
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000061 seconds.
+  path: Assets/_Sprites/KeyItems/Volkov's_Key_prefab.png
+  artifactKey: Guid(d0cb40eda5c626c49b1c19833a7390f9) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/_Sprites/KeyItems/Volkov's_Key_prefab.png using Guid(d0cb40eda5c626c49b1c19833a7390f9) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '2a02c23107d8289fdf96d669b0f4802e') in 0.0268783 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000043 seconds.
+  path: Assets/MapAssets/Environment/Structures/Stations/Furnace/Stone_03.aseprite
+  artifactKey: Guid(96751633060841a45b692c28381818ca) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/Environment/Structures/Stations/Furnace/Stone_03.aseprite using Guid(96751633060841a45b692c28381818ca) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '7b5b896877da961a27a02b93d6d57420') in 0.0285489 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 15
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000072 seconds.
+  path: Assets/MapAssets/Environment/Tilesets/Wall_Tiles.aseprite
+  artifactKey: Guid(23f506cfccae25949bacb44a035cbad9) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/Environment/Tilesets/Wall_Tiles.aseprite using Guid(23f506cfccae25949bacb44a035cbad9) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'cf34e0d919cc3e0a3c03b98206e1b4b0') in 0.0273626 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 7
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000045 seconds.
+  path: Assets/_Sprites/KeyItems/Volkov's_Hand_prefab.png
+  artifactKey: Guid(c39b4b5b4d873ba48ba74cc0407842c6) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/_Sprites/KeyItems/Volkov's_Hand_prefab.png using Guid(c39b4b5b4d873ba48ba74cc0407842c6) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '1c75938f45e5594e29041abccd26fb1e') in 0.0210365 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000028 seconds.
+  path: Assets/MapAssets/Environment/Structures/Stations/Anvil/Anvil_03.aseprite
+  artifactKey: Guid(c3dfca28f020a9b49bfe6668ec6a21e3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/Environment/Structures/Stations/Anvil/Anvil_03.aseprite using Guid(c3dfca28f020a9b49bfe6668ec6a21e3) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'ea84cbd8219ec8913026962fa89fe8fc') in 0.1329284 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 46
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000034 seconds.
+  path: Assets/MapAssets/Environment/Structures/Stations/Cooking Station/Cooking Station.aseprite
+  artifactKey: Guid(326860aaf432f314593ca4e1ae86fd9e) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/Environment/Structures/Stations/Cooking Station/Cooking Station.aseprite using Guid(326860aaf432f314593ca4e1ae86fd9e) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '618c4c9beee80e2e2950dd76d927a252') in 0.0137591 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 7
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000057 seconds.
+  path: Assets/MapAssets/VEk+v_-removebg-preview2.png
+  artifactKey: Guid(c4b51b096c2a1b24dac6eb404de5120c) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/VEk+v_-removebg-preview2.png using Guid(c4b51b096c2a1b24dac6eb404de5120c) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '91c80c8a55fa52e24e7acad405ef6ccd') in 0.0096569 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 3
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000024 seconds.
+  path: Assets/MapAssets/Environment/Tilesets/Wall_Variations.aseprite
+  artifactKey: Guid(5184745660759ef41b3736bfeb1ac0b9) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/Environment/Tilesets/Wall_Variations.aseprite using Guid(5184745660759ef41b3736bfeb1ac0b9) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '03d1e5e792bcb4c182b5d1f42b10f813') in 0.0115245 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 7
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000025 seconds.
+  path: Assets/MapAssets/Environment/Structures/Stations/Sawmill/Level_3.aseprite
+  artifactKey: Guid(086b66866f3b3574e8ac80e7e37158c2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/Environment/Structures/Stations/Sawmill/Level_3.aseprite using Guid(086b66866f3b3574e8ac80e7e37158c2) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'b0196813bb7128904dff3f8d218e6e35') in 0.2150575 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 71
+
+========================================================================
+Received Import Request.
+  Time since last request: 20.140068 seconds.
+  path: Assets/MapAssets/Environment/Structures/Stations/Anvil/Anvil_03-Sheet.png
+  artifactKey: Guid(a295414c42b927f459cecbe065438b87) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/Environment/Structures/Stations/Anvil/Anvil_03-Sheet.png using Guid(a295414c42b927f459cecbe065438b87) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'fabd43dc7492ad8a0a2b75925996ba93') in 0.0630803 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 7
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.017398 seconds.
+  path: Assets/MapAssets/Environment/Structures/Stations/Bonfire/Bonfire_03.aseprite
+  artifactKey: Guid(300b1ee6a4728d74282c01b3aa2543e7) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/Environment/Structures/Stations/Bonfire/Bonfire_03.aseprite using Guid(300b1ee6a4728d74282c01b3aa2543e7) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '6ccf1e9dd3b23313456feae1bae0aee9') in 0.099757 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 15
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000022 seconds.
+  path: Assets/MapAssets/Environment/Structures/Stations/Cooking Station/Cooker/Cooker_03.aseprite
+  artifactKey: Guid(89e83e310fe070d40948b9bed88aca27) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/Environment/Structures/Stations/Cooking Station/Cooker/Cooker_03.aseprite using Guid(89e83e310fe070d40948b9bed88aca27) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '02e6e72fe03674f1cefe79646070486e') in 0.1217097 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 15
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000024 seconds.
+  path: Assets/MapAssets/Environment/Props/Animated/Pan_02.aseprite
+  artifactKey: Guid(074e1090c2232804fb063089ec0e21af) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/Environment/Props/Animated/Pan_02.aseprite using Guid(074e1090c2232804fb063089ec0e21af) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'ec5500fdffc38895d206180c9c180940') in 0.1400326 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 15
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000024 seconds.
+  path: Assets/MapAssets/Environment/Props/Static/Pan.png
+  artifactKey: Guid(b39d6a8e6f77782429b382d069e490a8) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/Environment/Props/Static/Pan.png using Guid(b39d6a8e6f77782429b382d069e490a8) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '56eccc28c062be2c70784dddba50140d') in 0.6373248 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 59
+
+========================================================================
+Received Import Request.
+  Time since last request: 9.709134 seconds.
+  path: Assets/MapAssets/Environment/Props/Static/Trees/Model_01/Size_03.png
+  artifactKey: Guid(e97d7e6d49f288444872804120d143bf) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/Environment/Props/Static/Trees/Model_01/Size_03.png using Guid(e97d7e6d49f288444872804120d143bf) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '7477de15107e4a677da6985ae0c4f4bd') in 0.1093291 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 8
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000019 seconds.
+  path: Assets/MapAssets/Environment/Structures/Stations/Anvil/Anvil_02.aseprite
+  artifactKey: Guid(4b9b0c664a555c04f8bdf0d6a087196f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/Environment/Structures/Stations/Anvil/Anvil_02.aseprite using Guid(4b9b0c664a555c04f8bdf0d6a087196f) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '00bc8ae6d000485e894dcda5291031bf') in 0.2235258 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 46
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000030 seconds.
+  path: Assets/MapAssets/Environment/Structures/Stations/Alchemy/Alchemy_Table_02.aseprite
+  artifactKey: Guid(e38316536a1d7064bac64193f46c7bd3) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/MapAssets/Environment/Structures/Stations/Alchemy/Alchemy_Table_02.aseprite using Guid(e38316536a1d7064bac64193f46c7bd3) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '387ab1f6eb9f04ad2b53465d14d5f931') in 0.2394672 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 62
+
+========================================================================
+Received Import Request.
+  Time since last request: 80.279745 seconds.
+  path: Assets/_Prefabs
+  artifactKey: Guid(a1d28cbde75f070409fed3d124338df2) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/_Prefabs using Guid(a1d28cbde75f070409fed3d124338df2) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '046805a163182d477695b77b258f2189') in 0.0006125 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Import Request.
+  Time since last request: 2.000128 seconds.
+  path: Assets/_Prefabs/ItemPrefabs
+  artifactKey: Guid(030dc9762711e5b43ae502deaa0a6a91) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/_Prefabs/ItemPrefabs using Guid(030dc9762711e5b43ae502deaa0a6a91) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'ddc40ec3080a9cf3a78cc8e8acfa6e15') in 0.0004506 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.062444 seconds.
+  path: Assets/_Prefabs/ItemPrefabs/Antidote.prefab
+  artifactKey: Guid(097cfded379f40546a0a7f7d1d858414) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/_Prefabs/ItemPrefabs/Antidote.prefab using Guid(097cfded379f40546a0a7f7d1d858414) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '73494a6451096b7b9630cedbe4b49c14') in 0.0024767 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 8
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000031 seconds.
+  path: Assets/_Prefabs/ItemPrefabs/Caffeine.prefab
+  artifactKey: Guid(6a3e14ab29061d04c990f324f86c089e) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/_Prefabs/ItemPrefabs/Caffeine.prefab using Guid(6a3e14ab29061d04c990f324f86c089e) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '6a33241e5e5d67ddda01c72185d56d95') in 0.0022595 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 8
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000027 seconds.
+  path: Assets/_Prefabs/ItemPrefabs/PistolRounds.prefab
+  artifactKey: Guid(a1d2da78bc4077848860e3d9863b9110) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/_Prefabs/ItemPrefabs/PistolRounds.prefab using Guid(a1d2da78bc4077848860e3d9863b9110) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '7a7006eb1f9ceb02750e01c3dcac8da5') in 0.0019786 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 8
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000019 seconds.
+  path: Assets/_Prefabs/ItemPrefabs/MedicalTape.prefab
+  artifactKey: Guid(94b408b217ba2f046a69e7464e2b16af) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/_Prefabs/ItemPrefabs/MedicalTape.prefab using Guid(94b408b217ba2f046a69e7464e2b16af) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'e57e937aa249b7d227a6867cc6448a7d') in 0.001811 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 8
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000024 seconds.
+  path: Assets/_Prefabs/ItemPrefabs/SecurityCardLvl2.prefab
+  artifactKey: Guid(15de9cb9b1c4a8744a28843023abed21) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/_Prefabs/ItemPrefabs/SecurityCardLvl2.prefab using Guid(15de9cb9b1c4a8744a28843023abed21) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'd6d686c2dc1d5394f784d1bf6539d65d') in 0.0023434 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 8
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000022 seconds.
+  path: Assets/_Prefabs/ItemPrefabs/EmptyBottle.prefab
+  artifactKey: Guid(237b9f8b667973649af6e3e507a011e4) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/_Prefabs/ItemPrefabs/EmptyBottle.prefab using Guid(237b9f8b667973649af6e3e507a011e4) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '5c484f10dd7f691d764a34deee6b0101') in 0.0017406 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 8
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000019 seconds.
+  path: Assets/_Prefabs/ItemPrefabs/Screws.prefab
+  artifactKey: Guid(8d36ca3b4288d2d45b3876a70f5ff15b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/_Prefabs/ItemPrefabs/Screws.prefab using Guid(8d36ca3b4288d2d45b3876a70f5ff15b) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'd66e354059ed234593c754c913d7d3f3') in 0.0017688 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 8
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000023 seconds.
+  path: Assets/_Prefabs/ItemPrefabs/Detonator.prefab
+  artifactKey: Guid(4db5ac211129de440a69cd8dc563bc83) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/_Prefabs/ItemPrefabs/Detonator.prefab using Guid(4db5ac211129de440a69cd8dc563bc83) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '8a8074110405907a89b00c419f0c8925') in 0.0025138 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 8
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000022 seconds.
+  path: Assets/_Prefabs/ItemPrefabs/GeneratorFuel.prefab
+  artifactKey: Guid(db293ace82a935d4eb25395639289821) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/_Prefabs/ItemPrefabs/GeneratorFuel.prefab using Guid(db293ace82a935d4eb25395639289821) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '91285a9a26025096f26bd2533c0ee736') in 0.0019774 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 8
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000027 seconds.
+  path: Assets/_Prefabs/ItemPrefabs/Pain Killers.prefab
+  artifactKey: Guid(a8d56ac39e8c1304a86995624e373fcd) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/_Prefabs/ItemPrefabs/Pain Killers.prefab using Guid(a8d56ac39e8c1304a86995624e373fcd) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'b91b691d960ee6811539fd1eb13d2d43') in 0.0015753 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 8
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000018 seconds.
+  path: Assets/_Prefabs/ItemPrefabs/SecurityCardLvl1.prefab
+  artifactKey: Guid(bbe85ec9ad6ae5e4490a878fad86793b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/_Prefabs/ItemPrefabs/SecurityCardLvl1.prefab using Guid(bbe85ec9ad6ae5e4490a878fad86793b) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '982a9bbbe3daf576f4d207ee65937156') in 0.0015314 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 8
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000058 seconds.
+  path: Assets/_Prefabs/ItemPrefabs/MolotovCocktail.prefab
+  artifactKey: Guid(1820820eb2742e249a956a3d0d567a6b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/_Prefabs/ItemPrefabs/MolotovCocktail.prefab using Guid(1820820eb2742e249a956a3d0d567a6b) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '0852d71ffa12f164ca780e2dc0e34046') in 0.004029 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 26
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000027 seconds.
+  path: Assets/_Prefabs/ItemPrefabs/MineShaftKey.prefab
+  artifactKey: Guid(9add4e2f842f5964292d47b826dbf236) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/_Prefabs/ItemPrefabs/MineShaftKey.prefab using Guid(9add4e2f842f5964292d47b826dbf236) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'c0ac862481f0b393a5ede089b75e85d1') in 0.0015206 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 8
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000039 seconds.
+  path: Assets/_Prefabs/ItemPrefabs/FungusSample.prefab
+  artifactKey: Guid(259ac674dc1f6854eb8eb5d69dc68e2b) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/_Prefabs/ItemPrefabs/FungusSample.prefab using Guid(259ac674dc1f6854eb8eb5d69dc68e2b) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '44d852231aff83c112dec402866c9c7c') in 0.0016549 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 8
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000020 seconds.
+  path: Assets/_Prefabs/ItemPrefabs/Gauze.prefab
+  artifactKey: Guid(e7aec6063d3d58c4fade0f2afd96dcbf) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/_Prefabs/ItemPrefabs/Gauze.prefab using Guid(e7aec6063d3d58c4fade0f2afd96dcbf) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '01a136cedfbeec114fdfa7561c727f46') in 0.0018533 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 8
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000021 seconds.
+  path: Assets/_Prefabs/ItemPrefabs/Bandage.prefab
+  artifactKey: Guid(ff66b50d14cc9ae4394d6ca773297952) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/_Prefabs/ItemPrefabs/Bandage.prefab using Guid(ff66b50d14cc9ae4394d6ca773297952) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '2e84d3c82738011d7c276a1c3897bbdc') in 0.0096939 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 7
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000024 seconds.
+  path: Assets/_Prefabs/ItemPrefabs/HerbalExtract.prefab
+  artifactKey: Guid(68c2125cf50c3314391e94eb92846bdb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/_Prefabs/ItemPrefabs/HerbalExtract.prefab using Guid(68c2125cf50c3314391e94eb92846bdb) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '5cc4e536dab4a8d525e639461348bc37') in 0.0016614 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 8
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000023 seconds.
+  path: Assets/_Prefabs/ItemPrefabs/RedHerb.prefab
+  artifactKey: Guid(9df7f8524a7d9e3418cda8ef851e58b4) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/_Prefabs/ItemPrefabs/RedHerb.prefab using Guid(9df7f8524a7d9e3418cda8ef851e58b4) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'c272887f7e492f7f5675238a22339a84') in 0.0015087 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 8
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000042 seconds.
+  path: Assets/_Prefabs/ItemPrefabs/PipeBomb.prefab
+  artifactKey: Guid(23fb5c9f92aa12d4da76779290d62b64) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/_Prefabs/ItemPrefabs/PipeBomb.prefab using Guid(23fb5c9f92aa12d4da76779290d62b64) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'c13c0aeec9ba43ab3dc707e54fbec1fa') in 0.0033534 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 20
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000037 seconds.
+  path: Assets/_Prefabs/ItemPrefabs/EnhancedBandage.prefab
+  artifactKey: Guid(9defb2d4720dd4442b91f2d769759b3f) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/_Prefabs/ItemPrefabs/EnhancedBandage.prefab using Guid(9defb2d4720dd4442b91f2d769759b3f) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'e6770ad01619362e9355eb786b0b3ed9') in 0.0016405 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 8
 
 Editor requested this worker to shutdown with reason: Scaling down because of idle timeout
 AssetImportWorker is now disconnected from the server

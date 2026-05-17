@@ -23,4 +23,4 @@ MonoBehaviour:
   resultIcon: {fileID: 6354237077544992986, guid: 6d1a3bb23c09fb54aad361a255df36e1, type: 3}
   resultAmount: 3
   resultItemPrefab: {fileID: 8234824942987186895, guid: d7c57ac5d5338b540900ba11c3da93dd, type: 3}
-  lockedByDefault: 0
+  lockedByDefault: 1

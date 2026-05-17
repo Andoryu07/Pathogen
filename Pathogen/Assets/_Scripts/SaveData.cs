@@ -18,8 +18,8 @@ public class SaveData
     public float playerMaxHP = 100f;
     public float playerStamina = 100f;
     public float playerMaxStamina = 100f;
-    public float playerPosX = 0f;
-    public float playerPosY = 0f;
+    public float playerPosX = -63f;
+    public float playerPosY = 4f;
     public string equippedWeaponName = "";
     // Infection
     public int infectionStage = 0;

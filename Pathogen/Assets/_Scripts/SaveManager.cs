@@ -90,7 +90,7 @@ public class SaveManager : MonoBehaviour
         Debug.Log("[Save] Saved to slot " + slot);
     }
 
-    public void Load(int slot)
+    public void Load(int slot, bool skipPosition = false)
     {
         if (!SlotExists(slot))
         {
@@ -101,7 +101,7 @@ public class SaveManager : MonoBehaviour
         {
             string json = File.ReadAllText(SlotPath(slot));
             SaveData data = JsonUtility.FromJson<SaveData>(json);
-            ApplySaveData(data);
+            ApplySaveData(data, skipPosition);
             HUDFeedback.Instance?.ShowInfo("Game loaded.");
             Debug.Log("[Save] Loaded slot " + slot);
         }
@@ -256,14 +256,24 @@ public class SaveManager : MonoBehaviour
         return list;
     }
 
-    private void ApplySaveData(SaveData data)
+    private void ApplySaveData(SaveData data, bool skipPosition = false)
     {
-        // Player position and stats
         PlayerController player = PlayerController.LocalInstance;
         if (player != null)
         {
-            player.RestoreBaseStats();   // reset to base before applying saved values
-            player.transform.position = new Vector3(data.playerPosX, data.playerPosY, 0f);
+            player.RestoreBaseStats();
+            if (!skipPosition)  // only restore position when not a new game
+            {
+                Vector3 savedPos = new Vector3(data.playerPosX, data.playerPosY, 0f);
+                Rigidbody2D playerRb = player.GetComponent<Rigidbody2D>();
+                if (playerRb != null)
+                {
+                    playerRb.linearVelocity = Vector2.zero;
+                    playerRb.angularVelocity = 0f;
+                    playerRb.position = new Vector2(savedPos.x, savedPos.y);
+                }
+                player.transform.position = savedPos;
+            }
             player.SetHealth(data.playerHP, data.playerMaxHP);
             player.SetStamina(data.playerStamina, data.playerMaxStamina);
             player.SetMovementEnabled(true);
